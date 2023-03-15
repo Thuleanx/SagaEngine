@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 #Sets project name to CS1950UEngine
-project(CS1950UEngine)
+project(SagaEngine)
 
 find_package(OpenGL REQUIRED)
 
@@ -17,6 +17,7 @@ set(GLEW_SOURCE_DIR "External/glew")
 set(GLM_SOURCE_DIR "External/glm-master")
 set(STB_SOURCE_DIR "External/stb")
 set(FREETYPE_SOURCE_DIR "External/freetype")
+set(FMOD_SOURCE_DIR "win/inc")
 
 #GLFW settings
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
@@ -39,12 +40,21 @@ add_subdirectory(${FREETYPE_SOURCE_DIR})
 
 add_library(StaticGLEW STATIC ${GLEW_SOURCE_DIR}/src/glew.c)
 
+add_library(fmod SHARED IMPORTED GLOBAL)
+set_property(TARGET fmod PROPERTY
+             IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/win/core/lib/x64/fmod.dll")
+set_property(TARGET fmod PROPERTY
+             IMPORTED_IMPLIB "${CMAKE_CURRENT_SOURCE_DIR}/win/core/lib/x64/fmod_vc.lib")
+set_property(TARGET fmod PROPERTY
+             INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/win/core/inc")
+
 include_directories(${GLFW_SOURCE_DIR}/include
                     ${GLFW_SOURCE_DIR}/deps
                     ${GLEW_SOURCE_DIR}/include
                     ${STB_SOURCE_DIR}
                     ${FREETYPE_SOURCE_DIR}/include
                     ${PROJECT_SOURCE_DIR}
+                    ${FMOD_SOURCE_DIR}
                     )
 
 file(GLOB_RECURSE cppSources CONFIGURE_DEPENDS "Engine/*.cpp")
