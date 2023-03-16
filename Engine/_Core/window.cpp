@@ -1,22 +1,26 @@
 #include "window.h"
 #include "logger.h"
+#include <iostream>
 
 using namespace Saga;
 
 Window::Window(){
 	initializeLogger();
 	SINFO("Window starting.");
+}
+
+Window::~Window(){
+	delete m_core;
+	shutDownLogger();
+}
+
+void Window::run() {
     start();
 	SINFO("Window loop starting.");
     loop();
 	SINFO("Window loop ended.");
     end();
 	SINFO("Window ended.");
-}
-
-Window::~Window(){
-	shutDownLogger();
-	delete m_core;
 }
 
 void Window::start(){
@@ -35,7 +39,6 @@ void Window::start(){
     if (!m_GLFWwindow)
     {
 		SFATAL("Window creation failed :(");
-        std::cout<<"Window Creation Failed :("<<std::endl;
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
@@ -103,10 +106,10 @@ void Window::loop(){
     }
 }
 
+
 void Window::end(){
     glfwDestroyWindow(m_GLFWwindow);
     glfwTerminate();
-    exit(EXIT_SUCCESS);
 }
 
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods){

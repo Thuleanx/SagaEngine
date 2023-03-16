@@ -7,6 +7,7 @@ class Window
 public:
     Window();
     ~Window();
+	void run();
 
 private:
     void start();

@@ -17,7 +17,7 @@ set(GLEW_SOURCE_DIR "External/glew")
 set(GLM_SOURCE_DIR "External/glm-master")
 set(STB_SOURCE_DIR "External/stb")
 set(FREETYPE_SOURCE_DIR "External/freetype")
-set(FMOD_SOURCE_DIR "win/inc")
+set(FMOD_DIR "C:/Program Files (x86)/FMOD SoundSystem/FMOD Studio API Windows")
 
 #GLFW settings
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
@@ -33,20 +33,24 @@ set(FT_DISABLE_PNG TRUE)
 set(FT_DISABLE_HARFBUZZ TRUE)
 set(FT_DISABLE_BROTLI TRUE)
 
-
 add_subdirectory(${GLFW_SOURCE_DIR})
 add_subdirectory(${GLM_SOURCE_DIR})
 add_subdirectory(${FREETYPE_SOURCE_DIR})
 
 add_library(StaticGLEW STATIC ${GLEW_SOURCE_DIR}/src/glew.c)
 
-add_library(fmod SHARED IMPORTED GLOBAL)
-set_property(TARGET fmod PROPERTY
-             IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/win/core/lib/x64/fmod.dll")
-set_property(TARGET fmod PROPERTY
-             IMPORTED_IMPLIB "${CMAKE_CURRENT_SOURCE_DIR}/win/core/lib/x64/fmod_vc.lib")
-set_property(TARGET fmod PROPERTY
-             INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/win/core/inc")
+# Add fmod
+# add_library(fmod SHARED IMPORTED)
+# set_property(TARGET fmod PROPERTY
+#             IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/External/fmod.core/lib/x64/fmod.dll")
+# set_property(TARGET fmod PROPERTY
+#              IMPORTED_IMPLIB "${CMAKE_CURRENT_SOURCE_DIR}/External/fmod/core/lib/x64/fmod_vc.lib")
+
+# add_library(fmodstudio SHARED IMPORTED)
+# set_property(TARGET fmodstudio PROPERTY
+#              IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/External/fmod/studio/lib/x64/fmodstudio.dll")
+# set_property(TARGET fmodstudio PROPERTY
+#              IMPORTED_IMPLIB "${CMAKE_CURRENT_SOURCE_DIR}/External/fmod/studio/lib/x64/fmodstudio_vc.lib")
 
 include_directories(${GLFW_SOURCE_DIR}/include
                     ${GLFW_SOURCE_DIR}/deps
@@ -54,8 +58,13 @@ include_directories(${GLFW_SOURCE_DIR}/include
                     ${STB_SOURCE_DIR}
                     ${FREETYPE_SOURCE_DIR}/include
                     ${PROJECT_SOURCE_DIR}
-                    ${FMOD_SOURCE_DIR}
+                    ${FMOD_DIR}/api/core/inc
+                    ${FMOD_DIR}/api/studio/inc
                     )
+link_directories(
+	"${FMOD_SOURCE_DIR}/api/core/lib/x64"
+	"${FMOD_STUDIO_SOURCE_DIR}/api/studio/lib/x64"
+)
 
 file(GLOB_RECURSE cppSources CONFIGURE_DEPENDS "Engine/*.cpp")
 file(GLOB_RECURSE headerSources CONFIGURE_DEPENDS "Engine/*.h")
@@ -106,8 +115,13 @@ add_executable(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} glfw StaticGLEW glm freetype ${OPENGL_LIBRARIES})
-
-file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+# target_link_libraries(${PROJECT_NAME} 
+# 	${CMAKE_CURRENT_SOURCE_DIR}/External/fmod/core/lib/x86/libfmod.a 
+# 	${CMAKE_CURRENT_SOURCE_DIR}/External/fmod/studio/lib/x86/libfmodstudio.a)
+# target_link_libraries(${PROJECT_NAME} fmodstudio fmod)
+target_link_libraries(${PROJECT_NAME} 
+	${FMOD_DIR}/api/core/lib/x64/fmod_vc.lib
+	${FMOD_DIR}/api/studio/lib/x64/fmodstudio_vc.lib)
 
 if (WIN32)
   add_compile_definitions(GLEW_STATIC)

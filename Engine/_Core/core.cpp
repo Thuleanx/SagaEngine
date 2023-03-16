@@ -5,7 +5,8 @@
 #include <utility>
 #include "app.h"
 #include "Application/Platformer/app.h"
-#include "../_Core/logger.h"
+#include "logger.h"
+#include "../Audio/audioEngine.h"
 
 using namespace std;
 
@@ -14,9 +15,11 @@ namespace Saga {
 Core::Core() {
 	SINFO("Start initializing application.");
 	application = make_shared<Platformer::App>();
+	AudioEngine::init();
 }
 
 Core::~Core() {
+	AudioEngine::release();
 }
 
 void Core::update(double deltaTime, double time) {
