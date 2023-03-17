@@ -13,7 +13,7 @@ namespace Saga {
 		typedef std::map<std::string, FMOD_SOUND*> SoundMap;
 		typedef std::map<int, FMOD_CHANNEL*> ChannelMap;
 		typedef std::map<std::string, FMOD_STUDIO_EVENTINSTANCE *> EventMap;
-		typedef std::map<std::string, FMOD_STUDIO_BANK_INFO*> BankMap;
+		typedef std::map<std::string, FMOD_STUDIO_BANK*> BankMap;
 
 		BankMap banks;
 		EventMap events;
@@ -30,7 +30,7 @@ namespace Saga {
 		void update();
 		bool release();
 
-		void loadBank(const std::string& strBankName, FMOD_STUDIO_LOAD_BANK_FLAGS flags);
+		void loadBank(const std::string& strBankName, FMOD_STUDIO_LOAD_BANK_FLAGS flags = FMOD_STUDIO_LOAD_BANK_NORMAL);
 		void loadEvent(const std::string& strEventName);
 		void loadsound(const std::string& strSoundName, bool b3d = true, bool bLooping = false, bool bStream = false);
 		void unLoadSound(const std::string& strSoundName);
