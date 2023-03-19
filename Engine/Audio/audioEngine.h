@@ -5,6 +5,8 @@
 #include <map>
 #include <string>
 #include <glm/vec3.hpp>
+#include "audioEventInstance.h"
+#include <memory>
 
 namespace Saga {
 	struct AudioImplementation {
@@ -36,10 +38,10 @@ namespace Saga {
 
 		// events
 		void loadEvent(const std::string& eventName);
-		FMOD_STUDIO_EVENTINSTANCE* playEvent(const std::string& eventName);
-		void playEvent(FMOD_STUDIO_EVENTINSTANCE* event);
-		void stopEvent(FMOD_STUDIO_EVENTINSTANCE* event, bool immediate = false);
-		void releaseEvent(FMOD_STUDIO_EVENTINSTANCE* event);
+		std::shared_ptr<AudioEventInstance> playEvent(const std::string& eventName);
+		void playEvent(std::shared_ptr<AudioEventInstance> event);
+		void stopEvent(std::shared_ptr<AudioEventInstance> event, bool immediate = false);
+		void releaseEvent(std::shared_ptr<AudioEventInstance> event);
 		void releaseAllEventInstances(const std::string& eventName);
 		void unloadEvent(const std::string& eventName);
 

@@ -19,7 +19,13 @@
 		"xhash": "cpp",
 		"xtree": "cpp",
 		"ostream": "cpp",
-		"xlocnum": "cpp"
+		"xlocnum": "cpp",
+		"ios": "cpp",
+		"istream": "cpp",
+		"*.tcc": "cpp",
+		"fstream": "cpp",
+		"numeric": "cpp",
+		"sstream": "cpp"
 	},
 	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

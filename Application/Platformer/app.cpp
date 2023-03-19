@@ -9,9 +9,19 @@
 
 namespace Platformer {
 	App::App() {
+		Saga::AudioEngine::loadBank("FMOD/Saga/Build/Desktop/Master.bank");
+		Saga::AudioEngine::loadBank("FMOD/Saga/Build/Desktop/Master.strings.bank");
+		Saga::AudioEngine::loadEvent("event:/Loop");
 		setupWorld();
+		loopEvent = Saga::AudioEngine::playEvent("event:/Loop");
 	}
-	App::~App() {}
+	App::~App() {
+		Saga::AudioEngine::stopEvent(loopEvent);
+		Saga::AudioEngine::releaseEvent(loopEvent);
+		Saga::AudioEngine::unloadEvent("event:/Loop");
+		Saga::AudioEngine::unloadBank("FMOD/Saga/Build/Desktop/Master.bank");
+		Saga::AudioEngine::unloadBank("FMOD/Saga/Build/Desktop/Master.strings.bank");
+	}
 
 	void App::setupWorld() {
 		world = createGameWorld();

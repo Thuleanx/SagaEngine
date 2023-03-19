@@ -58,12 +58,20 @@ void logOutput(LogLevel level, const char* message, ...) {
 	sprintf(outMessage2, "%s%s\n", LEVEL_STR[level], outMessage);
 
 	if (isError) {
+		#ifdef SAGA_DEBUG
+			fflush(stdout);
+			fflush(stderr);
+		#endif
 		fprintf(stderr, "%s", outMessage2);
 		#ifdef SAGA_DEBUG
 			fflush(stderr);
 		#endif
 	}
 	else {
+		#ifdef SAGA_DEBUG
+			fflush(stdout);
+			fflush(stderr);
+		#endif
 		fprintf(stdout, "%s", outMessage2);
 		#ifdef SAGA_DEBUG
 			fflush(stdout);

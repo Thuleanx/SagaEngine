@@ -14,15 +14,17 @@ namespace Saga {
 
 Core::Core() {
 	SINFO("Start initializing application.");
-	application = make_shared<Platformer::App>();
 	AudioEngine::init();
+	application = make_shared<Platformer::App>();
 }
 
 Core::~Core() {
+	application = nullptr; // release application
 	AudioEngine::release();
 }
 
 void Core::update(double deltaTime, double time) {
+	AudioEngine::update();
 	application->update(deltaTime, time);
 }
 

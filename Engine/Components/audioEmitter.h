@@ -6,5 +6,6 @@ namespace Saga {
 struct AudioEmitter {
 	std::string eventName;
 	bool playOnAwake;
+
 };
-};
+}; // namespace Saga

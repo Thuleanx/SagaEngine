@@ -31,7 +31,8 @@ public:
 		LateUpdate,
 		FixedUpdate,
 		LateFixedUpdate,
-		Draw
+		Draw,
+		Cleanup
 	};
 
 	/**
@@ -178,6 +179,8 @@ public:
 	 * @param id 
 	 */
 	void removeWindowResizeSystem(EventMap::Id id);
+
+	void addCleanupSystem(System<> system);
 
 protected:
 	/**

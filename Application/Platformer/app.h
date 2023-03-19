@@ -13,6 +13,7 @@ private:
 	void setupSystems();
 
 	std::shared_ptr<Saga::GameWorld> world;
+	std::shared_ptr<Saga::AudioEventInstance> loopEvent;
 };
 
 }

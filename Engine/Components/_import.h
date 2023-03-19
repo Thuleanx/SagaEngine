@@ -10,3 +10,4 @@
 #include "rigidbbody.h"
 #include "transform.h"
 #include "light.h"
+#include "audioemitter.h"
