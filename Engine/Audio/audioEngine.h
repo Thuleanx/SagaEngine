@@ -9,26 +9,48 @@
 #include <memory>
 
 namespace Saga {
+	/// @brief Stores data for implementing the Audio Engine.
+	///		This includes various maps to fmod events and banks, as well as a reference to FMOD_STUDIO_SYSTEM.
 	struct AudioImplementation {
-		FMOD_STUDIO_SYSTEM* studioSystem;
+		/// @brief FMOD studio system used to interact with Fmod studio
+		FMOD_STUDIO_SYSTEM* studioSystem = nullptr;
 
-		typedef std::map<std::string, FMOD_SOUND*> SoundMap;
-		typedef std::map<int, FMOD_CHANNEL*> ChannelMap;
 		typedef std::map<std::string, FMOD_STUDIO_EVENTDESCRIPTION *> EventMap;
 		typedef std::map<std::string, FMOD_STUDIO_BANK*> BankMap;
 
+		/// @brief Maps bank names (filename relative to run directory) to bank pointers.
 		BankMap banks;
+		/// @brief Maps event names (Usually in the form: "event:/Name") as strings to event descriptions, useful for spawning new event instances.
 		EventMap events;
-		SoundMap sounds;
-		ChannelMap channels;
 	};
 
+	/// @brief This contains a collection of methods that interfaces with the FMOD studio API to play audio.
 	namespace AudioEngine {
+		/// @brief Data used for operating the AudioEngine.
 		extern AudioImplementation implementation;
 
-		const int maxChannels = 32;
+		/// @brief Value of a parameter in FMOD. Whenever a parameter is retrieved from an event (or globally), it will be in this form.
+		struct ParameterValue {
+			/// @brief value of the parameter that's set by the API
+			float value;
+			/// @brief final value after automation, modulation, seek speed, and parameter velocity are taken into account. 
+			///  Ideally, you want to use this value to calculate how much actual effect is applied by this parameter.
+			float finalValue;
+		};
 
+		/// @brief A collection of vectors that specify an object in 3D space. This allows the AudioEngine to determine where listeners as well as AudioEventInstance are situated in space.
+		struct EventAttributes {
+			glm::vec3 position, velocity, forward, up; 
+		};
+
+		/**
+		 * @brief Initialize the Audio Engine. Must be called before any other audio operation.
+		 * 
+		 * @return true if initilization is successful.
+		 * @return false if initialization fails. This can be either because the initialization itself fails, or the system has already been initialized.
+		 */
 		bool init();
+
 		void update();
 		bool release();
 
@@ -45,22 +67,22 @@ namespace Saga {
 		void releaseAllEventInstances(const std::string& eventName);
 		void unloadEvent(const std::string& eventName);
 
-		// sound
-		void loadsound(const std::string& strSoundName, bool b3d = true, bool bLooping = false, bool bStream = false);
-		void unLoadSound(const std::string& strSoundName);
-		void playSound(const std::string& strSoundName, const glm::vec3& vPos = glm::vec3{ 0, 0, 0 }, float fVolumedB = 0.0f);
-		void stopChannel(int nChannelId);
-		void geteventParameter(const std::string& eventName, const std::string& strEventParameter, float* parameter);
-		void setEventParameter(const std::string& eventName, const std::string& strParameterName, float fValue);
-		void stopAllChannels();
-		void setChannel3dPosition(int nChannelId, const glm::vec3& vPosition);
-		void setChannelvolume(int nChannelId, float fVolumedB);
-		bool isPlaying(int nChannelId);
-		bool isEventPlaying(const std::string& eventName);
-		float dbToVolume(float db);
-		float volumeTodb(float volume);
+		// parameters
+		// event instance
+		void setParameter(AudioEventInstance instance, const std::string& parameterName, float value);
+		ParameterValue getParameter(AudioEventInstance instance, const std::string& parameterName);
+		void setLabeledParameter(AudioEventInstance instance, const std::string& parameterName, std::string label);
+		std::string getLabeledParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName);
+		// global
+		void setGlobalParameter(const std::string& parameterName, float value);
+		ParameterValue getGlobalParameter(const std::string& parameterName);
+		void setGlobalLabeledParameter(const std::string& parameterName, std::string label);
+		std::string getGlobalLabeledParameter(const std::string& parameterName);
 
-		void set3dListenerAndOrientation(const glm::vec3& vPos = glm::vec3{ 0, 0, 0 }, float fVolumedB = 0.0f);
+		// updating 3d orientations
+		void setListenerData(const EventAttributes &attributes);
+		void set3DAttributes(std::shared_ptr<AudioEventInstance> instance, EventAttributes &attributes);
+
 		FMOD_VECTOR vectorToFmod(const glm::vec3& vPosition);
 	}
 };

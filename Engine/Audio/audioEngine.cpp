@@ -3,21 +3,21 @@
 #include <cstdarg>
 #include <iostream>
 
-#define str(x) #x
-#define xstr(x) str(x)
-
 namespace Saga::AudioEngine {
 	AudioImplementation implementation = AudioImplementation();
 
 	namespace {
         void ensureFMOD_OK(FMOD_RESULT result, const char* failMessage, ...) {
 			if (result != FMOD_RESULT::FMOD_OK) {
+				// cryptic C code just to format the failed message with variadic arguments
 				va_list arg_ptr;
 				va_start(arg_ptr, failMessage);
-				char outMessage[32000] = {0};
+				// TODO: Cache this buffer for less memory allocation
+				char outMessage[32000] = {0}; // funny that it takes a 32000 bytes buffer to perform a small string substitution, but ig this is the C way. 
 				vsnprintf(outMessage, 32000, failMessage, arg_ptr);
 				va_end(arg_ptr);
 
+				// long case to convert enum to string. I can't believe this is impossible in C++ (without altering the enum source code)
 				std::string fmodResultStringified = "Unknown Error";
 				switch (result) {
 					case FMOD_OK : fmodResultStringified = "FMOD_OK"; break;
@@ -108,51 +108,80 @@ namespace Saga::AudioEngine {
 				SERROR(("FMOD Error: %s. With mesage: " + std::string(outMessage)).c_str(), fmodResultStringified.c_str());
 			}
 		}
+		bool ensureFMOD_INITIALIZED(const std::string& operation) {
+			if (!implementation.studioSystem) 
+				SWARN("Tried to perform operation %s when studio system is not initialize. Operation has no effect.", operation.c_str());
+			return implementation.studioSystem;
+		}
 	}
 
 	bool init() {
-		ensureFMOD_OK(FMOD_Studio_System_Create(&implementation.studioSystem, FMOD_VERSION), "Failed to create fmod studio system.");
+		if (implementation.studioSystem) {
+			SWARN("Initialization failed. It seems like the fmod studio system has already been initialized.");
+			return false;
+		}
+		ensureFMOD_OK(
+			FMOD_Studio_System_Create(&implementation.studioSystem, FMOD_VERSION), 
+			"Failed to create fmod studio system."
+		);
 		SINFO("Fmod Studio System Created.");
-        ensureFMOD_OK(FMOD_Studio_System_Initialize(implementation.studioSystem, maxChannels, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, 0), "Failed to initialize fmod studio system.");
+        ensureFMOD_OK(
+			FMOD_Studio_System_Initialize(implementation.studioSystem, maxChannels, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, 0), 
+			"Failed to initialize fmod studio system."
+		);
 		SINFO("Fmod Studio System Initialized.");
 		return true;
 	}
 
 	void update() {
-		ensureFMOD_OK(FMOD_Studio_System_Update(implementation.studioSystem), "Failed to update fmod studio system.");
+		if (!ensureFMOD_INITIALIZED("update()")) return;
+		ensureFMOD_OK(
+			FMOD_Studio_System_Update(implementation.studioSystem), 
+			"Failed to update fmod studio system."
+		);
 	}
 
 	bool release() {
-		ensureFMOD_OK(FMOD_Studio_System_Release(implementation.studioSystem), "Failed to release fmod system.");
+		if (!ensureFMOD_INITIALIZED("release()")) return;
+		ensureFMOD_OK(
+			FMOD_Studio_System_Release(implementation.studioSystem), 
+			"Failed to release fmod system."
+		);
         SINFO("Fmod Studio System Released.");
 		return true;
 	}
 
 	void loadBank(const std::string& bankName, FMOD_STUDIO_LOAD_BANK_FLAGS flags) {
+		if (!ensureFMOD_INITIALIZED("loadBank(" + bankName +")")) return;
 		SINFO("Attempting to load bank: %s.", bankName.c_str());
 		if (implementation.banks.count(bankName)) {
 			SWARN("Tried to load already loaded fmod bank %s. Does nothing.", bankName.c_str());
 			return;
 		}
 		FMOD_STUDIO_BANK* bank;
-		FMOD_RESULT status = FMOD_Studio_System_LoadBankFile(implementation.studioSystem, bankName.c_str(), flags, &bank);
-		ensureFMOD_OK(status, "Can't load fmod bank \"%s\". Ensure the provided name is correct.", bankName.c_str());
+		ensureFMOD_OK(
+			FMOD_Studio_System_LoadBankFile(implementation.studioSystem, bankName.c_str(), flags, &bank), 
+			"Can't load fmod bank \"%s\". Ensure the provided filepath is correct.", bankName.c_str()
+		);
 		SINFO("Loading bank success: %s.", bankName.c_str());
 		if (bank) implementation.banks[bankName] = bank;
 	}
 
 	void unloadBank(const std::string& bankName) {
+		if (!ensureFMOD_INITIALIZED("unloadBank(" + bankName + ")")) return;
 		SINFO("Attempting to unload bank: %s.", bankName.c_str());
 		if (!implementation.banks.count(bankName)) {
 			SWARN("Tried to unload not loaded fmod bank %s. Please ensure correct bank name.", bankName.c_str());
 			return;
 		}
+		// TODO: stop and release all instances related to this bank, as well as remove them from implementation, before unloading as this would invalidate all associated references.
 		ensureFMOD_OK(FMOD_Studio_Bank_Unload(implementation.banks[bankName]), "Can't unload fmod bank \"%s\". Ensure the provided name is correct.", bankName.c_str());
 		SINFO("Unload bank success: %s.", bankName.c_str());
 		implementation.banks.erase(bankName);
 	}
 
 	void loadEvent(const std::string& eventName) {
+		if (!ensureFMOD_INITIALIZED("loadEvent("+ eventName+")")) return;
 		if (implementation.events.count(eventName)) {
 			SWARN("Tried to load already loaded fmod event %s. Please ensure the correct event name.", eventName.c_str());
 			return;
@@ -160,47 +189,55 @@ namespace Saga::AudioEngine {
 		FMOD_STUDIO_EVENTDESCRIPTION *description = NULL;
 		ensureFMOD_OK(FMOD_Studio_System_GetEvent(implementation.studioSystem, eventName.c_str(), &description), 
 			"Failed to load event: %s.", eventName.c_str());
+		// beware that this loads asynchronously
+		ensureFMOD_OK(FMOD_Studio_EventDescription_LoadSampleData(description), "Can't load sample data for event %s.", eventName.c_str());
 		implementation.events[eventName] = description;
 	}
 
 	std::shared_ptr<AudioEventInstance> playEvent(const std::string& eventName) {
+		if (!ensureFMOD_INITIALIZED("playEvent(" + eventName + ")")) return;
 		if (!implementation.events.count(eventName)) {
 			SWARN("Event sample data for fmod event \"%s\" has not been loaded. Please load the event first!", eventName.c_str());
             return NULL;
 		}
 		FMOD_STUDIO_EVENTINSTANCE *instance = NULL;
+		// also asynchronously load the sample data, if non is loaded
 		ensureFMOD_OK(FMOD_Studio_EventDescription_CreateInstance(implementation.events[eventName], &instance), 
 			"Failed to create event instance for event %s.", eventName.c_str());
 
 		std::shared_ptr<AudioEventInstance> sharedInstance = std::make_shared<AudioEventInstance>(instance);
         playEvent(sharedInstance);
-		std::cout << sharedInstance->getInstance() << std::endl;
 		return sharedInstance;
 	}
 
 	void playEvent(std::shared_ptr<AudioEventInstance> instance) {
+		if (!ensureFMOD_INITIALIZED("playEvent(unknown_instance)")) return;
+		if (!instance) { SERROR("Tried to start a null event."); return; }
 		ensureFMOD_OK(FMOD_Studio_EventInstance_Start(instance->getInstance()), "Failed to start fmod event.");
 	}
 
     void stopEvent(std::shared_ptr<AudioEventInstance> event, bool immediate) {
-		if (!event) {
-			SERROR("Tried to stop a null event.");
-			return;
-		}
+		if (!ensureFMOD_INITIALIZED("stopEvent(unknown_instance)")) return;
+		if (!event) { SERROR("Tried to stop a null event."); return; }
 		std::cout << event->getInstance() << std::endl;
 		FMOD_STUDIO_STOP_MODE mode = immediate ? FMOD_STUDIO_STOP_IMMEDIATE : FMOD_STUDIO_STOP_ALLOWFADEOUT;
-		ensureFMOD_OK(FMOD_Studio_EventInstance_Stop(event->getInstance(), mode), "Cannot stop an fmod event.");
+		ensureFMOD_OK(
+			FMOD_Studio_EventInstance_Stop(event->getInstance(), mode), 
+			"Cannot stop an fmod event."
+		);
 	}
 
 	void releaseEvent(std::shared_ptr<AudioEventInstance> event) {
-		if (!event) {
-			SERROR("Tried to release a null event.");
-			return;
-		}
-		ensureFMOD_OK(FMOD_Studio_EventInstance_Release(event->getInstance()), "Cannot release an fmod event.");
+		if (!ensureFMOD_INITIALIZED("releaseEvent(unknown_instance)")) return;
+		if (!event) { SERROR("Tried to release a null event."); return;}
+		ensureFMOD_OK(
+			FMOD_Studio_EventInstance_Release(event->getInstance()), 
+			"Cannot release an fmod event."
+		);
 	}
 
 	void releaseAllEventInstances(const std::string& eventName) {
+		if (!ensureFMOD_INITIALIZED("releaseAllEventInstance(" + eventName + ")")) return;
 		if (!implementation.events.count(eventName)) {
 			SWARN("Tried to release instances of event %s that has not been loaded.", eventName.c_str());
 			return;
@@ -209,29 +246,135 @@ namespace Saga::AudioEngine {
 	}
 
 	void unloadEvent(const std::string& eventName) {
+		if (!ensureFMOD_INITIALIZED("unloadEvent(" + eventName + ")")) return;
 		if (!implementation.events.count(eventName)) {
 			SWARN("Tried to unload event %s that has not been loaded.", eventName.c_str());
 			return;
 		}
 		// this doesn't neccessarily unload until all instances of the event is released, so beware
+		ensureFMOD_OK(FMOD_Studio_EventDescription_UnloadSampleData(implementation.events[eventName]), "Can't unload sample data for event %s.", eventName.c_str());
 		implementation.events.erase(eventName);
 	}
 
+	void setParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName, float value) {
+		if (!ensureFMOD_INITIALIZED("setParameter(instance, " + parameterName + ", " + std::to_string(value) + ")")) return;
+		if (!instance || !instance->getInstance()) { SERROR("Cannot operate on a null event instance!"); return; }
+		ensureFMOD_OK(
+			FMOD_Studio_EventInstance_SetParameterByName(instance->getInstance(), parameterName.c_str(), value, false),
+			"Can't set parameter with name %s. Check to see if they are of the right name and type.", parameterName.c_str()
+		);
+	}
 
-	void loadsound(const std::string& strSoundName, bool b3d, bool bLooping, bool bStream) { }
-	void unLoadSound(const std::string& strSoundName) { }
-	void set3dListenerAndOrientation(const glm::vec3& vPos, float fVolumedB) { }
-	void playSound(const std::string& strSoundName, const glm::vec3& vPos, float fVolumedB) { }
-	void stopChannel(int nChannelId) { }
-	void stopEvent(const std::string& eventName, bool bImmediate) { }
-	void geteventParameter(const std::string& eventName, const std::string& strEventParameter, float* parameter) { }
-	void setEventParameter(const std::string& eventName, const std::string& strParameterName, float fValue) { }
-	void stopAllChannels() { }
-	void setChannel3dPosition(int nChannelId, const glm::vec3& vPosition) { }
-	void setChannelvolume(int nChannelId, float fVolumedB) { }
-    bool isPlaying(int nChannelId) { return false; }
-    bool isEventPlaying(const std::string& eventName) { return false; }
-    float dbToVolume(float db) { return 0; }
-    float volumeTodb(float volume) { return 0; }
+	ParameterValue getParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName) {
+		if (!ensureFMOD_INITIALIZED("getParameter(instance, " + parameterName + ")")) return;
+		if (!instance || !instance->getInstance()) { SERROR("Cannot operate on a null event instance!"); return ParameterValue{0,0}; }
+		float value, finalValue;
+		ensureFMOD_OK(
+			FMOD_Studio_EventInstance_GetParameterByName(instance->getInstance(), parameterName.c_str(), &value, &finalValue),
+			"Can't get parameter named %s. Check to see if the parameter name and type are correct.", parameterName.c_str()
+		);
+		return ParameterValue{value, finalValue};
+	}
+
+	void setLabeledParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName, std::string label) {
+		if (!ensureFMOD_INITIALIZED("setLabeledParameter(instance, " + parameterName + ", " + label + ")")) return;
+		if (!instance || !instance->getInstance()) { SERROR("Cannot operate on a null event instance!"); return; }
+		ensureFMOD_OK(
+			FMOD_Studio_EventInstance_SetParameterByNameWithLabel(instance->getInstance(), parameterName.c_str(), label.c_str(), false),
+			"Can't set parameter %s of instance to label %s. Check if both are valid names.", parameterName.c_str(), label.c_str()
+		);
+	}
+
+	std::string getLabeledParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName) {
+		if (!ensureFMOD_INITIALIZED("getLabeledParameter(instance, "+ parameterName + ")")) return;
+		if (!instance || !instance->getInstance()) { SERROR("Cannot operate on a null event instance!"); return ""; }
+		float value = getParameter(instance, parameterName).value;
+		FMOD_STUDIO_EVENTDESCRIPTION *description;
+		ensureFMOD_OK(
+			FMOD_Studio_EventInstance_GetDescription(instance->getInstance(), &description),
+			"Cannot get the description of an audio event instance"
+		);
+		char* label; int sz;
+		// WARN: It's a little dangerous not rounding value, but it should be ok if value is small.
+		ensureFMOD_OK(
+			FMOD_Studio_EventDescription_GetParameterLabelByName(description, parameterName.c_str(), 
+				(int) value, label, 0, &sz),
+			"Cannot get the label for parameter %s of value %d.", parameterName.c_str(), (int) value
+		);
+		if (!label) return "";
+		return std::string(label);
+	}
+
+	void setGlobalParameter(const std::string& parameterName, float value) {
+		if (!ensureFMOD_INITIALIZED("setGlobalParameter(" + parameterName + ", " + std::to_string(value) + ")")) return;
+		ensureFMOD_OK(
+			FMOD_Studio_System_SetParameterByName(implementation.studioSystem, parameterName.c_str(), value, false),
+			"Can't set global parameter with name %s. Check to see if they are of the right name and type.", parameterName.c_str()
+		);
+	}
+
+	ParameterValue getGlobalParameter(const std::string& parameterName) {
+		if (!ensureFMOD_INITIALIZED("getParameter(instance, " + parameterName + ")")) return;
+		float value, finalValue;
+		ensureFMOD_OK(
+			FMOD_Studio_System_GetParameterByName(implementation.studioSystem, parameterName.c_str(), &value, &finalValue),
+			"Can't get global parameter named %s. Check to see if the parameter name and type are correct.", parameterName.c_str()
+		);
+		return ParameterValue{value, finalValue};
+	}
+
+	void setGlobalLabeledParameter(const std::string& parameterName, std::string label) {
+		if (!ensureFMOD_INITIALIZED("setLabeledParameter(instance, " + parameterName + ", " + label + ")")) return;
+		ensureFMOD_OK(
+			FMOD_Studio_System_SetParameterByNameWithLabel(implementation.studioSystem, parameterName.c_str(), label.c_str(), false),
+			"Can't set global parameter %s of instance to label %s. Check if both are valid names.", parameterName.c_str(), label.c_str()
+		);
+
+	}
+
+	std::string getGlobalLabeledParameter(const std::string& parameterName) {
+		if (!ensureFMOD_INITIALIZED("getLabeledParameter(instance, "+ parameterName + ")")) return;
+		float value = getGlobalParameter(parameterName).value;
+		char* label; int sz;
+		// WARN: It's a little dangerous not rounding value, but it should be ok if value is small.
+		ensureFMOD_OK(
+			FMOD_Studio_System_GetParameterLabelByName(implementation.studioSystem, parameterName.c_str(), (int) value, label, 0, &sz),
+			"Cannot get the global label for parameter %s of value %d.", parameterName.c_str(), (int) value
+		);
+		if (!label) return "";
+		return std::string(label);
+	}
+
+	void setListenerData(const EventAttributes &attributes) {
+		if (!ensureFMOD_INITIALIZED("setListenerData()")) return;
+		// creating object per frame is rather inefficient, but I assume that this would be passed in as a created object anyways
+		FMOD_3D_ATTRIBUTES attr{
+			vectorToFmod(attributes.position),
+			vectorToFmod(attributes.velocity),
+			vectorToFmod(attributes.forward),
+			vectorToFmod(attributes.up)
+		};
+		// we assume only one listener and the attenuation position is at position in the 3d attributes
+		ensureFMOD_OK(
+			FMOD_Studio_System_SetListenerAttributes(implementation.studioSystem, 0, &attr, nullptr),
+			"Can't set the listener attributes"
+		);
+	}
+
+	void set3DAttributes(std::shared_ptr<AudioEventInstance> instance, const EventAttributes &attributes) {
+		if (!ensureFMOD_INITIALIZED("set3DAttributes()")) return;
+		// creating object per frame is rather inefficient, but I assume that this would be passed in as a created object anyways
+		FMOD_3D_ATTRIBUTES attr{
+			vectorToFmod(attributes.position),
+			vectorToFmod(attributes.velocity),
+			vectorToFmod(attributes.forward),
+			vectorToFmod(attributes.up)
+		};
+		ensureFMOD_OK(
+			FMOD_Studio_EventInstance_Set3DAttributes(instance->getInstance(), &attr),
+			"Can't set a 3D event attribute."
+		);
+	}
+
     FMOD_VECTOR vectorToFmod(const glm::vec3& vPosition) { return FMOD_VECTOR{vPosition.x, vPosition.y, vPosition.z}; }
 }
