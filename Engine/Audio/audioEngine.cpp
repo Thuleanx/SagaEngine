@@ -142,7 +142,7 @@ namespace Saga::AudioEngine {
 	}
 
 	bool release() {
-		if (!ensureFMOD_INITIALIZED("release()")) return;
+        if (!ensureFMOD_INITIALIZED("release()")) return false;
 		ensureFMOD_OK(
 			FMOD_Studio_System_Release(implementation.studioSystem), 
 			"Failed to release fmod system."
@@ -180,7 +180,7 @@ namespace Saga::AudioEngine {
 		implementation.banks.erase(bankName);
 	}
 
-	void loadEvent(const std::string& eventName) {
+	void loadEvent(const std::string& eventName, bool loadSampleData) {
 		if (!ensureFMOD_INITIALIZED("loadEvent("+ eventName+")")) return;
 		if (implementation.events.count(eventName)) {
 			SWARN("Tried to load already loaded fmod event %s. Please ensure the correct event name.", eventName.c_str());
@@ -190,24 +190,28 @@ namespace Saga::AudioEngine {
 		ensureFMOD_OK(FMOD_Studio_System_GetEvent(implementation.studioSystem, eventName.c_str(), &description), 
 			"Failed to load event: %s.", eventName.c_str());
 		// beware that this loads asynchronously
-		ensureFMOD_OK(FMOD_Studio_EventDescription_LoadSampleData(description), "Can't load sample data for event %s.", eventName.c_str());
+		if (loadSampleData) ensureFMOD_OK(FMOD_Studio_EventDescription_LoadSampleData(description), "Can't load sample data for event %s.", eventName.c_str());
 		implementation.events[eventName] = description;
 	}
 
 	std::shared_ptr<AudioEventInstance> playEvent(const std::string& eventName) {
-		if (!ensureFMOD_INITIALIZED("playEvent(" + eventName + ")")) return;
+        if (!ensureFMOD_INITIALIZED("playEvent(" + eventName + ")")) return NULL;
+		std::shared_ptr<AudioEventInstance> sharedInstance = createInstance(eventName);
+        playEvent(sharedInstance);
+		return sharedInstance;
+	}
+
+	std::shared_ptr<AudioEventInstance> createInstance(const std::string& eventName) {
+        if (!ensureFMOD_INITIALIZED("playEvent(" + eventName + ")")) return NULL;
 		if (!implementation.events.count(eventName)) {
-			SWARN("Event sample data for fmod event \"%s\" has not been loaded. Please load the event first!", eventName.c_str());
-            return NULL;
+			SWARN("Event sample data for fmod event \"%s\" has not been loaded. Loadding the event", eventName.c_str());
+			loadEvent(eventName);
 		}
 		FMOD_STUDIO_EVENTINSTANCE *instance = NULL;
 		// also asynchronously load the sample data, if non is loaded
 		ensureFMOD_OK(FMOD_Studio_EventDescription_CreateInstance(implementation.events[eventName], &instance), 
 			"Failed to create event instance for event %s.", eventName.c_str());
-
-		std::shared_ptr<AudioEventInstance> sharedInstance = std::make_shared<AudioEventInstance>(instance);
-        playEvent(sharedInstance);
-		return sharedInstance;
+		return std::make_shared<AudioEventInstance>(instance);
 	}
 
 	void playEvent(std::shared_ptr<AudioEventInstance> instance) {
@@ -266,7 +270,7 @@ namespace Saga::AudioEngine {
 	}
 
 	ParameterValue getParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName) {
-		if (!ensureFMOD_INITIALIZED("getParameter(instance, " + parameterName + ")")) return;
+        if (!ensureFMOD_INITIALIZED("getParameter(instance, " + parameterName + ")")) return ParameterValue{0,0};
 		if (!instance || !instance->getInstance()) { SERROR("Cannot operate on a null event instance!"); return ParameterValue{0,0}; }
 		float value, finalValue;
 		ensureFMOD_OK(
@@ -286,7 +290,7 @@ namespace Saga::AudioEngine {
 	}
 
 	std::string getLabeledParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName) {
-		if (!ensureFMOD_INITIALIZED("getLabeledParameter(instance, "+ parameterName + ")")) return;
+        if (!ensureFMOD_INITIALIZED("getLabeledParameter(instance, "+ parameterName + ")")) return "";
 		if (!instance || !instance->getInstance()) { SERROR("Cannot operate on a null event instance!"); return ""; }
 		float value = getParameter(instance, parameterName).value;
 		FMOD_STUDIO_EVENTDESCRIPTION *description;
@@ -314,7 +318,7 @@ namespace Saga::AudioEngine {
 	}
 
 	ParameterValue getGlobalParameter(const std::string& parameterName) {
-		if (!ensureFMOD_INITIALIZED("getParameter(instance, " + parameterName + ")")) return;
+        if (!ensureFMOD_INITIALIZED("getParameter(instance, " + parameterName + ")")) return ParameterValue{0,0};
 		float value, finalValue;
 		ensureFMOD_OK(
 			FMOD_Studio_System_GetParameterByName(implementation.studioSystem, parameterName.c_str(), &value, &finalValue),
@@ -329,11 +333,10 @@ namespace Saga::AudioEngine {
 			FMOD_Studio_System_SetParameterByNameWithLabel(implementation.studioSystem, parameterName.c_str(), label.c_str(), false),
 			"Can't set global parameter %s of instance to label %s. Check if both are valid names.", parameterName.c_str(), label.c_str()
 		);
-
 	}
 
 	std::string getGlobalLabeledParameter(const std::string& parameterName) {
-		if (!ensureFMOD_INITIALIZED("getLabeledParameter(instance, "+ parameterName + ")")) return;
+        if (!ensureFMOD_INITIALIZED("getLabeledParameter(instance, "+ parameterName + ")")) return "";
 		float value = getGlobalParameter(parameterName).value;
 		char* label; int sz;
 		// WARN: It's a little dangerous not rounding value, but it should be ok if value is small.

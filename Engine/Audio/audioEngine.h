@@ -24,10 +24,14 @@ namespace Saga {
 		EventMap events;
 	};
 
-	/// @brief This contains a collection of methods that interfaces with the FMOD studio API to play audio.
+	/** 
+	 * @brief This contains a collection of methods that interfaces with the FMOD studio API to play audio.
+	 */
 	namespace AudioEngine {
 		/// @brief Data used for operating the AudioEngine.
 		extern AudioImplementation implementation;
+
+		const int maxChannels = 32;
 
 		/// @brief Value of a parameter in FMOD. Whenever a parameter is retrieved from an event (or globally), it will be in this form.
 		struct ParameterValue {
@@ -51,38 +55,192 @@ namespace Saga {
 		 */
 		bool init();
 
+		/**
+		 * @brief Update the Audio Engine. Needs to be run every frame for accurate result.
+		 * @note For accurate positioning of sounds, update both the listener's 3D position and event instance positions before calling this update.
+		 */
 		void update();
+
+		/**
+		 * @brief Release the Audio Engine. Must be called after init, and no audio operation should work after this call.
+		 * 
+		 * @return true if release was sucessful.
+		 * @return false otherwise. This can fail because either the studio system is not initialized, or some failure in the fmod system.
+		 */
 		bool release();
 
 		// banks
-		void loadBank(const std::string& bankName, FMOD_STUDIO_LOAD_BANK_FLAGS flags = FMOD_STUDIO_LOAD_BANK_NORMAL);
+		/**
+		 * @brief Load a bank of audio. By default, sample data will not be loaded. 
+		 * It is important that both the bank files and bank's strings file are loaded before events can be played.
+		 * 
+		 * @param bankFileName the filepath of the bank. This should be relative to your project source.
+		 * @param flags flag for how the bank should load. 
+		 */
+		void loadBank(const std::string& bankFileName, FMOD_STUDIO_LOAD_BANK_FLAGS flags = FMOD_STUDIO_LOAD_BANK_NORMAL);
+
+		/**
+		 * @brief Unload bank.
+		 * 
+		 * @param bankName the filepath of the bank. This should be relative to your project's source.
+		 */
 		void unloadBank(const std::string& bankName);
 
 		// events
-		void loadEvent(const std::string& eventName);
+		/**
+		 * @brief Load an event from a loaded bank. 
+		 * 
+		 * @param eventName name of the event, typically in the form "event:/Folder/Name".
+		 * @param loadSampleData whether or not to also load sample data. 
+		 * @note Loading sample data will preload the data for an event, allowing event instances to be created and immediately played without latency. 
+		 * 	Sample data loading happens asynchronously, so there is a possibility sound won't be played immediately if you load an event and immediately attempt to play it.
+		 */
+		void loadEvent(const std::string& eventName, bool loadSampleData = false);
+
+		/**
+		 * @brief Play an event. If this event is not loaded, loadEvent will be called.
+		 * 
+		 * @param eventName name of the event, typically in the form "event:/Folder/Name".
+		 * @return std::shared_ptr<AudioEventInstance> the correponding event instance.
+		 */
 		std::shared_ptr<AudioEventInstance> playEvent(const std::string& eventName);
+
+
+		/**
+		 * @brief Create an instance of a sound event. If this event has not been loaded, loadEvent will be called.
+		 * 
+		 * @param eventName name of the event, typically in the form "event:/Folder/Name".
+		 * @return std::shared_ptr<AudioEventInstance> the instance.
+		 */
+		std::shared_ptr<AudioEventInstance> createInstance(const std::string& eventName);
+
+		/**
+		 * @brief Play an event.
+		 * 
+		 * @param event the event instance.
+		 */
 		void playEvent(std::shared_ptr<AudioEventInstance> event);
+
+		/**
+		 * @brief Stop an event that's playing.
+		 * 
+		 * @param event the event instance.
+		 * @param immediate whether or not the event stops immediately, or with a falloff.
+		 */
 		void stopEvent(std::shared_ptr<AudioEventInstance> event, bool immediate = false);
+
+		/**
+		 * @brief Release an event instance. After this, the event instance is unusable.
+		 * 
+		 * @param event the event instance.
+		 */
 		void releaseEvent(std::shared_ptr<AudioEventInstance> event);
+
+		/**
+		 * @brief Release all event instances associated with this event.
+		 * 
+		 * @param eventName name of the event, typically in the form "event:/Folder/Name".
+		 */
 		void releaseAllEventInstances(const std::string& eventName);
+
+		/**
+		 * @brief Unload an event. This effectively removes the ability to create instances of the event until it is loaded again.
+		 * 
+		 * @param eventName name of the event, typically in the form "event:/Folder/Name".
+		 * @note the unload happens asynchronously and only when all event instances are released.
+		 */
 		void unloadEvent(const std::string& eventName);
 
-		// parameters
-		// event instance
-		void setParameter(AudioEventInstance instance, const std::string& parameterName, float value);
-		ParameterValue getParameter(AudioEventInstance instance, const std::string& parameterName);
-		void setLabeledParameter(AudioEventInstance instance, const std::string& parameterName, std::string label);
+		/**
+		 * @brief Set a parameter on an event instance.
+		 * 
+		 * @param instance the event instance.
+		 * @param parameterName the name of the parameter.
+		 * @param value the value to set it to.
+		 */
+		void setParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName, float value);
+
+		/**
+		 * @brief Get the value of an event.
+		 * 
+		 * @param instance the event instance.
+		 * @param parameterName the name of the parameter.
+		 * @return ParameterValue value of the event in FMOD studio.
+		 */
+		ParameterValue getParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName);
+
+		/**
+		 * @brief Set a parameter on an event instance to a labeled value.
+		 * 
+		 * @param instance the event instance.
+		 * @param parameterName the name of the parameter.
+		 * @param label the label of the value to set the parameter to.
+		 */
+		void setLabeledParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName, std::string label);
+
+		/**
+		 * @brief Get the label-value of a parameter.
+		 * 
+		 * @param instance the event instance.
+		 * @param parameterName the name of the parameter.
+		 * @return std::string the label value of a parameter.
+		 */
 		std::string getLabeledParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName);
-		// global
+
+		/**
+		 * @brief Set a global parameter.
+		 * 
+		 * @param parameterName the name of the parameter.
+		 * @param value the value to set the parameter to.
+		 */
 		void setGlobalParameter(const std::string& parameterName, float value);
+
+		/**
+		 * @brief Get the value of a global parameter.
+		 * 
+		 * @param parameterName the name of the parameter.
+		 * @return ParameterValue the value of the event in FMOD studio.
+		 * 	@see ParameterValue
+		 */
 		ParameterValue getGlobalParameter(const std::string& parameterName);
+
+		/**
+		 * @brief Set the value of a global parameter by label.
+		 * 
+		 * @param parameterName the name of the parameter.
+		 * @param label the label value to set the parameter to.
+		 */
 		void setGlobalLabeledParameter(const std::string& parameterName, std::string label);
+
+		/**
+		 * @brief Get the label value of a global parameter.
+		 * 
+		 * @param parameterName the name of the parameter.
+		 * @return std::string the label value of the parameter.
+		 */
 		std::string getGlobalLabeledParameter(const std::string& parameterName);
 
-		// updating 3d orientations
+		/**
+		 * @brief Set the 3D position of the listener.
+		 * 
+		 * @param attributes the 3D attributes of the listener.
+		 */
 		void setListenerData(const EventAttributes &attributes);
+
+		/**
+		 * @brief Set the 3D attributes of an audio event instance.
+		 * 
+		 * @param instance the event instance.
+		 * @param attributes the 3D attributes of the listener.
+		 */
 		void set3DAttributes(std::shared_ptr<AudioEventInstance> instance, EventAttributes &attributes);
 
+		/**
+		 * @brief Convert a glm vector to an fmod vector.
+		 * 
+		 * @param vPosition the vector.
+		 * @return FMOD_VECTOR the vector converted to fmod acceptable format.
+		 */
 		FMOD_VECTOR vectorToFmod(const glm::vec3& vPosition);
 	}
 };
