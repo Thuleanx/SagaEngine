@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include "fmod.h"
 #include "fmod_studio.h"
 #include <map>
@@ -109,7 +110,6 @@ namespace Saga {
 		 */
 		void unloadBank(const std::string& bankName);
 
-		// events
 		/**
 		 * @brief Load an event from a loaded bank. 
 		 * 
@@ -121,13 +121,30 @@ namespace Saga {
 		void loadEvent(const std::string& eventName, bool loadSampleData = false);
 
 		/**
+		 * @brief Load an event's sample data, allowing for event instances to be spawned and play instantaneously. For every call to load, you must call unload after. 
+		 * Loads and unloads are reference-counted, so the event's data won't completely unload until every load is followed by an unload.
+		 * 
+		 * @param eventName name of the event, typically in the form "event:/Folder/Name".
+		 * @note Loading sample data will preload the data for an event, allowing event instances to be created and immediately played without latency. 
+		 * 	Sample data loading happens asynchronously, so there is a possibility sound won't be played immediately if you load sample data for an event and immediately attempt to play it.
+		 */
+		void loadSampleData(const std::string& eventName);
+
+		/**
+		 * @brief Unload an event's sample data. 
+		 * 
+		 * @param eventName name of the event, typically in the form "event:/Folder/Name".
+		 * @note Unloading takes place only after all events are released. 
+		 */
+		void unloadSampleData(const std::string& eventName);
+
+		/**
 		 * @brief Play an event. If this event is not loaded, loadEvent will be called.
 		 * 
 		 * @param eventName name of the event, typically in the form "event:/Folder/Name".
 		 * @return AudioEventInstance the correponding event instance.
 		 */
 		AudioEventInstance playEvent(const std::string& eventName);
-
 
 		/**
 		 * @brief Create an instance of a sound event. If this event has not been loaded, loadEvent will be called.

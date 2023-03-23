@@ -10,7 +10,7 @@ namespace Saga::Systems {
 		for (auto& [entity, audioEmitter, transform] : *world->viewGroup<AudioEmitter, Transform>()) {
 			// release audio instances
 			if (audioEmitter->preload) 
-				AudioEngine::loadEvent(audioEmitter->eventName);
+				AudioEngine::loadSampleData(audioEmitter->eventName);
 			// play on awake
 			if (audioEmitter->playOnAwake) 
 				audioEmitter->audioInstance = AudioEngine::playEvent(audioEmitter->eventName);
@@ -42,6 +42,8 @@ namespace Saga::Systems {
 		for (auto& [entity, audioEmitter, transform] : *world->viewGroup<AudioEmitter, Transform>()) {
 			// release audio instances
 			if (audioEmitter->audioInstance) {
+				// remember to unload data 
+				if (audioEmitter->preload) AudioEngine::unloadSampleData(audioEmitter->eventName);
 				AudioEngine::stopEvent(audioEmitter->audioInstance);
 				AudioEngine::releaseEvent(audioEmitter->audioInstance);
 				audioEmitter->audioInstance = nullptr;

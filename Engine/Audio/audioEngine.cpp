@@ -180,7 +180,7 @@ namespace Saga::AudioEngine {
 		implementation.banks.erase(bankName);
 	}
 
-	void loadEvent(const std::string& eventName, bool loadSampleData) {
+	void loadEvent(const std::string& eventName, bool loadSample) {
 		if (!ensureFMOD_INITIALIZED("loadEvent("+ eventName+")")) return;
 		if (implementation.events.count(eventName)) {
 			SWARN("Tried to load already loaded fmod event %s. Please ensure the correct event name.", eventName.c_str());
@@ -189,10 +189,33 @@ namespace Saga::AudioEngine {
 		FMOD_STUDIO_EVENTDESCRIPTION *description = NULL;
 		ensureFMOD_OK(FMOD_Studio_System_GetEvent(implementation.studioSystem, eventName.c_str(), &description), 
 			"Failed to load event: %s.", eventName.c_str());
-		// beware that this loads asynchronously
-		if (loadSampleData) ensureFMOD_OK(FMOD_Studio_EventDescription_LoadSampleData(description), "Can't load sample data for event %s.", eventName.c_str());
 		implementation.events[eventName] = description;
+		// beware that this loads asynchronously
+		if (loadSample) loadSampleData(eventName);
 	}
+
+	void loadSampleData(const std::string& eventName) {
+		if (!ensureFMOD_INITIALIZED("loadSampleData("+ eventName+")")) return;
+		if (!implementation.events.count(eventName)) {
+			SWARN("Fmod event \"%s\" has not been loaded. Loading the event", eventName.c_str());
+			loadEvent(eventName);
+		}
+		ensureFMOD_OK(
+			FMOD_Studio_EventDescription_LoadSampleData(implementation.events[eventName]), "Can't load sample data for event %s.", eventName.c_str()
+		);
+	}
+
+	void unloadSampleData(const std::string& eventName) {
+		if (!ensureFMOD_INITIALIZED("unloadSampleData("+ eventName+")")) return;
+		if (!implementation.events.count(eventName)) {
+			SWARN("Fmod event \"%s\" has not been loaded. No effect takes place.", eventName.c_str());
+			return;
+		}
+		ensureFMOD_OK(
+			FMOD_Studio_EventDescription_UnloadSampleData(implementation.events[eventName]), "Can't unload sample data for event %s.", eventName.c_str()
+		);
+	}
+
 
 	AudioEventInstance playEvent(const std::string& eventName) {
         if (!ensureFMOD_INITIALIZED("playEvent(" + eventName + ")")) return NULL;
@@ -204,7 +227,7 @@ namespace Saga::AudioEngine {
 	AudioEventInstance createInstance(const std::string& eventName) {
         if (!ensureFMOD_INITIALIZED("playEvent(" + eventName + ")")) return NULL;
 		if (!implementation.events.count(eventName)) {
-			SWARN("Event sample data for fmod event \"%s\" has not been loaded. Loadding the event", eventName.c_str());
+			SWARN("Fmod event \"%s\" has not been loaded. Loading the event", eventName.c_str());
 			loadEvent(eventName);
 		}
 		FMOD_STUDIO_EVENTINSTANCE *instance = NULL;
