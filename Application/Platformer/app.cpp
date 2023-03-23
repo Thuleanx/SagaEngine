@@ -6,21 +6,17 @@
 #include "Components/playerController.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "config.h"
 
 namespace Platformer {
 	App::App() {
-		Saga::AudioEngine::loadBank("FMOD/Saga/Build/Desktop/Master.bank");
-		Saga::AudioEngine::loadBank("FMOD/Saga/Build/Desktop/Master.strings.bank");
-		Saga::AudioEngine::loadEvent("event:/Loop");
+		Saga::AudioEngine::loadBank(FMODSettings::bankName);
+		Saga::AudioEngine::loadBank(FMODSettings::stringBankName);
 		setupWorld();
-		loopEvent = Saga::AudioEngine::playEvent("event:/Loop");
 	}
 	App::~App() {
-		Saga::AudioEngine::stopEvent(loopEvent);
-		Saga::AudioEngine::releaseEvent(loopEvent);
-		Saga::AudioEngine::unloadEvent("event:/Loop");
-		Saga::AudioEngine::unloadBank("FMOD/Saga/Build/Desktop/Master.bank");
-		Saga::AudioEngine::unloadBank("FMOD/Saga/Build/Desktop/Master.strings.bank");
+		Saga::AudioEngine::unloadBank(FMODSettings::bankName);
+		Saga::AudioEngine::unloadBank(FMODSettings::stringBankName);
 	}
 
 	void App::setupWorld() {
@@ -83,10 +79,18 @@ namespace Platformer {
 			return player;
 		};
 
+		auto setupBackingTrack = [this]() {
+			Saga::Entity backingTrack = world->createEntity();
+            world->emplace<Saga::AudioEmitter>(backingTrack, "event:/Loop", true);
+			world->emplace<Saga::Transform>(backingTrack);
+			return backingTrack;
+		};
+
 		Saga::Entity plane = setupPlane();
 		Saga::Entity light = setupLights();
 		Saga::Entity player = setupPlayer();
 		Saga::Entity camera = setupCamera(player);
+		Saga::Entity backingTrack = setupBackingTrack();
 	}
 
 	void App::setupSystems() {
@@ -94,6 +98,8 @@ namespace Platformer {
 		Saga::Systems::registerCollisionSystem(world);
 		Platformer::Systems::registerPlayerControllerSystem(world);
 		Application::Systems::registerThirdPersonCameraSystem(world);
+
+		Saga::Systems::setupAudioSystem(world);
 
 		auto& systems = world->getSystems();
 

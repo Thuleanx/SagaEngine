@@ -13,6 +13,14 @@ struct Transform {
 
 	operator const std::shared_ptr<GraphicsEngine::ModelTransform> &() const { return transform; }
 
-	Transform() { transform = std::make_shared<GraphicsEngine::ModelTransform>(); }
+	/**
+	 * @brief Construct a new Transform object.
+	 * @note this requests the graphics engine for a model transform.
+	 */
+	Transform();
+
+	glm::vec3 getPos() const;
+	glm::vec3 getUp() const;
+	glm::vec3 getForward() const;
 };
 } // namespace Saga

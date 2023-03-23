@@ -5,7 +5,6 @@
 #include <map>
 #include <string>
 #include <glm/vec3.hpp>
-#include "audioEventInstance.h"
 #include <memory>
 
 namespace Saga {
@@ -24,6 +23,12 @@ namespace Saga {
 		EventMap events;
 	};
 
+	/**
+	 * @brief An audio instance equivalent to an instance of a sound. Can be start and stop. 
+	 * For correct 3D positioning of an instance, make sure to update the 3D position every frame.
+	 */
+	using AudioEventInstance = FMOD_STUDIO_EVENTINSTANCE*;
+
 	/** 
 	 * @brief This contains a collection of methods that interfaces with the FMOD studio API to play audio.
 	 */
@@ -31,6 +36,9 @@ namespace Saga {
 		/// @brief Data used for operating the AudioEngine.
 		extern AudioImplementation implementation;
 
+		/**
+		 * @brief Maximum channels we will use for FMOD. Usually you don't need that many (probably 4-5 would be ok).
+		 */
 		const int maxChannels = 32;
 
 		/// @brief Value of a parameter in FMOD. Whenever a parameter is retrieved from an event (or globally), it will be in this form.
@@ -45,6 +53,22 @@ namespace Saga {
 		/// @brief A collection of vectors that specify an object in 3D space. This allows the AudioEngine to determine where listeners as well as AudioEventInstance are situated in space.
 		struct EventAttributes {
 			glm::vec3 position, velocity, forward, up; 
+
+			/**
+			 * @brief Construct a new Event Attributes object.
+			 * 
+			 */
+			EventAttributes();
+
+			/**
+			 * @brief Construct a new Event Attributes object.
+			 * 
+			 * @param position position of the event.
+			 * @param velocity velocity of the object emitting this event.
+			 * @param forward forward direction of the event.
+			 * @param up the up direction of the event.
+			 */
+			EventAttributes(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up);
 		};
 
 		/**
@@ -69,7 +93,6 @@ namespace Saga {
 		 */
 		bool release();
 
-		// banks
 		/**
 		 * @brief Load a bank of audio. By default, sample data will not be loaded. 
 		 * It is important that both the bank files and bank's strings file are loaded before events can be played.
@@ -101,9 +124,9 @@ namespace Saga {
 		 * @brief Play an event. If this event is not loaded, loadEvent will be called.
 		 * 
 		 * @param eventName name of the event, typically in the form "event:/Folder/Name".
-		 * @return std::shared_ptr<AudioEventInstance> the correponding event instance.
+		 * @return AudioEventInstance the correponding event instance.
 		 */
-		std::shared_ptr<AudioEventInstance> playEvent(const std::string& eventName);
+		AudioEventInstance playEvent(const std::string& eventName);
 
 
 		/**
@@ -112,14 +135,14 @@ namespace Saga {
 		 * @param eventName name of the event, typically in the form "event:/Folder/Name".
 		 * @return std::shared_ptr<AudioEventInstance> the instance.
 		 */
-		std::shared_ptr<AudioEventInstance> createInstance(const std::string& eventName);
+		AudioEventInstance createInstance(const std::string& eventName);
 
 		/**
 		 * @brief Play an event.
 		 * 
 		 * @param event the event instance.
 		 */
-		void playEvent(std::shared_ptr<AudioEventInstance> event);
+		void playEvent(AudioEventInstance event);
 
 		/**
 		 * @brief Stop an event that's playing.
@@ -127,14 +150,14 @@ namespace Saga {
 		 * @param event the event instance.
 		 * @param immediate whether or not the event stops immediately, or with a falloff.
 		 */
-		void stopEvent(std::shared_ptr<AudioEventInstance> event, bool immediate = false);
+		void stopEvent(AudioEventInstance event, bool immediate = false);
 
 		/**
 		 * @brief Release an event instance. After this, the event instance is unusable.
 		 * 
 		 * @param event the event instance.
 		 */
-		void releaseEvent(std::shared_ptr<AudioEventInstance> event);
+		void releaseEvent(AudioEventInstance event);
 
 		/**
 		 * @brief Release all event instances associated with this event.
@@ -147,9 +170,10 @@ namespace Saga {
 		 * @brief Unload an event. This effectively removes the ability to create instances of the event until it is loaded again.
 		 * 
 		 * @param eventName name of the event, typically in the form "event:/Folder/Name".
+		 * @param unloadSampleData whether or not to unload any sample data.
 		 * @note the unload happens asynchronously and only when all event instances are released.
 		 */
-		void unloadEvent(const std::string& eventName);
+		void unloadEvent(const std::string& eventName, bool unloadSampleData = false);
 
 		/**
 		 * @brief Set a parameter on an event instance.
@@ -158,7 +182,7 @@ namespace Saga {
 		 * @param parameterName the name of the parameter.
 		 * @param value the value to set it to.
 		 */
-		void setParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName, float value);
+		void setParameter(AudioEventInstance instance, const std::string& parameterName, float value);
 
 		/**
 		 * @brief Get the value of an event.
@@ -167,7 +191,7 @@ namespace Saga {
 		 * @param parameterName the name of the parameter.
 		 * @return ParameterValue value of the event in FMOD studio.
 		 */
-		ParameterValue getParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName);
+		ParameterValue getParameter(AudioEventInstance instance, const std::string& parameterName);
 
 		/**
 		 * @brief Set a parameter on an event instance to a labeled value.
@@ -176,7 +200,7 @@ namespace Saga {
 		 * @param parameterName the name of the parameter.
 		 * @param label the label of the value to set the parameter to.
 		 */
-		void setLabeledParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName, std::string label);
+		void setLabeledParameter(AudioEventInstance instance, const std::string& parameterName, std::string label);
 
 		/**
 		 * @brief Get the label-value of a parameter.
@@ -185,7 +209,7 @@ namespace Saga {
 		 * @param parameterName the name of the parameter.
 		 * @return std::string the label value of a parameter.
 		 */
-		std::string getLabeledParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName);
+		std::string getLabeledParameter(AudioEventInstance instance, const std::string& parameterName);
 
 		/**
 		 * @brief Set a global parameter.
@@ -233,7 +257,7 @@ namespace Saga {
 		 * @param instance the event instance.
 		 * @param attributes the 3D attributes of the listener.
 		 */
-		void set3DAttributes(std::shared_ptr<AudioEventInstance> instance, EventAttributes &attributes);
+		void set3DAttributes(AudioEventInstance instance, const EventAttributes &attributes);
 
 		/**
 		 * @brief Convert a glm vector to an fmod vector.

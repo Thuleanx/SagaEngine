@@ -20,6 +20,9 @@ void InvokableSystemManager::runStageFixedUpdate(std::shared_ptr<GameWorld> game
 void InvokableSystemManager::runStageDraw(std::shared_ptr<GameWorld> gameWorld) {
 	stagedSystemsMap.invoke(Stage::Draw, gameWorld); }
 
+void InvokableSystemManager::runStageCleanup(std::shared_ptr<GameWorld> gameWorld) {
+	stagedSystemsMap.invoke(Stage::Cleanup, gameWorld); }
+
 void InvokableSystemManager::keyEvent(std::shared_ptr<GameWorld> gameWorld, int key, int action) {
 	keyboardInputMap.invoke(key, gameWorld, action); }
 

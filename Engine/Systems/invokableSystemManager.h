@@ -43,6 +43,13 @@ public:
 	void runStageDraw(std::shared_ptr<GameWorld> gameWorld);
 
 	/**
+	 * @brief Invoke the Cleanup stage.
+	 * 
+	 * @param gameWorld 
+	 */
+	void runStageCleanup(std::shared_ptr<GameWorld> gameWorld);
+
+	/**
 	 * @brief Broadcast an event. Only systems registered that are not tied to a specific entity will receive this broadcast.
 	 * 
 	 * @tparam Event anything castable to an int.

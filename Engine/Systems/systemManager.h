@@ -180,8 +180,6 @@ public:
 	 */
 	void removeWindowResizeSystem(EventMap::Id id);
 
-	void addCleanupSystem(System<> system);
-
 protected:
 	/**
 	 * @brief Types of input events, with button events excluded.

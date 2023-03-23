@@ -111,7 +111,7 @@ private:
 		void runStageUpdate(float deltaTime, float time);
 		void runStageFixedUpdate(float deltaTime, float time);
 		void runStageDraw();
-
+		void runStageCleanup();
 		void keyEvent(int key, int action);
 		void mousePosEvent(double xpos, double ypos);
 		void mouseButtonEvent(int button, int action);

@@ -194,14 +194,14 @@ namespace Saga::AudioEngine {
 		implementation.events[eventName] = description;
 	}
 
-	std::shared_ptr<AudioEventInstance> playEvent(const std::string& eventName) {
+	AudioEventInstance playEvent(const std::string& eventName) {
         if (!ensureFMOD_INITIALIZED("playEvent(" + eventName + ")")) return NULL;
-		std::shared_ptr<AudioEventInstance> sharedInstance = createInstance(eventName);
+		AudioEventInstance sharedInstance = createInstance(eventName);
         playEvent(sharedInstance);
 		return sharedInstance;
 	}
 
-	std::shared_ptr<AudioEventInstance> createInstance(const std::string& eventName) {
+	AudioEventInstance createInstance(const std::string& eventName) {
         if (!ensureFMOD_INITIALIZED("playEvent(" + eventName + ")")) return NULL;
 		if (!implementation.events.count(eventName)) {
 			SWARN("Event sample data for fmod event \"%s\" has not been loaded. Loadding the event", eventName.c_str());
@@ -211,31 +211,30 @@ namespace Saga::AudioEngine {
 		// also asynchronously load the sample data, if non is loaded
 		ensureFMOD_OK(FMOD_Studio_EventDescription_CreateInstance(implementation.events[eventName], &instance), 
 			"Failed to create event instance for event %s.", eventName.c_str());
-		return std::make_shared<AudioEventInstance>(instance);
+		return AudioEventInstance(instance);
 	}
 
-	void playEvent(std::shared_ptr<AudioEventInstance> instance) {
+	void playEvent(AudioEventInstance instance) {
 		if (!ensureFMOD_INITIALIZED("playEvent(unknown_instance)")) return;
 		if (!instance) { SERROR("Tried to start a null event."); return; }
-		ensureFMOD_OK(FMOD_Studio_EventInstance_Start(instance->getInstance()), "Failed to start fmod event.");
+		ensureFMOD_OK(FMOD_Studio_EventInstance_Start(instance), "Failed to start fmod event.");
 	}
 
-    void stopEvent(std::shared_ptr<AudioEventInstance> event, bool immediate) {
+    void stopEvent(AudioEventInstance event, bool immediate) {
 		if (!ensureFMOD_INITIALIZED("stopEvent(unknown_instance)")) return;
 		if (!event) { SERROR("Tried to stop a null event."); return; }
-		std::cout << event->getInstance() << std::endl;
 		FMOD_STUDIO_STOP_MODE mode = immediate ? FMOD_STUDIO_STOP_IMMEDIATE : FMOD_STUDIO_STOP_ALLOWFADEOUT;
 		ensureFMOD_OK(
-			FMOD_Studio_EventInstance_Stop(event->getInstance(), mode), 
+			FMOD_Studio_EventInstance_Stop(event, mode), 
 			"Cannot stop an fmod event."
 		);
 	}
 
-	void releaseEvent(std::shared_ptr<AudioEventInstance> event) {
+	void releaseEvent(AudioEventInstance event) {
 		if (!ensureFMOD_INITIALIZED("releaseEvent(unknown_instance)")) return;
 		if (!event) { SERROR("Tried to release a null event."); return;}
 		ensureFMOD_OK(
-			FMOD_Studio_EventInstance_Release(event->getInstance()), 
+			FMOD_Studio_EventInstance_Release(event), 
 			"Cannot release an fmod event."
 		);
 	}
@@ -249,53 +248,53 @@ namespace Saga::AudioEngine {
 		ensureFMOD_OK(FMOD_Studio_EventDescription_ReleaseAllInstances(implementation.events[eventName]), "Fail to release instance for event \"%s\".", eventName.c_str());
 	}
 
-	void unloadEvent(const std::string& eventName) {
+	void unloadEvent(const std::string& eventName, bool unloadSample) {
 		if (!ensureFMOD_INITIALIZED("unloadEvent(" + eventName + ")")) return;
 		if (!implementation.events.count(eventName)) {
 			SWARN("Tried to unload event %s that has not been loaded.", eventName.c_str());
 			return;
 		}
 		// this doesn't neccessarily unload until all instances of the event is released, so beware
-		ensureFMOD_OK(FMOD_Studio_EventDescription_UnloadSampleData(implementation.events[eventName]), "Can't unload sample data for event %s.", eventName.c_str());
+		if (unloadSample) ensureFMOD_OK(FMOD_Studio_EventDescription_UnloadSampleData(implementation.events[eventName]), "Can't unload sample data for event %s.", eventName.c_str());
 		implementation.events.erase(eventName);
 	}
 
-	void setParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName, float value) {
+	void setParameter(AudioEventInstance instance, const std::string& parameterName, float value) {
 		if (!ensureFMOD_INITIALIZED("setParameter(instance, " + parameterName + ", " + std::to_string(value) + ")")) return;
-		if (!instance || !instance->getInstance()) { SERROR("Cannot operate on a null event instance!"); return; }
+		if (!instance) { SERROR("Cannot operate on a null event instance!"); return; }
 		ensureFMOD_OK(
-			FMOD_Studio_EventInstance_SetParameterByName(instance->getInstance(), parameterName.c_str(), value, false),
+			FMOD_Studio_EventInstance_SetParameterByName(instance, parameterName.c_str(), value, false),
 			"Can't set parameter with name %s. Check to see if they are of the right name and type.", parameterName.c_str()
 		);
 	}
 
-	ParameterValue getParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName) {
+	ParameterValue getParameter(AudioEventInstance instance, const std::string& parameterName) {
         if (!ensureFMOD_INITIALIZED("getParameter(instance, " + parameterName + ")")) return ParameterValue{0,0};
-		if (!instance || !instance->getInstance()) { SERROR("Cannot operate on a null event instance!"); return ParameterValue{0,0}; }
+		if (!instance) { SERROR("Cannot operate on a null event instance!"); return ParameterValue{0,0}; }
 		float value, finalValue;
 		ensureFMOD_OK(
-			FMOD_Studio_EventInstance_GetParameterByName(instance->getInstance(), parameterName.c_str(), &value, &finalValue),
+			FMOD_Studio_EventInstance_GetParameterByName(instance, parameterName.c_str(), &value, &finalValue),
 			"Can't get parameter named %s. Check to see if the parameter name and type are correct.", parameterName.c_str()
 		);
 		return ParameterValue{value, finalValue};
 	}
 
-	void setLabeledParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName, std::string label) {
+	void setLabeledParameter(AudioEventInstance instance, const std::string& parameterName, std::string label) {
 		if (!ensureFMOD_INITIALIZED("setLabeledParameter(instance, " + parameterName + ", " + label + ")")) return;
-		if (!instance || !instance->getInstance()) { SERROR("Cannot operate on a null event instance!"); return; }
+		if (!instance) { SERROR("Cannot operate on a null event instance!"); return; }
 		ensureFMOD_OK(
-			FMOD_Studio_EventInstance_SetParameterByNameWithLabel(instance->getInstance(), parameterName.c_str(), label.c_str(), false),
+			FMOD_Studio_EventInstance_SetParameterByNameWithLabel(instance, parameterName.c_str(), label.c_str(), false),
 			"Can't set parameter %s of instance to label %s. Check if both are valid names.", parameterName.c_str(), label.c_str()
 		);
 	}
 
-	std::string getLabeledParameter(std::shared_ptr<AudioEventInstance> instance, const std::string& parameterName) {
+	std::string getLabeledParameter(AudioEventInstance instance, const std::string& parameterName) {
         if (!ensureFMOD_INITIALIZED("getLabeledParameter(instance, "+ parameterName + ")")) return "";
-		if (!instance || !instance->getInstance()) { SERROR("Cannot operate on a null event instance!"); return ""; }
+		if (!instance) { SERROR("Cannot operate on a null event instance!"); return ""; }
 		float value = getParameter(instance, parameterName).value;
 		FMOD_STUDIO_EVENTDESCRIPTION *description;
 		ensureFMOD_OK(
-			FMOD_Studio_EventInstance_GetDescription(instance->getInstance(), &description),
+			FMOD_Studio_EventInstance_GetDescription(instance, &description),
 			"Cannot get the description of an audio event instance"
 		);
 		char* label; int sz;
@@ -364,7 +363,7 @@ namespace Saga::AudioEngine {
 		);
 	}
 
-	void set3DAttributes(std::shared_ptr<AudioEventInstance> instance, const EventAttributes &attributes) {
+	void set3DAttributes(AudioEventInstance instance, const EventAttributes &attributes) {
 		if (!ensureFMOD_INITIALIZED("set3DAttributes()")) return;
 		// creating object per frame is rather inefficient, but I assume that this would be passed in as a created object anyways
 		FMOD_3D_ATTRIBUTES attr{
@@ -374,10 +373,13 @@ namespace Saga::AudioEngine {
 			vectorToFmod(attributes.up)
 		};
 		ensureFMOD_OK(
-			FMOD_Studio_EventInstance_Set3DAttributes(instance->getInstance(), &attr),
+			FMOD_Studio_EventInstance_Set3DAttributes(instance, &attr),
 			"Can't set a 3D event attribute."
 		);
 	}
 
     FMOD_VECTOR vectorToFmod(const glm::vec3& vPosition) { return FMOD_VECTOR{vPosition.x, vPosition.y, vPosition.z}; }
+
+	EventAttributes::EventAttributes() {}
+	EventAttributes::EventAttributes(glm::vec3 position, glm::vec3 velocity, glm::vec3 forward, glm::vec3 up) : position(position), velocity(velocity), forward(forward), up(up) {}
 }
