@@ -6,6 +6,7 @@
 #include "boundingBox.h"
 #include <optional>
 #include <memory>
+#include "Engine/Entity/entity.h"
 
 namespace Saga {
 
@@ -91,7 +92,7 @@ namespace Saga {
          * triangles within a node than to descend down its constructed tree, since 
          * detecting intersections with the bounding boxes has a cost.
          */
-        const int NUM_TRIANGLES_PER_LEAF = 10;
+        static const int NUM_TRIANGLES_PER_LEAF = 10;
 
         /**
          * @brief Build a BoundingVolumeHirarchy based on a collection of TriangleData at a certain

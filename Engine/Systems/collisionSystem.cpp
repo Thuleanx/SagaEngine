@@ -120,13 +120,13 @@ endCollisions: {}
             if (!collisionSystemData.bvh.has_value())
                 collisionSystemData.bvh = BoundingVolumeHierarchy();
 
-            std::vector<TriangleData> allTriangles;
+            std::vector<BoundingVolumeHierarchy::TriangleData> allTriangles;
 
             // first aggregate all triangle data
             for (auto &[entity, collider, mesh, meshCollider, transform] : *world->viewGroup<Collider, Mesh, MeshCollider, Transform>()) {
                 // grab all triangles in the mesh
                 for (int triangleIndex = 0; triangleIndex < mesh->getTrianglesCnt(); triangleIndex++) {
-                    TriangleData triangleData;
+                    BoundingVolumeHierarchy::TriangleData triangleData;
                     triangleData.entity = entity;
 
                     // transform all triangles to world space
@@ -172,10 +172,10 @@ endCollisions: {}
                 Collision collision;
 
                 if (sysData.bvh) {
-                    std::optional<std::tuple<TriangleData*, float>> hit = sysData.bvh.value().traceEllipsoid(curPos, dir, ellipsoidCollider.scale);
+                    std::optional<std::tuple<BoundingVolumeHierarchy::TriangleData*, float>> hit = sysData.bvh.value().traceEllipsoid(curPos, dir, ellipsoidCollider.scale);
 
                     if (hit) {
-                        TriangleData* data = std::get<0>(hit.value());
+                        BoundingVolumeHierarchy::TriangleData* data = std::get<0>(hit.value());
                         float tc = std::get<1>(hit.value());
                         glm::vec3 triangleNormal = glm::normalize(glm::cross(data->triangle[1] - data->triangle[0], data->triangle[2] - data->triangle[0]));
                         collision = Collision(tc, tc * dir + curPos, triangleNormal, entityEllipsoid, data->entity);

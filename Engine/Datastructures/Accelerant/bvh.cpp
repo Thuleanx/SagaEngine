@@ -110,16 +110,16 @@ namespace Saga {
         // this should only run for terminal nodes
         // we loop through all shapes and see if any intersects with our ellipsoid
         for (BoundedShapeData* brsd : node->shapes) {
-            float tc = Saga::Geometry::ellipsoidTriangleCollision(pos, dir, scale, 
+            std::optional<float> tc = Saga::Geometry::ellipsoidTriangleCollision(pos, dir, scale,
                 brsd->data.triangle[0], brsd->data.triangle[1], brsd->data.triangle[2]);
 
-            if (tc >= 0 && (!result.has_value() || tc < std::get<1>(result.value()))) 
-                result = {&brsd->data, tc};
+            if (tc && tc.value() >= 0 && (!result.has_value() || tc < std::get<1>(result.value()))) 
+                result = {&brsd->data, tc.value()};
         }
 
         // recurse through children
         for (std::shared_ptr<Node> child : node->children) {
-            std::optional<float> tc = child->box.findCollisionWithBox(pos, dir, scale);
+            std::optional<float> tc = child->box.findCollisionWithBox(pos, dir, 2.0f*scale);
             if (tc.has_value() && (!result.has_value() || tc.value() < std::get<1>(result.value()))) 
                 traceEllipsoid(pos, dir, scale, child, result);
         }

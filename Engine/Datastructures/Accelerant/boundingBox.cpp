@@ -4,12 +4,13 @@
 using namespace glm;
 using namespace std;
 
-#define oo 1e9
-
 namespace Saga {
     namespace {
         inline float square(float x) { return x*x; }
     }
+
+    const float BoundingBox::oo = 1e9f;
+
     vec3 BoundingBox::centroid() {
         return (bounds[1] + bounds[0]) / 2.0f;
     }

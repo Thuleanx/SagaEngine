@@ -17,33 +17,71 @@ namespace Saga::Geometry {
 		 * @param a 
 		 * @param b 
 		 * @param c 
-		 * @return float the minimum t, or -1 if it does not exist
+		 * @return float the minimum positive t.
+         * @return nothing if no such value exists, or it's complex.
 		 */
-		float solvePositiveQuadratic(float a, float b, float c) {
+        std::optional<float> solvePositiveQuadratic(float a, float b, float c) {
 			// system is linear, we solve it with b and c
 			if (!a) {
 				// bx + c = 0
 				if (!b && c) {
-					// cannot be solved
-					SWARN("Equation %f t^2 + %f t + %f = 0 does not have a solution. Returning -1.", a,b,c);
-					return -1;
+					SWARN("Equation %f t^2 + %f t + %f = 0 does not have a solution. Returning nothing.", a,b,c);
+                    return {};
 				} else if (!b) {
-					SWARN("Equation %f t^2 + %f t + %f = 0 have infinitely many solutions. Returning 0.", a,b,c);
-					return -1;
-				}
-				return -c/b < 0 ? -1 : -c/b;
+					SWARN("Equation %f t^2 + %f t + %f = 0 have infinitely many solutions. Returning nothing.", a,b,c);
+                    return {};
+				} else if (-c/b < 0) {
+                    return {};
+                } else 
+                    return -c/b;
 			}
+
 			float d = b*b - 4*a*c;
-			if (d < 0) return -1;
+            // solution is complex
+			if (d < 0) return {};
 			d = sqrt(d);
 
 			float c1 = (-b-d) / (2*a), c2 = (-b+d) / (2*a);
 			if (c1 > c2) std::swap(c1, c2);
 
-			if (c2 < 0) return -1;
+			if (c2 < 0) return {};
 			// choose between the two roots
 			return c1 < 0 ? c2 : c1;
 		}
+
+        /**
+         * @brief Find collision between a moving unit sphere and an edge (line segment) in 3D.
+         *
+         * @param pos position of the sphere.
+         * @param dir direction the sphere is moving in.
+         * @param c an endpoint of the line segment.
+         * @param d another endpoint of the line segment.
+         *
+         * @return float t in [0,1] such that pos + dir * t is when the sphere collide with the line segment.
+         * @return float t in [0,1] such that pos + dir * t is when the sphere exits the line segment, if the sphere already collides at pos.
+         * @return nothing if no such point exists, or none exists in the given range.
+         */
+        std::optional<float> unitSphereEdgeCollision(const glm::vec3& pos, const glm::vec3& dir, 
+                const glm::vec3& c, const glm::vec3& d) {
+            // this case is the same as if the sphere is a line segment, and the edge is a cylinder of size 1.
+            // technically, the edge should be a capsule, but the endpoint cases are captured in sphere-point collision
+            glm::vec3 a = pos, b = pos + dir;
+            glm::vec3 badc = glm::cross(b-a, d-c), acdc = glm::cross(a-c,d-c);
+            // intersection with an infinitely long cylinder
+            float A = glm::dot(badc, badc), B = 2 * glm::dot(badc, acdc), C = glm::dot(acdc, acdc) - glm::dot(d-c, d-c);
+
+            std::optional<float> t = solvePositiveQuadratic(A, B, C);
+            // if no valid solution, return nothing
+            if (!t || t.value() > 1) 
+                return {};
+
+            glm::vec3 P = t.value()*dir + pos;
+            float proj = glm::dot(P-c, d-c);
+            // check if the intersection is at the part of the cylinder we care about
+            bool intersecting = proj > 0 && proj < glm::dot(d-c, d-c);
+            if (intersecting) return t.value();
+            return {};
+        }
 	}
 
 	glm::vec3 detectAACylinderCylinderCollision(
@@ -87,54 +125,44 @@ namespace Saga::Geometry {
 		} else return glm::vec2(aRadius + bRadius, 0); // if the objects has the same center, then mtv is to the right.
 	}
 
-	float rayTriangleIntersection(const glm::vec3& origin, const glm::vec3& rayDirection, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) {
+    std::optional<float> rayTriangleIntersection(const glm::vec3& origin, const glm::vec3& rayDirection, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) {
 		glm::vec3 normal = glm::cross(b-a, c-a);
-		if (glm::dot(rayDirection, normal) <= 0) return -1; // if hitting backside, ignore
+        // if hitting backside or grazing, ignore
+		if (glm::dot(rayDirection, normal) <= 0) 
+            return {}; 
 		float t = glm::dot(a - origin, normal) / glm::dot(rayDirection, normal);  // intersection point with triangle plane
-		if (t < 0) return -1;
+		if (t < 0 || t > 1) 
+            return {};
 		glm::vec3 p = origin + t * rayDirection;
-		float u = glm::dot(p, b-a), v = glm::dot(p, c-a); // convert to triangular coordinates to check if in triangle
-		return (u >= 0 && u <= 1 && v >= 0 && v <= 1) ? t : -1;
+        // convert to triangular coordinates to check if in triangle
+		float u = glm::dot(p, b-a), v = glm::dot(p, c-a);
+
+        if (u >= 0 && u <= 1 && v >= 0 && v <= 1) return t;
+        return {};
 	}
 
-	float rayUnitSphereAtOriginIntersection(const glm::vec3& origin, const glm::vec3& rayDirection) {
+    std::optional<float> rayUnitSphereAtOriginIntersection(const glm::vec3& origin, const glm::vec3& rayDirection) {
 		float a = glm::dot(rayDirection, rayDirection);
 		float b = 2 * glm::dot(rayDirection, origin);
 		float c = glm::dot(origin, origin) - 1;
 		return solvePositiveQuadratic(a,b,c);
 	}
 
-	float rayEllipsoidOriginIntersection(const glm::vec3& origin, const glm::vec3& rayDirection, 
+    std::optional<float> rayEllipsoidOriginIntersection(const glm::vec3& origin, const glm::vec3& rayDirection, 
 		const glm::vec3& position, const glm::vec3& radius) {
 
 		return rayUnitSphereAtOriginIntersection((origin - position) / radius, rayDirection / radius);
 	}
 
-	float unitSphereEdgeCollision(const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& c, const glm::vec3& d) {
-		// this case is the same as if the sphere is a line segment, and the edge is a cylinder of size 1.
-		// technically, the edge should be a capsule, but the endpoint cases are captured in sphere-point collision
-		glm::vec3 a = pos, b = pos + dir;
-		glm::vec3 badc = glm::cross(b-a, d-c), acdc = glm::cross(a-c,d-c);
-		// intersection with an infinitely long cylinder
-		float A = glm::dot(badc, badc), B = 2 * glm::dot(badc, acdc), C = glm::dot(acdc, acdc) - glm::dot(d-c, d-c);
-		float t = solvePositiveQuadratic(A,B,C);
-		if (t < 0 || t > 1) return -1;
-
-		glm::vec3 P = t*dir + pos;
-		float proj = glm::dot(P-c, d-c);
-		// check if the intersection is at the part of the cylinder we care about
-		if (proj > 0 && proj < glm::dot(d-c, d-c)) 	return t;
-		else 										return -1;
-	}
-
-	float ellipsoidTriangleCollision(const glm::vec3& ellipsoidPos, const glm::vec3& ellipsoidDir, 
+    std::optional<float> ellipsoidTriangleCollision(const glm::vec3& ellipsoidPos, const glm::vec3& ellipsoidDir, 
 		const glm::vec3& ellipsoidRadius, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) {
 
 		if (!glm::dot(ellipsoidDir, ellipsoidDir)) {
-			// if not moving, we can't find collision. Might as well return -1
-			return -1;
+			// if not moving, we can't find collision. Might as well return nothing
+			return {};
 		}
 
+        // TODO: compile these out of the release build
 		if (!glm::dot(ellipsoidRadius, ellipsoidRadius)) SERROR("ellipsoidRadius is zero");
 		if (glm::any(glm::isnan(ellipsoidDir))) SERROR("ellipsoidDir contains nan");
 		if (glm::any(glm::isnan(ellipsoidPos))) SERROR("ellipsoidPos contains nan");
@@ -149,7 +177,6 @@ namespace Saga::Geometry {
     std::optional<float> rayBoxCollision(glm::vec3 rayOrigin, glm::vec3 rayDir, glm::vec3 corner0, glm::vec3 corner1) {
         // grabbbed from Journal of Computer Graphics Techniques: https://www.jcgt.org/published/0007/03/04/paper-lowres.pdf
         glm::vec3 inverseRayDir = glm::vec3(1/rayDir.x, 1/rayDir.y, 1/rayDir.z);
-
 
         glm::vec3 t0 = (corner0 - rayOrigin);
         glm::vec3 t1 = (corner1 - rayOrigin);
@@ -181,11 +208,10 @@ namespace Saga::Geometry {
         return lo; // should be the first time that the ray intersects the box
     }
 
-    float unitSphereTriangleCollision(const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) {
+    std::optional<float> unitSphereTriangleCollision(const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) {
         // interior collision
-        float t = rayTriangleIntersection( pos - glm::normalize(glm::cross(b-a, c-a)), dir, a, b, c);
-		if (t > 1) t = -1;
-        SASSERT_MESSAGE(!std::isnan(t),
+        std::optional<float> t = rayTriangleIntersection( pos - glm::normalize(glm::cross(b-a, c-a)), dir, a, b, c);
+        SASSERT_MESSAGE(!t || !std::isnan(t.value()),
             "Unit sphere collision results in nan for interior collision case. Sphere has position %s and direction %s. Triangle located at %s, %s, %s",
 			glm::to_string(pos).c_str(),
 			glm::to_string(dir).c_str(),
@@ -194,14 +220,14 @@ namespace Saga::Geometry {
 			glm::to_string(c).c_str()
 		);
         // edge collision
-        if (t == -1) {
+        if (!t) {
             glm::vec3 tri[3] = {a, b, c};
-            for (int i = 0; i < 3; i++) {
-                float tc = unitSphereEdgeCollision(pos, dir, tri[i], tri[(i+1)%3]);
-                if (t == -1 || t > tc) t = tc;
+            for (int triangleIndex = 0; triangleIndex < 3; triangleIndex++) {
+                std::optional<float> tc = unitSphereEdgeCollision(pos, dir, tri[triangleIndex], tri[(triangleIndex+1)%3]);
+                if (!t || (tc && t.value() > tc.value())) t = tc;
             }
         }
-        SASSERT_MESSAGE(!std::isnan(t), "Unit sphere collision results in nan for edge collision case. Sphere has position %s and direction %s. Triangle located at %s, %s, %s",
+        SASSERT_MESSAGE(!t || !std::isnan(t.value()), "Unit sphere collision results in nan for edge collision case. Sphere has position %s and direction %s. Triangle located at %s, %s, %s",
 			glm::to_string(pos).c_str(),
 			glm::to_string(dir).c_str(),
 			glm::to_string(a).c_str(),
@@ -209,14 +235,16 @@ namespace Saga::Geometry {
 			glm::to_string(c).c_str()
 		);
 		// point collision
-        if (t == -1) {
+        if (!t) {
             for (glm::vec3 v : {a,b,c}) {
-                float tc = rayUnitSphereAtOriginIntersection(v - pos, -dir);
-				if (tc > 1) tc = -1;
-                if (t == -1 || t > tc) t = tc;
+                std::optional<float> tc = rayUnitSphereAtOriginIntersection(v - pos, -dir);
+                if (tc) {
+                    if (tc.value() > 1) continue;
+                    if (!t || tc.value() < t.value()) t = tc;
+                }
             }
         }
-        SASSERT_MESSAGE(!std::isnan(t), 
+        SASSERT_MESSAGE(!t || !std::isnan(t.value()),
 			"Unit sphere collision results in nan for point collision case. Sphere has position %s and direction %s. Triangle located at %s, %s, %s",
 			glm::to_string(pos).c_str(),
 			glm::to_string(dir).c_str(),

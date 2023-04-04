@@ -2,7 +2,6 @@
 
 #include <glm/glm.hpp>
 #include <optional>
-#include "Engine/Entity/entity.h"
 
 namespace Saga {
 
@@ -10,6 +9,8 @@ namespace Saga {
      * @brief Represents a bounding box.
      */
     struct BoundingBox {
+        static float const oo; //!< infinity value. No bounding box's absolute value in any dimension can exceed this.
+
         glm::vec3 bounds[2]; //!< coordinates of the lower-left and upper-right corners of the bounding box, respectively.
 
         // TODO: Cache these operations, with a dirty mask that tells you when bounds was altered (for recomputing these values)
