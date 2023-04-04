@@ -91,6 +91,15 @@ namespace Saga::Systems {
 endCollisions: {}
         }
 
+        /**
+         * @brief Retrieve the world's CollisionSystemData. This should live as
+         * a component on an entity. If none exists, an entity with the component
+         * will be created.
+         *
+         * @param world the world that the data exists on. 
+         *
+         * @return a reference to the CollisionSystemData that is in this world.
+         */
         CollisionSystemData& getSystemData(std::shared_ptr<GameWorld> world) {
             auto allCollisionSystemData = world->viewAll<CollisionSystemData>();
             if (allCollisionSystemData->begin() == allCollisionSystemData->end()) {
@@ -102,17 +111,22 @@ endCollisions: {}
             return *allCollisionSystemData->begin();
         }
 
+        /**
+         * @brief This builds the bounding volume hierarchy for all static meshes
+         * in the scene, and stores it inside of CollisionSystemData.
+         */
         void rebuildStaticBVH(std::shared_ptr<GameWorld> world) {
             CollisionSystemData& collisionSystemData = getSystemData(world);
             if (!collisionSystemData.bvh.has_value())
-                collisionSystemData.bvh = BVH();
+                collisionSystemData.bvh = BoundingVolumeHierarchy();
 
-            std::vector<BVHTriangleData> allTriangles;
+            std::vector<TriangleData> allTriangles;
 
+            // first aggregate all triangle data
             for (auto &[entity, collider, mesh, meshCollider, transform] : *world->viewGroup<Collider, Mesh, MeshCollider, Transform>()) {
                 // grab all triangles in the mesh
                 for (int triangleIndex = 0; triangleIndex < mesh->getTrianglesCnt(); triangleIndex++) {
-                    BVHTriangleData triangleData;
+                    TriangleData triangleData;
                     triangleData.entity = entity;
 
                     // transform all triangles to world space
@@ -158,10 +172,10 @@ endCollisions: {}
                 Collision collision;
 
                 if (sysData.bvh) {
-                    std::optional<std::tuple<BVHTriangleData*, float>> hit = sysData.bvh.value().traceEllipsoid(curPos, dir, ellipsoidCollider.scale);
+                    std::optional<std::tuple<TriangleData*, float>> hit = sysData.bvh.value().traceEllipsoid(curPos, dir, ellipsoidCollider.scale);
 
                     if (hit) {
-                        BVHTriangleData* data = std::get<0>(hit.value());
+                        TriangleData* data = std::get<0>(hit.value());
                         float tc = std::get<1>(hit.value());
                         glm::vec3 triangleNormal = glm::normalize(glm::cross(data->triangle[1] - data->triangle[0], data->triangle[2] - data->triangle[0]));
                         collision = Collision(tc, tc * dir + curPos, triangleNormal, entityEllipsoid, data->entity);
@@ -203,6 +217,9 @@ endCollisions: {}
         }
     }
 
+    /**
+     * @brief Builds the bounding volume hierarchy of the scene's static triangles. Used for ellipsoid-triangle collisions
+     */
     void collisionSystem_startup(std::shared_ptr<GameWorld> world) {
         rebuildStaticBVH(world);
     }

@@ -27,7 +27,7 @@ namespace Saga::Systems {
 
 	/**
 	 * @brief System for handling collisions.
-	 * 
+	 *
 	 * @ingroup system
 	 * @param world 
 	 * @param deltaTime time since last call of this System.
@@ -35,10 +35,20 @@ namespace Saga::Systems {
 	 */
 	void collisionSystem(std::shared_ptr<GameWorld> world, float deltaTime, float time);
 
+
+    /**
+     * @brief System for handling collision. This should be run on startup / awake,
+     * and is responsible for constructing the datastructure neccessary for 
+     * collision detection
+     *
+     * @param world
+     */
     void collisionSystem_startup(std::shared_ptr<GameWorld> world);
 
 	/**
-	 * @brief Register all Group for this System.
+	 * @brief Register all Group for this System, as well as register
+     * collisionSystem and collisionSystem as Update and Awake staged systems
+     * respectively.
 	 * 
 	 * @param world 
 	 */

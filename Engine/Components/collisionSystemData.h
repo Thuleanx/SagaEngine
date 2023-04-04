@@ -7,10 +7,11 @@ namespace Saga {
 /**
  * @brief Manages data that the collision system uses. This lives in runtime on 
  * an empty entity.
+ *
  * @ingroup component
  */
 struct CollisionSystemData {
-    std::optional<BVH> bvh;
+    std::optional<BoundingVolumeHierarchy> bvh; //!< the bounding volume hierarchy of triangles of static objectts
 };
 
 }
