@@ -5,6 +5,7 @@
 #include "../_Core/logger.h"
 #include "../_Core/asserts.h"
 #include "glm/gtx/string_cast.hpp"
+#include <iostream>
 
 #define f(i,a,b) for (int i = a; i < b; i++)
 
@@ -145,7 +146,7 @@ namespace Saga::Geometry {
 			a / ellipsoidRadius,b / ellipsoidRadius,c / ellipsoidRadius);
 	}
 
-    std::optional<float> rayBoxCollision(glm::vec3 corner0, glm::vec3 corner1, glm::vec3 rayOrigin, glm::vec3 rayDir) {
+    std::optional<float> rayBoxCollision(glm::vec3 rayOrigin, glm::vec3 rayDir, glm::vec3 corner0, glm::vec3 corner1) {
         // grabbbed from Journal of Computer Graphics Techniques: https://www.jcgt.org/published/0007/03/04/paper-lowres.pdf
         glm::vec3 inverseRayDir = glm::vec3(1/rayDir.x, 1/rayDir.y, 1/rayDir.z);
 
@@ -158,8 +159,8 @@ namespace Saga::Geometry {
             // if rayDir in that direction is 0, then we must have started inside the bounds of the box in that direction
             // therefore, we would expect our point's displacement in that direction to the box's top and bottom points to be 
             // of different sign, or 0
-            if (!rayDir[dim] && (corner0[dim] - rayOrigin[dim]) * (corner1[dim] - rayOrigin[dim]) <= 0) {
-                return {}; // return nothing if not prompted
+            if (!rayDir[dim] && (corner0[dim] - rayOrigin[dim]) * (corner1[dim] - rayOrigin[dim]) > 0) {
+                return {}; // return nothing if not going to intersect
             } else if (!rayDir[dim]) {
                 // this means that in this dimension, we stay inside of the bounds for the entire duration
                 t0[dim] = 0;

@@ -107,8 +107,6 @@ endCollisions: {}
             if (!collisionSystemData.bvh.has_value())
                 collisionSystemData.bvh = BVH();
 
-            collisionSystemData.bvh.value().reset();
-
             std::vector<BVHTriangleData> allTriangles;
 
             for (auto &[entity, collider, mesh, meshCollider, transform] : *world->viewGroup<Collider, Mesh, MeshCollider, Transform>()) {
@@ -171,10 +169,10 @@ endCollisions: {}
                 }
 
 
-                if (collision.t == -1) 
+                if (collision.t == -1) {
                     return make_pair(nextPos, collisions);
-                else {
-                    // STRACE("Found collision at: %f, with position %s and normal %s.", collision.t, glm::to_string(collision.pos).c_str(),  glm::to_string(collision.normal).c_str());
+                } else {
+                    /* STRACE("Found collision at: %f, with position %s and normal %s.", collision.t, glm::to_string(collision.pos).c_str(),  glm::to_string(collision.normal).c_str()); */
 
                     // nudge the position a bit long the collision normal
                     curPos = collision.pos + collision.normal * nudgeAmt;
@@ -213,5 +211,10 @@ endCollisions: {}
         world->registerGroup<Saga::Collider, Saga::CylinderCollider, Saga::RigidBody, Saga::Transform>();
         world->registerGroup<Saga::Collider, Saga::Mesh, Saga::MeshCollider, Saga::Transform>();
         world->registerGroup<Saga::Collider, Saga::EllipsoidCollider, Saga::RigidBody, Saga::Transform>();
+
+		auto& systems = world->getSystems();
+		// collision handling on fixedUpdate
+		systems.addStagedSystem(std::make_shared<Saga::System<>>(collisionSystem_startup), Saga::SystemManager::Stage::Awake);
+		systems.addStagedSystem(std::make_shared<Saga::System<float, float>>(collisionSystem), Saga::SystemManager::Stage::FixedUpdate);
     }
 }

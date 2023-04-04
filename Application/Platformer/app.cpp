@@ -107,9 +107,6 @@ namespace Platformer {
 		systems.addStagedSystem(std::make_shared<Saga::System<>>(Saga::Systems::drawSystem), Saga::SystemManager::Stage::Draw);
 		// draw on resize
 		systems.addWindowResizeSystem(Saga::Systems::drawSystem_OnResize);
-		// collision handling on fixedUpdate
-		systems.addStagedSystem(std::make_shared<Saga::System<float, float>>(Saga::Systems::collisionSystem), Saga::SystemManager::Stage::FixedUpdate);
-		systems.addStagedSystem(std::make_shared<Saga::System<>>(Saga::Systems::collisionSystem_startup), Saga::SystemManager::Stage::Awake);
 
 		// input reading
 		systems.addKeyboardEventSystem(GLFW_KEY_W, Application::Systems::playerInputSystem_OnUpButton);

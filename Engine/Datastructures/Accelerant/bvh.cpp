@@ -10,30 +10,9 @@ using namespace std;
 
 namespace Saga {
 
-    BVHNode::BVHNode() {}
-
-    BVHNode::~BVHNode() {
-        for (BVHNode* child : children)
-            delete child;
-    }
-
-
-    BVH::BVH() {
-        root = NULL;
-    }
-
-    BVH::~BVH() {
-        delete root;
-    }
-
-    void BVH::reset() {
-        delete root;
-        root = NULL;
-    }
-
     void BVH::build(const vector<BVHTriangleData> &shapes) {
-        root = new BVHNode();
         allShapes.clear();
+        root = std::make_shared<BVHNode>();
 
         vector<BoxedShapeData*> shapesWithBounds;
         root->box = BoundingBox::getExtremeBound();
@@ -57,12 +36,10 @@ namespace Saga {
         if (shapesWithBounds.size()) build(root, shapesWithBounds);
     }
 
-    using S_V = vector<BoxedShapeData*>;
-
     // simple BVH split by centroid, pretend all shapes are centroids
-    void BVH::build(BVHNode* node, S_V &shapes) {
+    void BVH::build(std::shared_ptr<BVHNode> node, std::vector<BoxedShapeData*> &shapes) {
         if (shapes.size() < 2) {
-            node->shapes = S_V(shapes);
+            node->shapes = shapes;
             return;
         }
 
@@ -76,20 +53,19 @@ namespace Saga {
 
         // sort along dim, breaking ties arbitrarily
         sort(begin(shapes),end(shapes),
-                [&](BoxedShapeData* a, BoxedShapeData* b) {
-                return a->box.centroid()[dim] < b->box.centroid()[dim];
-                });
+            [&](BoxedShapeData* a, BoxedShapeData* b) {
+            return a->box.centroid()[dim] < b->box.centroid()[dim];
+        });
 
         int lsz = shapes.size()/2;
 
-        S_V leftShapes(lsz), rightShapes(shapes.size() - lsz);
+        std::vector<BoxedShapeData*> leftShapes(lsz), rightShapes(shapes.size() - lsz);
 
         copy(begin(shapes), begin(shapes) + lsz, begin(leftShapes));
         copy(begin(shapes) + lsz, end(shapes), begin(rightShapes));
 
-
-        BVHNode* left = new BVHNode();
-        BVHNode* right = new BVHNode();
+        std::shared_ptr<BVHNode> left = std::make_shared<BVHNode>();
+        std::shared_ptr<BVHNode> right = std::make_shared<BVHNode>();
 
         left->box = BoundingBox::getExtremeBound();
         right->box = BoundingBox::getExtremeBound();
@@ -108,11 +84,11 @@ namespace Saga {
 
     std::optional<BVH::BVHTracedData> BVH::traceEllipsoid(glm::vec3 pos, glm::vec3 dir, glm::vec3 scale) {
         std::optional<BVH::BVHTracedData> result = {};
-        traceEllipsoid(pos, dir, scale, root, result);
+        if (root) traceEllipsoid(pos, dir, scale, root, result);
         return result;
     }
 
-    void BVH::traceEllipsoid(glm::vec3 pos, glm::vec3 dir, glm::vec3 scale, BVHNode* node, std::optional<BVH::BVHTracedData> &result) {
+    void BVH::traceEllipsoid(glm::vec3 pos, glm::vec3 dir, glm::vec3 scale, std::shared_ptr<BVHNode> node, std::optional<BVH::BVHTracedData> &result) {
         // this should only run for terminal nodes
         // we loop through all shapes and see if any intersects with our ellipsoid
         for (BoxedShapeData* brsd : node->shapes) {
@@ -124,7 +100,7 @@ namespace Saga {
         }
 
         // recurse through children
-        for (BVHNode* child : node->children) {
+        for (std::shared_ptr<BVHNode> child : node->children) {
             std::optional<float> tc = child->box.findCollisionWithEllipsoid(pos, dir, scale);
             if (tc.has_value() && (!result.has_value() || tc.value() < std::get<1>(result.value()))) 
                 traceEllipsoid(pos, dir, scale, child, result);

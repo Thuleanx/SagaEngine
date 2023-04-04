@@ -1,6 +1,5 @@
 #include "boundingBox.h"
 #include "Engine/Utils/geometry.h"
-#include <iostream>
 #include <cstdio>
 using namespace glm;
 using namespace std;
@@ -85,7 +84,7 @@ namespace Saga {
     }
 
     std::optional<float> BoundingBox::findCollisionWithEllipsoid(glm::vec3 point, glm::vec3 dir, glm::vec3 ellipsoid) {
-        return Saga::Geometry::rayBoxCollision(point, dir, bounds[0] - ellipsoid/2.0f, bounds[1] + ellipsoid/2.0f);
+        return Saga::Geometry::rayBoxCollision(point, dir, bounds[0] - ellipsoid, bounds[1] + ellipsoid);
     }
 
     bool BoundingBox::intersectWith(const BoundingBox &other) {
