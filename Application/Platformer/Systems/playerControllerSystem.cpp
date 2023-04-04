@@ -24,7 +24,7 @@ namespace Platformer::Systems {
 
 			glm::vec3 moveX = glm::vec3(-look.z, 0, look.x);
 			glm::vec3 moveY = glm::vec3(look.x, 0, look.z);
-			glm::vec3 horizontalVelocity = (moveX * movement.x + moveY * movement.y);
+			glm::vec3 horizontalVelocity = (moveX * movement.x + moveY * movement.y) * controller->movementSpeed;
 
 			// horizontal speed
 			rigidbody->velocity.x = horizontalVelocity.x;
