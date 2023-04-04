@@ -29,3 +29,5 @@ _deps
 
 Documentation/
 build/
+
+.cache/clangd

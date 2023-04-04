@@ -35,6 +35,8 @@ namespace Saga::Systems {
 	 */
 	void collisionSystem(std::shared_ptr<GameWorld> world, float deltaTime, float time);
 
+    void collisionSystem_startup(std::shared_ptr<GameWorld> world);
+
 	/**
 	 * @brief Register all Group for this System.
 	 * 

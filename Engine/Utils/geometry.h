@@ -2,6 +2,7 @@
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <optional>
 
 namespace Saga {
 	namespace Geometry {
@@ -78,6 +79,17 @@ namespace Saga {
 		 */
 		float ellipsoidTriangleCollision(const glm::vec3& ellipsoidPos, const glm::vec3& ellipsoidDir, 
 			const glm::vec3& ellipsoidRadius, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c);
+
+        /**
+         * @brief Find the intersection time t between a ray and a box
+         *
+         * @param cornerBotLeft bottom left corner of the box.
+         * @param cornerUpRIght upper right corner of the box.
+         * @param rayOrigin origin of the ray.
+         * @param rayDir direction of the ray
+         * @return either the time t in [0,1] where rayOrigin + rayDir * t is intersecting the box, or nothing. If the ray starts inside the box, this return 0.
+         */
+        std::optional<float> rayBoxCollision(glm::vec3 cornerBotLeft, glm::vec3 cornerUpRight, glm::vec3 rayOrigin, glm::vec3 rayDir);
 
 		// 2D
 		/**
