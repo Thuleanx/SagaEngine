@@ -10,7 +10,7 @@ struct FriendController {
         : movementSpeed(movementSpeed), orbitDistance(orbitDistance) {}
 
 	float verticalVelocity = 0;
-	float gravity = 40;
+	float gravity = 20;
 	float jumpVelocity = 15;
 };
 } // namespace Platformer

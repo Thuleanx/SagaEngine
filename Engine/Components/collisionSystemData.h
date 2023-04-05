@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Datastructures/Accelerant/bvh.h"
+#include "Engine/Datastructures/Accelerant/uniformGrid.h"
 
 namespace Saga {
 
@@ -12,6 +13,7 @@ namespace Saga {
  */
 struct CollisionSystemData {
     std::optional<BoundingVolumeHierarchy> bvh; //!< the bounding volume hierarchy of triangles of static objectts
+    std::optional<UniformGrid<Entity>> uniformGrid;
 };
 
 }
