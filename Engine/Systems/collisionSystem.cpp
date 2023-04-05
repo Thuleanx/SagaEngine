@@ -164,6 +164,7 @@ endCollisions: {}
             std::vector<Collision> collisions;
 
             auto sysData = getSystemData(world);
+            auto allEllipsoids = *world->viewGroup<Collider, EllipsoidCollider, RigidBody, Transform>();
 
             for (int i = 0; i < MAX_TRANSLATIONS; i++) {
                 glm::vec3 dir = nextPos - curPos;
@@ -171,6 +172,7 @@ endCollisions: {}
                 // get closest collision
                 Collision collision;
 
+                // detecting static collision
                 if (sysData.bvh) {
                     std::optional<std::tuple<BoundingVolumeHierarchy::TriangleData*, float>> hit = sysData.bvh.value().traceEllipsoid(curPos, dir, ellipsoidCollider.scale);
 
@@ -182,21 +184,21 @@ endCollisions: {}
                     }
                 }
 
-
-                if (collision.t == -1) {
+                if (!collision.t) {
                     return make_pair(nextPos, collisions);
                 } else {
                     /* STRACE("Found collision at: %f, with position %s and normal %s.", collision.t, glm::to_string(collision.pos).c_str(),  glm::to_string(collision.normal).c_str()); */
 
                     // nudge the position a bit long the collision normal
-                    curPos = collision.pos + collision.normal * nudgeAmt;
+                    curPos = collision.pos.value() + collision.normal.value() * nudgeAmt;
 
                     dir = nextPos - curPos;
-                    glm::vec3 dirCorrected = dir - glm::dot(dir, collision.normal) * collision.normal;
+                    // correct direction by negating it in the normal direction to the collision.
+                    glm::vec3 dirCorrected = dir - glm::dot(dir, collision.normal.value()) * collision.normal.value();
                     nextPos = curPos + dirCorrected;
 
                     // also adjust velocity so there wouldn't be any in the collision normal direction
-                    rigidBody.velocity -= glm::dot(rigidBody.velocity, collision.normal) * collision.normal;
+                    rigidBody.velocity -= glm::dot(rigidBody.velocity, collision.normal.value()) * collision.normal.value();
 
                     collisions.push_back(collision);
                 }

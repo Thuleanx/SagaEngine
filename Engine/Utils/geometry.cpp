@@ -5,49 +5,12 @@
 #include "../_Core/logger.h"
 #include "../_Core/asserts.h"
 #include "glm/gtx/string_cast.hpp"
-#include <iostream>
+#include "Engine/Utils/math.h"
 
 #define f(i,a,b) for (int i = a; i < b; i++)
 
 namespace Saga::Geometry {
 	namespace {
-		/**
-		 * @brief Solve for the minimum t such that quadratic equation at^2 + bt + c = 0 is satisfied
-		 * 
-		 * @param a 
-		 * @param b 
-		 * @param c 
-		 * @return float the minimum positive t.
-         * @return nothing if no such value exists, or it's complex.
-		 */
-        std::optional<float> solvePositiveQuadratic(float a, float b, float c) {
-			// system is linear, we solve it with b and c
-			if (!a) {
-				// bx + c = 0
-				if (!b && c) {
-					SWARN("Equation %f t^2 + %f t + %f = 0 does not have a solution. Returning nothing.", a,b,c);
-                    return {};
-				} else if (!b) {
-					SWARN("Equation %f t^2 + %f t + %f = 0 have infinitely many solutions. Returning nothing.", a,b,c);
-                    return {};
-				} else if (-c/b < 0) {
-                    return {};
-                } else 
-                    return -c/b;
-			}
-
-			float d = b*b - 4*a*c;
-            // solution is complex
-			if (d < 0) return {};
-			d = sqrt(d);
-
-			float c1 = (-b-d) / (2*a), c2 = (-b+d) / (2*a);
-			if (c1 > c2) std::swap(c1, c2);
-
-			if (c2 < 0) return {};
-			// choose between the two roots
-			return c1 < 0 ? c2 : c1;
-		}
 
         /**
          * @brief Find collision between a moving unit sphere and an edge (line segment) in 3D.
@@ -70,7 +33,7 @@ namespace Saga::Geometry {
             // intersection with an infinitely long cylinder
             float A = glm::dot(badc, badc), B = 2 * glm::dot(badc, acdc), C = glm::dot(acdc, acdc) - glm::dot(d-c, d-c);
 
-            std::optional<float> t = solvePositiveQuadratic(A, B, C);
+            std::optional<float> t = Math::solvePositiveQuadratic(A, B, C);
             // if no valid solution, return nothing
             if (!t || t.value() > 1) 
                 return {};
@@ -99,6 +62,74 @@ namespace Saga::Geometry {
 			return glm::vec3(hmtv.x, 0, hmtv.y);
 		return glm::vec3(0, vmtv, 0);
 	}
+        
+    std::optional<std::tuple<float, glm::vec3>> movingCylinderCylinderIntersection(
+        float height0, float radius0, glm::vec3 pos0, 
+        float height1, float radius1, glm::vec3 pos1, glm::vec3 dir) {
+
+        if (!radius0 || !radius1) return {};
+
+        // strategy is to find intervals where the two cylinders overlap in the 
+        // y axis and in the xz plane. Then the low point of the two intervals,
+        // assuming the intersection is valid, is the desired time t
+
+        float lov, hiv;
+        // if not moving in the y direction
+        if (!dir.y) {
+            float vmtv = detectLineSegmentCollision(pos0.y - height0/2, pos0.y + height0/2, 
+                pos1.y - height1/2, pos1.y + height1/2);
+            // if the two line segments don't ever intersect, we can say there's no collision
+            if (!vmtv) return {};
+            lov = 0, hiv = 1;
+        } else {
+            float signedDir = dir.y < 0 ? -1 : 1;
+            float heightCombined = signedDir * (height0 + height1) / 2;
+
+            lov = ((pos1.y - heightCombined) - pos0.y) / dir.y;
+            hiv = ((pos1.y + heightCombined) - pos0.y) / dir.y;
+        }
+        
+        float loxz, hixz;
+        if (!dir.x && !dir.z) {
+            glm::vec2 hmtv = detectCircleCollision(glm::vec2(pos0.x,pos0.z), radius0, 
+                glm::vec2(pos1.x,pos1.z), radius1);
+            // if two circles never intersect, then we say there's no collision
+            if (!hmtv.x && !hmtv.y) return {};
+            loxz = 0, hixz = 1;
+        } else {
+            // for solving quadratic formula
+            glm::vec3 displacement = pos1 - pos0;
+            glm::vec2 rayOrigin = glm::vec2(displacement.x, displacement.z);
+
+            auto result = rayUnitCircleAtOriginIntersection(rayOrigin, glm::vec2(dir.x, dir.z) / (radius0 + radius1));
+
+            // if the circles never intersect
+            if (!result) return {};
+
+            std::tie(loxz, hixz) = result.value();
+        }
+
+        lov = std::max(0.f, lov);
+
+        bool hasCollision = 1;
+        hasCollision &= loxz <= hiv && lov <= hixz; // the intervals must intersect
+        hasCollision &= loxz <= hixz && lov <= hiv; // the intervals must be valid
+        hasCollision &= lov <= 1 || loxz <= 1; // at least one interval must intersect with [0,1]
+
+        if (!hasCollision)
+            return {};
+
+        if (lov < loxz) {
+            // vertical collision first, and the normal is in the opposite direction
+            return std::make_tuple(lov, glm::vec3(0, dir.y < 0 ? 1 : -1, 0));
+        } 
+
+        // collision in the xz plane
+        glm::vec3 projectedPos0 = pos0 + dir * loxz;
+        glm::vec3 projectedNormal = projectedPos0 - pos1;
+
+        return std::make_tuple(loxz, glm::normalize(glm::vec3(projectedNormal.x, 0, projectedNormal.z)));
+    }
 
 	float detectLineSegmentCollision(
 		const float &alo, const float &ahi, 
@@ -145,13 +176,29 @@ namespace Saga::Geometry {
 		float a = glm::dot(rayDirection, rayDirection);
 		float b = 2 * glm::dot(rayDirection, origin);
 		float c = glm::dot(origin, origin) - 1;
-		return solvePositiveQuadratic(a,b,c);
+		return Math::solvePositiveQuadratic(a,b,c);
 	}
 
-    std::optional<float> rayEllipsoidOriginIntersection(const glm::vec3& origin, const glm::vec3& rayDirection, 
+    std::optional<std::tuple<float,float>> rayUnitCircleAtOriginIntersection(const glm::vec2& origin, const glm::vec2& rayDirection) {
+		float a = glm::dot(rayDirection, rayDirection);
+		float b = 2 * glm::dot(rayDirection, origin);
+		float c = glm::dot(origin, origin) - 1;
+        std::vector<float> sols = Math::solveQuadraticReals(a,b,c);
+        // this ensures that the resulting tlo and thi are ordered
+        if (sols.size() == 2 && sols[0] > sols[1]) 
+            std::swap(sols[0], sols[1]);
+        // no collision
+        if (!sols.size()) 
+            return {};
+        if (sols.size() == 1)
+            return std::make_tuple(sols[0], sols[0]);
+        return std::make_tuple(sols[0], sols[1]);
+    }
+
+    std::optional<float> rayEllipsoidIntersection(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, 
 		const glm::vec3& position, const glm::vec3& radius) {
 
-		return rayUnitSphereAtOriginIntersection((origin - position) / radius, rayDirection / radius);
+		return rayUnitSphereAtOriginIntersection((rayOrigin - position) / radius, rayDirection / radius);
 	}
 
     std::optional<float> ellipsoidTriangleCollision(const glm::vec3& ellipsoidPos, const glm::vec3& ellipsoidDir, 
@@ -255,5 +302,12 @@ namespace Saga::Geometry {
         return t;
     }
 
+    std::optional<float> movingEllipsoidEllipsoidIntersection(
+        const glm::vec3 &ellipsoidPos0, const glm::vec3 &ellipsoidDir0, const glm::vec3 &ellipsoidRadius0,
+        const glm::vec3 &ellipsoidPos1, const glm::vec3 &ellipsoidRadius1) {
 
+        return rayEllipsoidIntersection(
+            ellipsoidPos0, ellipsoidDir0,
+            ellipsoidPos1, ellipsoidRadius0 + ellipsoidRadius1);
+    }
 }

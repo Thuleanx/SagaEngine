@@ -1,8 +1,9 @@
 #pragma once
 
 #include <memory>
-#include "Engine/saga.h"
 #include <glm/vec3.hpp>
+#include <optional>
+#include "Engine/saga.h"
 
 namespace Saga {
 	class GameWorld;
@@ -14,13 +15,14 @@ namespace Saga::Systems {
 	 * @brief Collision struct that details a collision.
 	 */
 	struct Collision {
-		float t; //!< time at which the collision happens. -1 if this collision object is not a collision.
-		glm::vec3 pos; //!< position of the collision.
-		glm::vec3 normal; //!< normal direction of the collision.
+        std::optional<float> t; //!< time at which the collision happens, if collision does happen
+        std::optional<glm::vec3> pos; //!< position of the collision.
+        std::optional<glm::vec3> normal; //!< normal direction of the collision.
+	
 		Entity entity0; //!< first Entity in the collision.
 		Entity entity1; //!< second Entity in the collision. The normal direction is away from this Entity.
 
-		Collision() { t = -1; }
+		Collision() { }
 		Collision(float t, glm::vec3 pos, glm::vec3 normal, Entity e1, Entity e2) : 
 			t(t), pos(pos), normal(normal), entity0(e1), entity1(e2) {}
 	};

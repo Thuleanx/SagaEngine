@@ -20,6 +20,25 @@ namespace Saga {
 		 */
 		glm::vec3 detectAACylinderCylinderCollision(float height0, float radius0, glm::vec3 pos0, float height1, float radius1, glm::vec3 pos1);
 
+        /**
+         * @brief Find the earliest time between intersection of two cylinders, one of which is moving.
+         * It must be the case that the two cylinders are not penetrating at the start. 
+         *
+		 * @param height0 height of the first cylinder.
+		 * @param radius0 radius of the first cylinder.
+		 * @param pos0 position of the first cylinder.
+		 * @param height1 height of the second cylinder.
+		 * @param radius1 radius of the second cylinder.
+		 * @param pos1 position of the second cylinder.
+         * @param dir the direction of the first cylinder.
+         * 
+         * @return float t in (0,1] such that pos0 + t * dir is the first time that the two cylinders intersect.
+         * @return glm::vec3 normal the normal direction of the contact.
+         * @return nothing if the two cylinders are already penetrating, or if t does not exist in the range (0,1].
+         * @warn does not work on degenerate cylinders. Will return nothing.
+         */
+        std::optional<std::tuple<float, glm::vec3>> movingCylinderCylinderIntersection(float height0, float radius0, glm::vec3 pos0, float height1, float radius1, glm::vec3 pos1, glm::vec3 dir);
+
 		/**
 		 * @brief Find the intersection time t where a ray and triangle intersects. Does not detect intersections to the back side of the triangle.
 		 * 
@@ -58,7 +77,20 @@ namespace Saga {
          * @return nothing if no such t exists.
          * @return 0 if ray starts out intersecting the the ellipsoid.
 		 */
-        std::optional<float> rayEllipsoidOriginIntersection(const glm::vec3& origin, const glm::vec3& rayDirection, const glm::vec3& position, const glm::vec3& radius);
+        std::optional<float> rayEllipsoidIntersection(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const glm::vec3& position, const glm::vec3& radius);
+
+        /**
+         * @brief Find the intersection between two moving axis-aligned ellipsoids.
+         * 
+         * @param ellipsoidPos0 position of the first ellipsoid.
+         * @param ellipsoidDir0 direction that the first ellipsoid is moving.
+         * @param ellipsoidRadius0 radius of the first ellipsoid.
+         * @param ellipsoidPos1 position of the second ellipsoid.
+         * @param ellipsoidRadius1 radius of the second ellipsoid.
+         */
+        std::optional<float> movingEllipsoidEllipsoidIntersection(
+            const glm::vec3 &ellipsoidPos0, const glm::vec3 &ellipsoidDir0, const glm::vec3 &ellipsoidRadius0,
+            const glm::vec3 &ellipsoidPos1, const glm::vec3 &ellipsoidRadius1);
 
 		/**
 		 * @brief Find the intersection time t between a moving unit sphere with a triangle.
@@ -112,6 +144,17 @@ namespace Saga {
 		 */
 		glm::vec2 detectCircleCollision(const glm::vec2& aPos, const float &aRadius, const glm::vec2& bPos, const float &bRadius);
 
+		/**
+		 * @brief Find the entrance and exit times t between a unit circle at the origin and a ray.
+		 * 
+		 * @param origin origin of the ray.
+         * @param rayDirection direction of the ray.
+         * @return tlo <= thi such that origin + tlo * rayDirection is the intersection between the ray and the unit circle, 
+         *  and the same applies to thi.
+         * @return nothing if no intersection exists.
+		 */
+        std::optional<std::tuple<float,float>> rayUnitCircleAtOriginIntersection(const glm::vec2& origin, const glm::vec2& rayDirection);
+
 		// 1D
 		/**
 		 * @brief Detect collision (and return minimum translation vector) of two line segments. 
@@ -123,5 +166,6 @@ namespace Saga {
 		 * @return float minimum distance the first line segment has to move for both to not be intersecting
 		 */
 		float detectLineSegmentCollision(const float &alo, const float &ahi, const float &blo, const float &bhi);
+
 	}
 }

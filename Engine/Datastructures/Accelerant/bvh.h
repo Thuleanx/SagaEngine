@@ -84,7 +84,6 @@ namespace Saga {
         std::optional<TracedData> traceEllipsoid(glm::vec3 pos, glm::vec3 dir, glm::vec3 scale);
 
     private:
-
         /**
          * Maximum number of triangles we want in leaf nodes. If a node potentially
          * contains at most this number of triangles, we make it a leaf node.

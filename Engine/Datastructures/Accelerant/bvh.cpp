@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "Engine/Datastructures/Accelerant/boundingBox.h"
 #include "Engine/Utils/geometry.h"
+#include "Engine/_Core/logger.h"
 using namespace glm;
 using namespace std;
 
@@ -44,6 +45,7 @@ namespace Saga {
             shapesWithBounds.push_back(&allShapes[i]);
 
         if (shapesWithBounds.size()) build(root, shapesWithBounds);
+        SINFO("Bounding Volume Hierarchy created with %d triangles.", allShapes.size());
     }
 
     void BoundingVolumeHierarchy::build(std::shared_ptr<Node> node, std::vector<BoundedShapeData*> &shapes) {
