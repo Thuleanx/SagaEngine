@@ -55,10 +55,12 @@ namespace Platformer {
 
 		auto setupPlane = [this]() {
 			Saga::Entity plane = world->createEntity();
-			Saga::Mesh& planeMesh = *world->emplace<Saga::Mesh>(plane, "Blender/denseNoisyPlane.obj");
+			Saga::Mesh& planeMesh = *world->emplace<Saga::Mesh>(plane, "Blender/noisyPlane.obj");
 			Saga::Material& mat = *world->emplace<Saga::Material>(plane,
 				Saga::Theme_Nostalgic::colors[1]);
-			world->emplace<Saga::Transform>(plane);
+            Saga::Transform* transform = world->emplace<Saga::Transform>(plane);
+            transform->transform->setScale(2);
+
 			world->emplace<Saga::Collider>(plane);
 			world->emplace<Saga::MeshCollider>(plane);
 
@@ -91,8 +93,8 @@ namespace Platformer {
 
         auto setupFriend = [this, &rng]() {
             Saga::Entity fr = world->createEntity();
-            float movespeed = std::uniform_real_distribution<float>(0.5f, 1.0f)(rng);
-            float orbitDistance = std::uniform_real_distribution<float>(2, 5)(rng);
+            float movespeed = std::uniform_real_distribution<float>(0.5f, 2.f)(rng);
+            float orbitDistance = std::uniform_real_distribution<float>(2,8)(rng);
             int colorIndex = std::uniform_int_distribution<int>(0,8)(rng);
 
             world->emplace<Platformer::FriendController>(fr, 

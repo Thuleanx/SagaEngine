@@ -17,8 +17,7 @@ namespace Platformer::Systems {
             d.y = 0;
 
             // inward force scale squared of distance from the ideal orbit distance
-            glm::vec3 inward = glm::vec3(0);
-            /* glm::vec3 inward = -d * (glm::dot(d,d) - controller->orbitDistance * controller->orbitDistance); */
+            glm::vec3 inward = -glm::normalize(d) * (glm::dot(d,d) - controller->orbitDistance * controller->orbitDistance);
             // tangent speed is movement speed
             glm::vec3 tangent = glm::normalize(glm::vec3(-d.z, 0, d.x)) * controller->movementSpeed;
 

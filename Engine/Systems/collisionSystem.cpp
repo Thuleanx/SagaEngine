@@ -158,8 +158,10 @@ endCollisions: {}
             glm::vec3 curPos = transform.transform->getPos();
             glm::vec3 nextPos = curPos + rigidBody.velocity * deltaTime;
 
-            const int MAX_TRANSLATIONS = 100;
-            const float nudgeAmt = 0.0001f;
+            const int MAX_TRANSLATIONS = 10;
+            const int MAX_NUDGES = 10;
+            const float EPSILON = 0.0001f;
+            const float nudgeAmt = 0.01f;
 
             std::vector<Collision> collisions;
 
@@ -168,10 +170,15 @@ endCollisions: {}
 
             CylinderCollider* cylinderCollider = world->getComponent<CylinderCollider>(entityEllipsoid);
 
-            for (int i = 0; i < MAX_TRANSLATIONS; i++) {
-                glm::vec3 dir = nextPos - curPos;
-
-                // get closest collision
+            /**
+             * @brief Get the closest collision for the current ellipsoid starting at pos
+             * and moving to pos+dir.
+             * @param pos the position of the ellipsoid.
+             * @param dir the direction the ellipsoid is moving to.
+             * @return Collision at time t in [0,1] where position + t * dir is where the ellipsoid first collides with another object.
+             * @return nothing if no collision exists.
+             */
+            auto getClosestCollision = [&](glm::vec3 pos, glm::vec3 dir) {
                 Collision collision;
 
                 // detecting static collision
@@ -185,7 +192,6 @@ endCollisions: {}
                         collision = Collision(tc, tc * dir + curPos, triangleNormal, entityEllipsoid, data->entity);
                     }
                 }
-                bool collideDynamic = false;
 
                 // detecting dynamic collision
                 if (cylinderCollider) {
@@ -196,7 +202,6 @@ endCollisions: {}
                             transform.getPos(), otherCylinderCollider->height, otherCylinderCollider->radius, otherTransform->getPos(), dir);
 
                         if (hit) {
-                            collideDynamic = true;
                             float tc = std::get<0>(hit.value());
                             if (!collision.t || collision.t.value() > tc) 
                                 collision = Collision(tc, tc * dir + curPos, std::get<1>(hit.value()), entityEllipsoid, otherEntity);
@@ -204,15 +209,50 @@ endCollisions: {}
                     }
                 }
 
+                return collision;
+            };
+
+            auto doNudge = [&](glm::vec3 pos, Collision &collision) {
+                glm::vec3 nudge = collision.normal.value();
+                glm::vec3 pos_nudged = collision.pos.value() + nudge * nudgeAmt;
+
+                for (int i = 0; i < MAX_NUDGES; i++) {
+                    Collision nudge_collision = getClosestCollision(pos, pos_nudged - pos);
+                    if (!nudge_collision.t) {
+                        pos = pos_nudged;
+                        break;
+                    } else {
+                        if (i == MAX_NUDGES-1) break; // might as well not do any computation if on last iteration
+
+                        // this code is necessary when we hit an edge shared by two triangles in exactly the wrong way
+                        // this code tests whether we are nudged into the same triangle twice, and nudges you in the 
+                        // OPPOSITE direction if that happens
+                        glm::vec3 collisionNormal = nudge_collision.normal.value();
+                        glm::vec3 diff = collisionNormal - nudge;
+                        if (glm::dot(diff, diff) < EPSILON) 
+                            nudge = -collisionNormal;
+                        else
+                            nudge = collisionNormal;
+                        pos_nudged = nudge_collision.pos.value() + nudge * nudgeAmt;
+                    }
+                }
+                return pos;
+            };
+
+            for (int i = 0; i < MAX_TRANSLATIONS; i++) {
+                glm::vec3 dir = nextPos - curPos;
+
+                // get closest collision
+                Collision collision = getClosestCollision(curPos, dir);
 
                 if (!collision.t) {
                     return make_pair(nextPos, collisions);
                 } else {
-                    if (collideDynamic)
-                        STRACE("Found collision at: %f, with position %s and normal %s.", collision.t.value(), glm::to_string(collision.pos.value()).c_str(),  glm::to_string(collision.normal.value()).c_str());
+                    /* STRACE("Found collision at: %f, with position %s and normal %s.", collision.t.value(), glm::to_string(collision.pos.value()).c_str(),  glm::to_string(collision.normal.value()).c_str()); */
 
                     // nudge the position a bit long the collision normal
-                    curPos = collision.pos.value() + collision.normal.value() * nudgeAmt;
+                    /* curPos = collision.pos.value() + nudgeAmt * collision.normal.value(); */
+                    curPos = doNudge(curPos, collision);
 
                     dir = nextPos - curPos;
                     // correct direction by negating it in the normal direction to the collision.
