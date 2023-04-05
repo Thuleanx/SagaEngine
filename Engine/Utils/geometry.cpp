@@ -83,10 +83,11 @@ namespace Saga::Geometry {
             lov = 0, hiv = 1;
         } else {
             float signedDir = dir.y < 0 ? -1 : 1;
-            float heightCombined = signedDir * (height0 + height1) / 2;
+            float heightCombined = (height0 + height1) / 2;
 
             lov = ((pos1.y - heightCombined) - pos0.y) / dir.y;
             hiv = ((pos1.y + heightCombined) - pos0.y) / dir.y;
+            if (lov > hiv) std::swap(lov, hiv);
         }
         
         float loxz, hixz;
@@ -98,7 +99,7 @@ namespace Saga::Geometry {
             loxz = 0, hixz = 1;
         } else {
             // for solving quadratic formula
-            glm::vec3 displacement = pos1 - pos0;
+            glm::vec3 displacement = pos0 - pos1;
             glm::vec2 rayOrigin = glm::vec2(displacement.x, displacement.z);
 
             auto result = rayUnitCircleAtOriginIntersection(rayOrigin, glm::vec2(dir.x, dir.z) / (radius0 + radius1));
@@ -110,16 +111,17 @@ namespace Saga::Geometry {
         }
 
         lov = std::max(0.f, lov);
+        loxz = std::max(0.f, loxz);
 
         bool hasCollision = 1;
         hasCollision &= loxz <= hiv && lov <= hixz; // the intervals must intersect
         hasCollision &= loxz <= hixz && lov <= hiv; // the intervals must be valid
-        hasCollision &= lov <= 1 || loxz <= 1; // at least one interval must intersect with [0,1]
+        hasCollision &= lov <= 1 && loxz <= 1; // at least one interval must intersect with [0,1]
 
         if (!hasCollision)
             return {};
 
-        if (lov < loxz) {
+        if (lov > loxz) {
             // vertical collision first, and the normal is in the opposite direction
             return std::make_tuple(lov, glm::vec3(0, dir.y < 0 ? 1 : -1, 0));
         } 

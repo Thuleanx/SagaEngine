@@ -130,7 +130,7 @@ namespace Platformer {
 		Saga::Entity camera = setupCamera(player);
 		/* Saga::Entity backingTrack = setupBackingTrack(); */
 
-        int friendCnt = 1;
+        int friendCnt = 10;
         while (friendCnt --> 0) 
             setupFriend();
 	}

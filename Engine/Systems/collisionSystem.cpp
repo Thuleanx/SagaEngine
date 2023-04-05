@@ -185,6 +185,7 @@ endCollisions: {}
                         collision = Collision(tc, tc * dir + curPos, triangleNormal, entityEllipsoid, data->entity);
                     }
                 }
+                bool collideDynamic = false;
 
                 // detecting dynamic collision
                 if (cylinderCollider) {
@@ -195,6 +196,7 @@ endCollisions: {}
                             transform.getPos(), otherCylinderCollider->height, otherCylinderCollider->radius, otherTransform->getPos(), dir);
 
                         if (hit) {
+                            collideDynamic = true;
                             float tc = std::get<0>(hit.value());
                             if (!collision.t || collision.t.value() > tc) 
                                 collision = Collision(tc, tc * dir + curPos, std::get<1>(hit.value()), entityEllipsoid, otherEntity);
@@ -206,7 +208,8 @@ endCollisions: {}
                 if (!collision.t) {
                     return make_pair(nextPos, collisions);
                 } else {
-                    /* STRACE("Found collision at: %f, with position %s and normal %s.", collision.t, glm::to_string(collision.pos).c_str(),  glm::to_string(collision.normal).c_str()); */
+                    if (collideDynamic)
+                        STRACE("Found collision at: %f, with position %s and normal %s.", collision.t.value(), glm::to_string(collision.pos.value()).c_str(),  glm::to_string(collision.normal.value()).c_str());
 
                     // nudge the position a bit long the collision normal
                     curPos = collision.pos.value() + collision.normal.value() * nudgeAmt;
