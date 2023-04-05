@@ -1,12 +1,19 @@
 #include "app.h"
+#include "Application/Platformer/Components/friendController.h"
+#include "Application/Platformer/Systems/friendControllerSystem.h"
+#include "Engine/Components/collider.h"
 #include "Engine/Constants/colorthemes.h"
+#include "Engine/Entity/entity.h"
 #include "Systems/playerControllerSystem.h"
 #include "../General/Systems/playerInputSystem.h"
 #include "../General/Systems/thirdPersonCameraSystem.h"
 #include "Components/playerController.h"
+#include <stdlib.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "config.h"
+#include <random>
+#include <chrono>
 
 namespace Platformer {
 	App::App() {
@@ -22,6 +29,8 @@ namespace Platformer {
 	void App::setupWorld() {
 		world = createGameWorld();
 		setupSystems();
+
+        std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
 
 		auto setupCamera = [this](Saga::Entity player) {
 			Saga::Entity camera = world->createEntity();
@@ -72,12 +81,41 @@ namespace Platformer {
 			world->emplace<Saga::Collider>(player);
 			world->emplace<Saga::EllipsoidCollider>(player, glm::vec3(0.5f)); // sphere collider
 			world->emplace<Saga::RigidBody>(player);
+            world->emplace<Saga::CylinderCollider>(player, 1, 0.5);
 
 			Saga::Transform* transform = world->emplace<Saga::Transform>(player);
 			transform->transform->setPos(glm::vec3(0,10,0));
 			// SDEBUG("Transform: <%f, %f, %f>", pos.x, pos.y, pos.z);
 			return player;
 		};
+
+        auto setupFriend = [this, &rng]() {
+            Saga::Entity fr = world->createEntity();
+            float movespeed = std::uniform_real_distribution<float>(0.5f, 1.0f)(rng);
+            float orbitDistance = std::uniform_real_distribution<float>(2, 5)(rng);
+            int colorIndex = std::uniform_int_distribution<int>(0,8)(rng);
+
+            world->emplace<Platformer::FriendController>(fr, 
+                movespeed, orbitDistance
+            );
+			world->emplace<Saga::Material>(fr, Saga::Theme_Nostalgic::colors[colorIndex]);
+			world->emplace<Saga::Mesh>(fr, Saga::Mesh::StandardType::Sphere);
+			world->emplace<Saga::Collider>(fr);
+			world->emplace<Saga::EllipsoidCollider>(fr, glm::vec3(0.5f)); // sphere collider
+			world->emplace<Saga::RigidBody>(fr);
+            world->emplace<Saga::CylinderCollider>(fr, 1, 0.5);
+
+            float randomRadiant = std::uniform_real_distribution<float>(0.0, 2*M_PI)(rng);
+
+            glm::vec3 spawnPos = glm::vec3(sin(randomRadiant),0,cos(randomRadiant)) * orbitDistance;
+            spawnPos.y = 10;
+
+			Saga::Transform* transform = world->emplace<Saga::Transform>(fr);
+			transform->transform->setPos(spawnPos);
+			// SDEBUG("Transform: <%f, %f, %f>", pos.x, pos.y, pos.z);
+			return fr;
+
+        };
 
 		auto setupBackingTrack = [this]() {
 			Saga::Entity backingTrack = world->createEntity();
@@ -90,13 +128,18 @@ namespace Platformer {
 		Saga::Entity light = setupLights();
 		Saga::Entity player = setupPlayer();
 		Saga::Entity camera = setupCamera(player);
-		Saga::Entity backingTrack = setupBackingTrack();
+		/* Saga::Entity backingTrack = setupBackingTrack(); */
+
+        int friendCnt = 1;
+        while (friendCnt --> 0) 
+            setupFriend();
 	}
 
 	void App::setupSystems() {
 		Saga::Systems::registerDrawSystem(world);
 		Saga::Systems::registerCollisionSystem(world);
 		Platformer::Systems::registerPlayerControllerSystem(world);
+		Platformer::Systems::registerFriendControllerSystem(world);
 		Application::Systems::registerThirdPersonCameraSystem(world);
 
 		Saga::Systems::setupAudioSystem(world);
@@ -119,5 +162,6 @@ namespace Platformer {
 		systems.addMousePosSystem(Application::Systems::thirdPersonCameraSystem_OnMousePos);
 
 		systems.addStagedSystem(std::make_shared<Saga::System<float, float>>(Platformer::Systems::playerControllerSystem));
+		systems.addStagedSystem(std::make_shared<Saga::System<float, float>>(Platformer::Systems::friendControllerSystem));
 	}
 }

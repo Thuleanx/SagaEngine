@@ -3,9 +3,11 @@
 namespace Platformer {
 struct FriendController {
 	float movementSpeed;
+    float orbitDistance;
 
 	FriendController() {}
-	FriendController(float movementSpeed) : movementSpeed(movementSpeed) {}
+	FriendController(float movementSpeed, float orbitDistance) 
+        : movementSpeed(movementSpeed), orbitDistance(orbitDistance) {}
 
 	float verticalVelocity = 0;
 	float gravity = 10;
