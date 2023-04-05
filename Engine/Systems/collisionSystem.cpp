@@ -164,7 +164,9 @@ endCollisions: {}
             std::vector<Collision> collisions;
 
             auto sysData = getSystemData(world);
-            auto allEllipsoids = *world->viewGroup<Collider, EllipsoidCollider, RigidBody, Transform>();
+            auto allCylinders = *world->viewGroup<Collider, CylinderCollider, Transform>();
+
+            CylinderCollider* cylinderCollider = world->getComponent<CylinderCollider>(entityEllipsoid);
 
             for (int i = 0; i < MAX_TRANSLATIONS; i++) {
                 glm::vec3 dir = nextPos - curPos;
@@ -183,6 +185,23 @@ endCollisions: {}
                         collision = Collision(tc, tc * dir + curPos, triangleNormal, entityEllipsoid, data->entity);
                     }
                 }
+
+                // detecting dynamic collision
+                if (cylinderCollider) {
+                    for (auto &[otherEntity, otherCollider, otherCylinderCollider, otherTransform] 
+                            : allCylinders) if (otherEntity != entityEllipsoid) {
+
+                        std::optional<std::tuple<float, glm::vec3>> hit = Saga::Geometry::movingCylinderCylinderIntersection(cylinderCollider->height, cylinderCollider->radius, 
+                            transform.getPos(), otherCylinderCollider->height, otherCylinderCollider->radius, otherTransform->getPos(), dir);
+
+                        if (hit) {
+                            float tc = std::get<0>(hit.value());
+                            if (!collision.t || collision.t.value() > tc) 
+                                collision = Collision(tc, tc * dir + curPos, std::get<1>(hit.value()), entityEllipsoid, otherEntity);
+                        }
+                    }
+                }
+
 
                 if (!collision.t) {
                     return make_pair(nextPos, collisions);
@@ -228,6 +247,7 @@ endCollisions: {}
 
     void registerCollisionSystem(std::shared_ptr<GameWorld> world) {
         world->registerGroup<Saga::Collider, Saga::CylinderCollider, Saga::RigidBody, Saga::Transform>();
+        world->registerGroup<Saga::Collider, Saga::CylinderCollider, Saga::Transform>();
         world->registerGroup<Saga::Collider, Saga::Mesh, Saga::MeshCollider, Saga::Transform>();
         world->registerGroup<Saga::Collider, Saga::EllipsoidCollider, Saga::RigidBody, Saga::Transform>();
 
