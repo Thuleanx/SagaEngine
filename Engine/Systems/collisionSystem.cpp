@@ -136,8 +136,8 @@ namespace Saga::Systems {
             glm::vec3 curPos = transform.transform->getPos();
             glm::vec3 nextPos = curPos + move;
 
-            const int MAX_TRANSLATIONS = 100;
-            const int MAX_NUDGES = 10;
+            const int MAX_TRANSLATIONS = 10;
+            const int MAX_NUDGES = 3;
             const float EPSILON = 0.0001f;
             const float nudgeAmt = 0.001f;
 
@@ -241,8 +241,8 @@ namespace Saga::Systems {
                     /* STRACE("Found collision at: %f, with position %s and normal %s.", collision.t.value(), glm::to_string(collision.pos.value()).c_str(),  glm::to_string(collision.normal.value()).c_str()); */
 
                     // nudge the position a bit long the collision normal
-                    curPos = collision.pos.value() + nudgeAmt * collision.normal.value();
-                    /* curPos = doNudge(curPos, collision); */
+                    /* curPos = collision.pos.value() + nudgeAmt * collision.normal.value(); */
+                    curPos = doNudge(curPos, collision);
 
                     dir = nextPos - curPos;
                     // correct direction by negating it in the normal direction to the collision.

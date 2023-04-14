@@ -16,6 +16,7 @@ set(GLFW_SOURCE_DIR "External/glfw-3.3.8")
 set(GLEW_SOURCE_DIR "External/glew")
 set(GLM_SOURCE_DIR "External/glm-master")
 set(STB_SOURCE_DIR "External/stb")
+set(IMGUI_SOURCE_DIR "External/imgui")
 set(FREETYPE_SOURCE_DIR "External/freetype")
 set(FMOD_DIR "C:/Program Files (x86)/FMOD SoundSystem/FMOD Studio API Windows")
 
@@ -61,6 +62,14 @@ include_directories(${GLFW_SOURCE_DIR}/include
                     ${FMOD_DIR}/api/core/inc
                     ${FMOD_DIR}/api/studio/inc
                     )
+# ImGui includes
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/External/imgui
+    ${CMAKE_CURRENT_SOURCE_DIR}/External/imgui/backends
+    ${CMAKE_CURRENT_SOURCE_DIR}/External/stb
+    )
+
+
 link_directories(
 	"${FMOD_SOURCE_DIR}/api/core/lib/x64"
 	"${FMOD_STUDIO_SOURCE_DIR}/api/studio/lib/x64"
@@ -112,6 +121,26 @@ add_executable(${PROJECT_NAME}
     Graphics/GLWrappers/vbo.cpp
     Graphics/GLWrappers/vao.h
     Graphics/GLWrappers/vao.cpp
+
+    # IMGUI files
+    External/imgui/imconfig.h
+    External/imgui/imgui.cpp
+    External/imgui/imgui.h
+    External/imgui/imgui_demo.cpp
+    External/imgui/imgui_draw.cpp
+    External/imgui/imgui_internal.h
+    External/imgui/imgui_tables.cpp
+    External/imgui/imgui_widgets.cpp
+    External/imgui/imstb_rectpack.h
+    External/imgui/imstb_textedit.h
+    External/imgui/imstb_truetype.h
+    External/imgui/backends/imgui_impl_opengl3.cpp
+    External/imgui/backends/imgui_impl_opengl3.h
+    External/imgui/backends/imgui_impl_opengl3_loader.h
+    External/imgui/backends/imgui_impl_glfw.cpp
+    External/imgui/backends/imgui_impl_glfw.h
+
+    External/stb/stb_image.h
 )
 
 target_link_libraries(${PROJECT_NAME} glfw StaticGLEW glm freetype ${OPENGL_LIBRARIES})

@@ -1,6 +1,9 @@
 #include "window.h"
 #include "logger.h"
 #include <iostream>
+#include "imgui.h"
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_glfw.h"
 
 using namespace Saga;
 
@@ -81,7 +84,20 @@ void Window::start(){
     glfwSetFramebufferSizeCallback(m_GLFWwindow, framebufferSizeCallback);
 
     glfwSetInputMode(m_GLFWwindow, GLFW_STICKY_KEYS, GLFW_TRUE);
+
+    // Setup Imgui contet
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+
+    // Setup Platform/Renderer bindings
+    ImGui_ImplGlfw_InitForOpenGL(m_GLFWwindow, true);
+    ImGui_ImplOpenGL3_Init("#version 430");
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
 }
+
 
 void Window::loop(){
 	double startTime = glfwGetTime();
@@ -89,20 +105,32 @@ void Window::loop(){
 	double previousFixed = glfwGetTime();
     while (!glfwWindowShouldClose(m_GLFWwindow))
     {
-		double currentTime = glfwGetTime();
-		while (previousFixed + m_secPerFixedUpdate <= currentTime) {
-			m_core->fixedupdate(m_secPerFixedUpdate, previousFixed + m_secPerFixedUpdate - startTime);
-			previousFixed += m_secPerFixedUpdate;
-		}
+        try {
+            double currentTime = glfwGetTime();
+            while (previousFixed + m_secPerFixedUpdate <= currentTime) {
+                m_core->fixedupdate(m_secPerFixedUpdate, previousFixed + m_secPerFixedUpdate - startTime);
+                previousFixed += m_secPerFixedUpdate;
+            }
 
-		double deltaTime = currentTime - previous;
-		double elapsedTime = currentTime - startTime;
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
 
-        glfwPollEvents();
-        m_core->update(deltaTime, elapsedTime);
-        m_core->draw();
-        glfwSwapBuffers(m_GLFWwindow);
-		previous = currentTime;
+            double deltaTime = currentTime - previous;
+            double elapsedTime = currentTime - startTime;
+
+            glfwPollEvents();
+            m_core->update(deltaTime, elapsedTime);
+            m_core->draw();
+
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+            glfwSwapBuffers(m_GLFWwindow);
+            previous = currentTime;
+        } catch (...) {
+            break;
+        }
     }
 }
 
@@ -110,6 +138,10 @@ void Window::loop(){
 void Window::end(){
     glfwDestroyWindow(m_GLFWwindow);
     glfwTerminate();
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods){

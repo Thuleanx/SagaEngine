@@ -7,6 +7,7 @@
 #include "Application/Platformer/app.h"
 #include "logger.h"
 #include "../Audio/audioEngine.h"
+#include "imgui.h"
 
 using namespace std;
 
@@ -24,8 +25,17 @@ Core::~Core() {
 }
 
 void Core::update(double deltaTime, double time) {
+
+    ImGui::Begin("Frame data");
+    if (deltaTime) 
+        ImGui::Text("fps: %.2f", 1/deltaTime);
+    else
+        ImGui::Text("fps: inf");
+    ImGui::End();
+
 	AudioEngine::update();
 	application->update(deltaTime, time);
+
 }
 
 void Core::fixedupdate(double fixedDeltaTime, double time) {
