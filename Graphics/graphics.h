@@ -33,6 +33,8 @@ public:
 	// Shape-related methods
 	std::shared_ptr<Shape> addShape(std::string shapeName, std::vector<float> data, VAOAttrib attribs);
 	std::vector<glm::vec3> addShape(std::string shapeName, std::string filepath);
+    // Returns pair containing positions followed by triangles indexed into the positions vector
+    std::pair<std::vector<glm::vec3>, std::vector<glm::ivec3>> getNavmeshData(std::string filepath);
 	void removeShape(std::string shapeName);
 	std::shared_ptr<Shape> getShape(std::string shapeName);
 	void drawShape(std::shared_ptr<Shape> myShape, std::shared_ptr<ModelTransform> modelTransform, std::shared_ptr<Material> material = nullptr);
@@ -47,6 +49,7 @@ public:
 	std::shared_ptr<Material> addMaterial(std::string materialName, std::string filePath, float shininess = 1.f);
 	void removeMaterial(std::string materialName);
 	std::shared_ptr<Material> getMaterial(std::string materialName);
+
 
 	// Text and Font-related methods
 	std::shared_ptr<Font> addFont(std::string fontName, std::string filepath);

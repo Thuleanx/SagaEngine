@@ -12,8 +12,8 @@ namespace Saga {
  * @ingroup component
  */
 struct CollisionSystemData {
-    std::optional<BoundingVolumeHierarchy> bvh; //!< the bounding volume hierarchy of triangles of static objectts
-    std::optional<UniformGrid<Entity>> uniformGrid;
+    std::optional<BoundingVolumeHierarchy> bvh; //!< the bounding volume hierarchy of triangles of static objectts.
+    std::optional<UniformGrid<Entity>> uniformGrid; //!< the uniform grids used in optimizing dynamic-dynamic collisions.
 };
 
 }

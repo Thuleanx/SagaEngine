@@ -130,6 +130,43 @@ std::vector<glm::vec3> Graphics::addShape(std::string shapeName, std::string fil
     return collisionData;
 }
 
+std::pair<std::vector<glm::vec3>, std::vector<glm::ivec3>> Graphics::getNavmeshData(std::string filepath){
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str())) {
+        throw std::runtime_error(warn + err);
+    }
+
+    int numTriangles = 0;
+    for(size_t s = 0; s < shapes.size(); s++){
+        numTriangles += shapes[s].mesh.num_face_vertices.size();
+    }
+
+    std::vector<glm::vec3> positions;
+    std::vector<glm::ivec3> faces;
+
+    for(int i = 0; i<attrib.vertices.size(); i+=3){
+        positions.push_back(glm::vec3(attrib.vertices[i], attrib.vertices[i+1], attrib.vertices[i+2]));
+    }
+
+
+    int i = 0;
+    int j = 0;
+    for(size_t s = 0; s < shapes.size(); s++) {
+        for(size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
+            tinyobj::index_t idx1 = shapes[s].mesh.indices[3* f];
+            tinyobj::index_t idx2 = shapes[s].mesh.indices[3* f + 1];
+            tinyobj::index_t idx3 = shapes[s].mesh.indices[3* f + 2];
+            faces.push_back(glm::ivec3(idx1.vertex_index, idx2.vertex_index, idx3.vertex_index));
+        }
+    }
+
+    return std::make_pair(positions, faces);
+}
+
 void Graphics::removeShape(std::string shapeName){
     m_shapes.erase(shapeName);
 }

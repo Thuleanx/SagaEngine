@@ -14,15 +14,16 @@ namespace Saga {
         std::tuple<int,int,int> key = std::make_tuple(x,y,z);
         if (!cellMap.count(key)) return;
 
-        // loop through collection in cells, find the item
+        // loop through collection in cells, find the item, swap it to be the
+        // last item, and then removal is easy.
         GridCell& cell = cellMap[key];
-        for (int i = 0; i < cell.size(); i++) {
-            if (cell[i] == item) {
-                std::swap(cell[i], cell[cell.size()-1]);
-                cell.pop_back();
-                break;
-            }
-        }
+        auto iter = std::find(cell.begin(), cell.end(), item);
+        // item can't be found
+        if (iter == cell.end()) return;
+
+        int i = iter - cell.begin();
+        std::swap(cell[i], cell[cell.size()-1]);
+        cell.pop_back();
     }
 
     template <class T>

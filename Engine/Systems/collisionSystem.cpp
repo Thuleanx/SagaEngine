@@ -81,16 +81,36 @@ namespace Saga::Systems {
             collisionSystemData.bvh.value().build(allTriangles);
         }
 
+        /**
+         * @brief Calls a function over the grid cells of a uniform grid that includes a certain bounding box.
+         *
+         * @param collisionSystemData the collision system data where the uniform grid is stored.
+         * @param pos the position of the bounding box.
+         * @param size of the bounding box.
+         * @param callback the function to be called over all cells this bounding box intersects with.
+         */
         inline void runOverGridCells(CollisionSystemData& collisionSystemData, glm::vec3 pos, glm::vec3 size, std::function<void(Entity)> callback) {
-            for (int y = pos.y - size.y; y <= pos.y + size.y; y++) 
-            for (int x = pos.x - size.x; x <= pos.x + size.x; x++) 
-            for (int z = pos.z - size.z; z <= pos.z + size.z; z++) {
-                auto cell = collisionSystemData.uniformGrid->getCell(x, y, z);
-                if (cell) for (Entity entity : cell.value())
-                    callback(entity);
+            if (collisionSystemData.uniformGrid) {
+                for (int y = pos.y - size.y; y <= pos.y + size.y; y++) 
+                for (int x = pos.x - size.x; x <= pos.x + size.x; x++) 
+                for (int z = pos.z - size.z; z <= pos.z + size.z; z++) {
+                    auto cell = collisionSystemData.uniformGrid->getCell(x, y, z);
+                    if (cell) for (Entity entity : cell.value())
+                        callback(entity);
+                }
             }
         }
 
+        /**
+         * @brief Add an entity to the uniform grid. Here, the entity must contain a cylinder collider 
+         * and transform, and we add this entity to any grid cell that the cylinder specified by the collider and transform 
+         * intersects.
+         *
+         * @param collisionSystemData the collision system data where the uniform grid is stored.
+         * @param entity the entity.
+         * @param cylinderCollider the cylinder collider. 
+         * @param transform used to position this cylinder collider.
+         */
         inline void addToUniformGrid(CollisionSystemData& collisionSystemData, Entity entity, CylinderCollider& cylinderCollider, Transform& transform) {
             glm::vec3 pos = transform.getPos();
             for (int y = pos.y - cylinderCollider.height/2; y <= pos.y + cylinderCollider.height/2; y++) 
@@ -99,6 +119,15 @@ namespace Saga::Systems {
                         collisionSystemData.uniformGrid.value().insert(x,y,z,entity);
         }
 
+        /**
+         * @brief Remove an entity from the uniform grid. 
+         * Here, the entity must contain a cylinder collider and transform, and we add this entity to any grid cell that the cylinder specified by the collider and transform intersects.
+         *
+         * @param collisionSystemData the collision system data where the uniform grid is stored.
+         * @param entity the entity.
+         * @param cylinderCollider the cylinder collider. 
+         * @param transform used to position this cylinder collider.
+         */
         inline void removeFromUniformGrid(CollisionSystemData& collisionSystemData, Entity entity, CylinderCollider& cylinderCollider, Transform& transform) {
             glm::vec3 pos = transform.getPos();
             for (int y = pos.y - cylinderCollider.height/2; y <= pos.y + cylinderCollider.height/2; y++) 
@@ -107,6 +136,11 @@ namespace Saga::Systems {
                         collisionSystemData.uniformGrid.value().remove(x,y,z,entity);
         }
 
+        /**
+         * @brief Build a world's uniform grid from all objects with cylinder colliders.
+         *
+         * @param world
+         */
         void rebuildUniformGrid(std::shared_ptr<GameWorld> world) {
             CollisionSystemData& collisionSystemData = getSystemData(world);
             if (!collisionSystemData.uniformGrid)
@@ -161,7 +195,7 @@ namespace Saga::Systems {
 
                 // detecting static collision
                 if (sysData.bvh) {
-                    std::optional<std::tuple<BoundingVolumeHierarchy::TriangleData*, float>> hit = sysData.bvh.value().traceEllipsoid(curPos, dir, ellipsoidCollider.scale);
+                    std::optional<std::tuple<BoundingVolumeHierarchy::TriangleData*, float>> hit = sysData.bvh.value().traceEllipsoid(curPos, dir, ellipsoidCollider.radius);
 
                     if (hit) {
                         BoundingVolumeHierarchy::TriangleData* data = std::get<0>(hit.value());
@@ -201,6 +235,13 @@ namespace Saga::Systems {
                 return collision;
             };
 
+            /**
+             * @brief Nudge the ellipsoid along the direction specified by the collision normal.
+             * This prevents the ellipsoid from sliding along a surface and us detecting numerous collisions.
+             *
+             * @param pos the current position of the ellipsoid.
+             * @param collision the collision used to nudge this ellipsoid.
+             */
             auto doNudge = [&](glm::vec3 pos, Collision &collision) {
                 glm::vec3 nudge = collision.normal.value();
                 glm::vec3 pos_nudged = collision.pos.value() + nudge * nudgeAmt;
@@ -219,6 +260,10 @@ namespace Saga::Systems {
                         glm::vec3 collisionNormal = nudge_collision.normal.value();
                         glm::vec3 diff = collisionNormal - nudge;
                         nudge = collisionNormal;
+
+                        // also adjust velocity so there wouldn't be any in the collision normal direction
+                        rigidBody.velocity -= glm::dot(rigidBody.velocity, nudge_collision.normal.value()) * nudge_collision.normal.value();
+
                         /* if (glm::dot(diff, diff) < EPSILON) */ 
                         /*     nudge = -collisionNormal; */
                         /* else */

@@ -18,6 +18,12 @@ namespace Saga {
 		float height;
 		float radius;
 
+        /**
+         * Create a cylinder collider.
+         *
+         * @param height the height of the cylinder collider.
+         * @param radius of the cylinder collider.
+         */
 		CylinderCollider(float height = 1, float radius = 0.5f) : height(height), radius(radius) {}
 	};
 
@@ -32,8 +38,13 @@ namespace Saga {
 	 * @ingroup component
 	 */
 	struct EllipsoidCollider {
-		glm::vec3 scale;
+		glm::vec3 radius;
 
-		EllipsoidCollider(glm::vec3 scale = glm::vec3(1,1,1)) : scale(scale) {}
+        /**
+         * @brief Construct an ellipsoid collider.
+         *
+         * @param radius the radius of the ellipsoid collider. So its bounding box will be twice the size of this radius.
+         */
+		EllipsoidCollider(glm::vec3 radius = glm::vec3(1,1,1)) : radius(radius) {}
 	};
 }
