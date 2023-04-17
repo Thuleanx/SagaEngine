@@ -1,6 +1,6 @@
 #include "physics.h"
 #include "../Gameworld/gameworld.h"
-#include "../Utils/geometry.h"
+#include "../Utils/geometry/geometry.h"
 #include "../Components/_import.h"
 #include "../_Core/asserts.h"
 

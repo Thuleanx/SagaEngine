@@ -55,7 +55,7 @@ namespace Platformer {
 
 		auto setupPlane = [this]() {
 			Saga::Entity plane = world->createEntity();
-			Saga::Mesh& planeMesh = *world->emplace<Saga::Mesh>(plane, "Blender/denseNoisyPlane.obj");
+			Saga::Mesh& planeMesh = *world->emplace<Saga::Mesh>(plane, "Blender/plane.obj");
 			Saga::Material& mat = *world->emplace<Saga::Material>(plane,
 				Saga::Theme_Nostalgic::colors[1]);
             Saga::Transform* transform = world->emplace<Saga::Transform>(plane);

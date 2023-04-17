@@ -6,19 +6,8 @@
 
 namespace Saga {
     class NavMesh {
-    public:
-        struct CellPlacement {
-            int cell;
-            glm::vec3 projectedPosition;
-        };
-
-        void build(const std::vector<glm::vec3> &position, const std::vector<glm::ivec3> &faces);
-        std::optional<CellPlacement> getCell(glm::vec3 pos);
-    private:
-        bool initialized;
-
+    private: 
         struct Face; struct Edge; struct Vertex; struct HalfEdge;
-
 		struct HalfEdge {
 			HalfEdge *twin;
 			HalfEdge *nxt;
@@ -33,10 +22,32 @@ namespace Saga {
 		};
 		struct Edge {
 			HalfEdge *halfEdge;
+            float highestAdminissibleRadius;
+            glm::vec3 center;
 		};
 		struct Face {
 			HalfEdge *halfEdge;
 		};
+
+    public:
+        struct LocationInCell {
+            int cell;
+            glm::vec3 projectedPosition;
+        };
+
+        struct Path {
+            float length;
+            glm::vec3 from;
+            glm::vec3 to;
+            std::vector<int> edges;
+        };
+
+        void build(const std::vector<glm::vec3> &position, const std::vector<glm::ivec3> &faces);
+        std::optional<Path> findPath(glm::vec3 from, glm::vec3 to);
+        std::optional<LocationInCell> getCell(glm::vec3 pos);
+    private:
+        bool initialized;
+
 
         std::vector<Vertex> vertices;
         std::vector<Face> faces;

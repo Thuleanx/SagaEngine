@@ -40,11 +40,17 @@ namespace Saga {
         void remove(int x, int y, int z, T item);
 
         /**
-         * @brief
+         * @brief Get the grid cell at a certain coordinate.
+         *
+         * @param x the x coordinate of the cell.
+         * @param y the y coordinate of the cell.
+         * @param z the z coordinate of the cell.
+         * @return {} if the grid cell at position at (x,y,z) has always been empty.
+         * @return GridCell the list of objects at that cell position otherwise.
          */
         std::optional<GridCell> getCell(int x, int y, int z);
     private:
-        std::unordered_map<std::tuple<int,int,int>, GridCell> cellMap;
+        std::unordered_map<std::tuple<int,int,int>, GridCell> cellMap; //!< Maps coordinates to GridCell.
     };
 }
 

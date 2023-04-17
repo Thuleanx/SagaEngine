@@ -1,5 +1,5 @@
 #include "boundingBox.h"
-#include "Engine/Utils/geometry.h"
+#include "Engine/Utils/geometry/geometry.h"
 #include <cstdio>
 using namespace glm;
 using namespace std;

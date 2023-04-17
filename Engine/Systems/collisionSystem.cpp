@@ -1,13 +1,13 @@
 #include "collisionSystem.h"
 #include "../Gameworld/gameworld.h"
 #include "../Components/_import.h"
+#include "../Utils/geometry/geometry.h"
+#include "../_Core/asserts.h"
 #include <glm/vec3.hpp>
 #include "Engine/Components/collisionSystemData.h"
 #include "Engine/Datastructures/Accelerant/boundingBox.h"
 #include "events.h"
 #include "Graphics/modeltransform.h"
-#include "../Utils/geometry.h"
-#include "../_Core/asserts.h"
 #include "glm/gtx/string_cast.hpp"
 #include <unordered_set>
 #include <functional>
@@ -170,8 +170,8 @@ namespace Saga::Systems {
             glm::vec3 curPos = transform.transform->getPos();
             glm::vec3 nextPos = curPos + move;
 
-            const int MAX_TRANSLATIONS = 10;
-            const int MAX_NUDGES = 3;
+            const int MAX_TRANSLATIONS = 30;
+            const int MAX_NUDGES = 10;
             const float EPSILON = 0.0001f;
             const float nudgeAmt = 0.001f;
 
@@ -254,21 +254,22 @@ namespace Saga::Systems {
                     } else {
                         if (i == MAX_NUDGES-1) break; // might as well not do any computation if on last iteration
 
+                        glm::vec3 collisionNormal = nudge_collision.normal.value();
+                        glm::vec3 diff = collisionNormal - nudge;
+
                         // this code is necessary when we hit an edge shared by two triangles in exactly the wrong way
                         // this code tests whether we are nudged into the same triangle twice, and nudges you in the 
                         // OPPOSITE direction if that happens
-                        glm::vec3 collisionNormal = nudge_collision.normal.value();
-                        glm::vec3 diff = collisionNormal - nudge;
-                        nudge = collisionNormal;
+                        if (glm::dot(diff, diff) < EPSILON) 
+                            nudge = -collisionNormal;
+                        else
+                            nudge = collisionNormal;
+
+                        pos_nudged = nudge_collision.pos.value() + nudge * nudgeAmt;
 
                         // also adjust velocity so there wouldn't be any in the collision normal direction
-                        rigidBody.velocity -= glm::dot(rigidBody.velocity, nudge_collision.normal.value()) * nudge_collision.normal.value();
-
-                        /* if (glm::dot(diff, diff) < EPSILON) */ 
-                        /*     nudge = -collisionNormal; */
-                        /* else */
-                        /*     nudge = collisionNormal; */
-                        pos_nudged = nudge_collision.pos.value() + nudge * nudgeAmt;
+                        rigidBody.velocity -= glm::dot(rigidBody.velocity, nudge_collision.normal.value()) 
+                            * nudge_collision.normal.value();
                     }
                 }
                 return pos;
@@ -283,7 +284,7 @@ namespace Saga::Systems {
                 if (!collision.t) {
                     return make_pair(nextPos, collisions);
                 } else {
-                    /* STRACE("Found collision at: %f, with position %s and normal %s.", collision.t.value(), glm::to_string(collision.pos.value()).c_str(),  glm::to_string(collision.normal.value()).c_str()); */
+                    STRACE("Found collision at: %f, with position %s and normal %s.", collision.t.value(), glm::to_string(collision.pos.value()).c_str(),  glm::to_string(collision.normal.value()).c_str());
 
                     // nudge the position a bit long the collision normal
                     /* curPos = collision.pos.value() + nudgeAmt * collision.normal.value(); */

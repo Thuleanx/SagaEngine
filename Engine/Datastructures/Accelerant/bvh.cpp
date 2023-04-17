@@ -1,7 +1,7 @@
 #include "bvh.h"
 #include <algorithm>
 #include "Engine/Datastructures/Accelerant/boundingBox.h"
-#include "Engine/Utils/geometry.h"
+#include "Engine/Utils/geometry/geometry.h"
 #include "Engine/_Core/logger.h"
 using namespace glm;
 using namespace std;
