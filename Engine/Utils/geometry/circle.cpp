@@ -12,7 +12,7 @@ namespace Saga::Geometry {
         glm::vec2 dis = (aPos - bPos);
         float len2 = glm::dot(dis, dis);
         // no collision if the distance^2 is larger than sum of radius squared
-        if (len2 >= (aRadius + bRadius) * (aRadius + bRadius)) 
+        if (len2 > (aRadius + bRadius) * (aRadius + bRadius)) 
             return glm::vec2(0,0);
         if (len2) {
             float len = sqrt(len2);
@@ -24,6 +24,7 @@ namespace Saga::Geometry {
         float a = glm::dot(rayDirection, rayDirection);
         float b = 2 * glm::dot(rayDirection, origin);
         float c = glm::dot(origin, origin) - 1;
+
         std::vector<float> sols = Math::solveQuadraticReals(a,b,c);
         // this ensures that the resulting tlo and thi are ordered
         if (sols.size() == 2 && sols[0] > sols[1]) 

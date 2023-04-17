@@ -44,6 +44,17 @@ std::optional<float> rayEllipsoidIntersection(const glm::vec3& rayOrigin, const 
 }
 
 std::optional<float> unitSphereTriangleCollision(const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) {
+    glm::vec3 normal = glm::normalize(glm::cross(b-a, c-a));
+    SDEBUG(
+        "Computing unitSphereTriangleCollision. Sphere has position %s and direction %s. Triangle located at %s, %s, %s",
+        glm::to_string(pos).c_str(),
+        glm::to_string(dir).c_str(),
+        glm::to_string(a).c_str(),
+        glm::to_string(b).c_str(),
+        glm::to_string(c).c_str()
+    );
+    if (glm::dot(normal, dir) > 0) // if normal 
+        return {};
     // interior collision
     std::optional<float> t = rayTriangleIntersection( pos - glm::normalize(glm::cross(b-a, c-a)), dir, Triangle{a, b, c});
     SASSERT_MESSAGE(!t || !std::isnan(t.value()),
@@ -54,14 +65,14 @@ std::optional<float> unitSphereTriangleCollision(const glm::vec3& pos, const glm
         glm::to_string(b).c_str(),
         glm::to_string(c).c_str()
     );
+    if (t) return t;
     // edge collision
-    if (!t) {
-        glm::vec3 tri[3] = {a, b, c};
-        for (int triangleIndex = 0; triangleIndex < 3; triangleIndex++) {
-            std::optional<float> tc = unitSphereEdgeCollision(pos, dir, tri[triangleIndex], tri[(triangleIndex+1)%3]);
-            if (!t || (tc && t.value() > tc.value())) t = tc;
-        }
+    glm::vec3 tri[3] = {a, b, c};
+    for (int triangleIndex = 0; triangleIndex < 3; triangleIndex++) {
+        std::optional<float> tc = unitSphereEdgeCollision(pos, dir, tri[triangleIndex], tri[(triangleIndex+1)%3]);
+        if (!t || (tc && t.value() > tc.value())) t = tc;
     }
+
     SASSERT_MESSAGE(!t || !std::isnan(t.value()), "Unit sphere collision results in nan for edge collision case. Sphere has position %s and direction %s. Triangle located at %s, %s, %s",
         glm::to_string(pos).c_str(),
         glm::to_string(dir).c_str(),
@@ -69,14 +80,13 @@ std::optional<float> unitSphereTriangleCollision(const glm::vec3& pos, const glm
         glm::to_string(b).c_str(),
         glm::to_string(c).c_str()
     );
+    if (t) return t;
     // point collision
-    if (!t) {
-        for (glm::vec3 v : {a,b,c}) {
-            std::optional<float> tc = rayUnitSphereAtOriginIntersection(v - pos, -dir);
-            if (tc) {
-                if (tc.value() > 1) continue;
-                if (!t || tc.value() < t.value()) t = tc;
-            }
+    for (glm::vec3 v : {a,b,c}) {
+        std::optional<float> tc = rayUnitSphereAtOriginIntersection(v - pos, -dir);
+        if (tc) {
+            if (tc.value() > 1) continue;
+            if (!t || tc.value() < t.value()) t = tc;
         }
     }
     SASSERT_MESSAGE(!t || !std::isnan(t.value()),
@@ -87,6 +97,7 @@ std::optional<float> unitSphereTriangleCollision(const glm::vec3& pos, const glm
         glm::to_string(b).c_str(),
         glm::to_string(c).c_str()
     );
+
     return t;
 }
 
@@ -107,8 +118,10 @@ std::optional<float> ellipsoidTriangleCollision(const glm::vec3& ellipsoidPos, c
         return {};
     }
 
+    SDEBUG("%s", glm::to_string(ellipsoidDir).c_str());
+
     // TODO: compile these out of the release build
-    if (!glm::dot(ellipsoidRadius, ellipsoidRadius)) SERROR("ellipsoidRadius is zero");
+    if (!ellipsoidRadius.x || !ellipsoidRadius.y || !ellipsoidRadius.z) SERROR("ellipsoidRadius is zero: %s", glm::to_string(ellipsoidRadius).c_str());
     if (glm::any(glm::isnan(ellipsoidDir))) SERROR("ellipsoidDir contains nan");
     if (glm::any(glm::isnan(ellipsoidPos))) SERROR("ellipsoidPos contains nan");
     if (glm::any(glm::isnan(a))) SERROR("trianglePos contains nan");

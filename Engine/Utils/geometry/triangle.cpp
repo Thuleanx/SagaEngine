@@ -39,8 +39,8 @@ namespace Saga::Geometry {
 
 		glm::vec3 normal = glm::cross(uDir, vDir);
         // if hitting backside or grazing, ignore
-		if (glm::dot(rayDirection, normal) <= 0)
-            return {}; 
+		if (glm::dot(rayDirection, normal) >= 0)
+            return {};
 		float t = glm::dot(triangle.a - origin, normal) / glm::dot(rayDirection, normal);  // intersection point with triangle plane
 		if (t < 0 || t > 1)
             return {};

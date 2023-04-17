@@ -21,7 +21,7 @@ namespace Saga {
         // item can't be found
         if (iter == cell.end()) return;
 
-        int i = iter - cell.begin();
+        int i = std::distance(iter, cell.begin());
         std::swap(cell[i], cell[cell.size()-1]);
         cell.pop_back();
     }

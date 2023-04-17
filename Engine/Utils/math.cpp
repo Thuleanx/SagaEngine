@@ -1,6 +1,7 @@
 #include "math.h"
 #include "../_Core/logger.h"
 #include <cmath>
+#include <limits>
 
 namespace Saga::Math {
     std::optional<float> solvePositiveQuadratic(float a, float b, float c) {
@@ -17,9 +18,11 @@ namespace Saga::Math {
 
     std::vector<float> solveQuadraticReals(float a, float b, float c) {
         // degenerate cases
-        if (!a && (!b || -c/b < 0)) 
+        if (!a && !b && !c) 
+            return {-std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()};
+        else if (!a && !b)
             return {}; // no solution
-        else if (!a) 
+        else if (!a)
             return {-c/b}; // only one solution
 
         float d = b*b - 4*a*c;

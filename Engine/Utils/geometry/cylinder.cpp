@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "circle.h"
 #include "line.h"
+#include "Engine/_Core/logger.h"
 
 namespace Saga::Geometry {
 	glm::vec3 detectAACylinderCylinderCollision(
@@ -24,6 +25,7 @@ namespace Saga::Geometry {
     std::optional<std::tuple<float, glm::vec3>> movingCylinderCylinderIntersection(
         float height0, float radius0, glm::vec3 pos0, 
         float height1, float radius1, glm::vec3 pos1, glm::vec3 dir) {
+        /* SDEBUG("moving cylinder intersection %.2f, %2f, %s, %.2f, %.2f, %s, %s"); */
 
         if (!radius0 || !radius1) return {};
 
@@ -40,7 +42,6 @@ namespace Saga::Geometry {
             if (!vmtv) return {};
             lov = 0, hiv = 1;
         } else {
-            float signedDir = dir.y < 0 ? -1 : 1;
             float heightCombined = (height0 + height1) / 2;
 
             lov = ((pos1.y - heightCombined) - pos0.y) / dir.y;
@@ -60,7 +61,9 @@ namespace Saga::Geometry {
             glm::vec3 displacement = pos0 - pos1;
             glm::vec2 rayOrigin = glm::vec2(displacement.x, displacement.z);
 
-            auto result = rayUnitCircleAtOriginIntersection(rayOrigin, glm::vec2(dir.x, dir.z) / (radius0 + radius1));
+            float combinedRadius = radius0 + radius1;
+
+            auto result = rayUnitCircleAtOriginIntersection(rayOrigin / combinedRadius, glm::vec2(dir.x, dir.z) / combinedRadius);
 
             // if the circles never intersect
             if (!result) return {};
@@ -76,8 +79,7 @@ namespace Saga::Geometry {
         hasCollision &= loxz <= hixz && lov <= hiv; // the intervals must be valid
         hasCollision &= lov <= 1 && loxz <= 1; // at least one interval must intersect with [0,1]
 
-        if (!hasCollision)
-            return {};
+        if (!hasCollision) return {};
 
         if (lov > loxz) {
             // vertical collision first, and the normal is in the opposite direction
@@ -85,8 +87,9 @@ namespace Saga::Geometry {
         } 
 
         // collision in the xz plane
-        glm::vec3 projectedPos0 = pos0 + dir * loxz;
-        glm::vec3 projectedNormal = projectedPos0 - pos1;
+        /* glm::vec3 projectedPos0 = pos0 + dir * loxz; */
+        /* glm::vec3 projectedNormal = projectedPos0 - pos1; */
+        glm::vec3 projectedNormal = pos0 - pos1;
 
         return std::make_tuple(loxz, glm::normalize(glm::vec3(projectedNormal.x, 0, projectedNormal.z)));
     }

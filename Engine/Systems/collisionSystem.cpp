@@ -208,28 +208,38 @@ namespace Saga::Systems {
                 // detecting dynamic collision
                 if (cylinderCollider) {
                     std::unordered_set<Entity> visited;
-                    runOverGridCells(getSystemData(world), 
-                        pos + dir, glm::vec3(cylinderCollider->radius, cylinderCollider->height/2, cylinderCollider->radius), 
-                    [&world, &transform, &entityEllipsoid, &visited, &collision, &dir, &curPos, &cylinderCollider](Entity otherEntity) {
+                    /* runOverGridCells(getSystemData(world), */ 
+                    /*     pos + dir, glm::vec3(cylinderCollider->radius, cylinderCollider->height/2, cylinderCollider->radius), */
+                    /* [&world, &transform, &entityEllipsoid, &visited, &collision, &dir, &curPos, &cylinderCollider](Entity otherEntity) { */
 
-                        if (visited.count(otherEntity)) return;
-                        visited.insert(otherEntity);
+                    auto allCylinders = *world->viewGroup<Collider, CylinderCollider, Transform>();
+                    for (auto [otherEntity, otherCollider, otherCylinderCollider,otherTransform] : allCylinders) if (otherEntity != entityEllipsoid) {
 
-                        auto otherCylinderCollider = world->getComponent<CylinderCollider>(otherEntity);
-                        auto otherTransform = world->getComponent<Transform>(otherEntity);
+                        /* if (visited.count(otherEntity)) return; */
+                        /* visited.insert(otherEntity); */
 
-                        if (!otherCylinderCollider || !otherTransform) return;
+                        /* auto otherCylinderCollider = world->getComponent<CylinderCollider>(otherEntity); */
+                        /* auto otherTransform = world->getComponent<Transform>(otherEntity); */
+
+                        /* if (!otherCylinderCollider || !otherTransform) return; */
+
+                        SDEBUG("other entity has: position: %s, radius: %.2f, height: %.2f", 
+                            glm::to_string(otherTransform->getPos()).c_str(),
+                            otherCylinderCollider->radius,
+                            otherCylinderCollider->height
+                        );
 
                         std::optional<std::tuple<float, glm::vec3>> hit = Saga::Geometry::movingCylinderCylinderIntersection(
                             cylinderCollider->height, cylinderCollider->radius, transform.getPos(), 
                             otherCylinderCollider->height, otherCylinderCollider->radius, otherTransform->getPos(), dir);
 
                         if (hit) {
-                            float tc = std::get<0>(hit.value());
-                            if (!collision.t || collision.t.value() > tc) 
-                                collision = Collision(tc, tc * dir + curPos, std::get<1>(hit.value()), entityEllipsoid, otherEntity);
+                            auto [tc, normal] = hit.value();
+                            if ((!collision.t || collision.t.value() > tc)) 
+                                collision = Collision(tc, tc * dir + curPos, normal, entityEllipsoid, otherEntity);
                         }
-                    });
+                    }
+                    /* }); */
                 }
 
                 return collision;
@@ -284,11 +294,11 @@ namespace Saga::Systems {
                 if (!collision.t) {
                     return make_pair(nextPos, collisions);
                 } else {
-                    STRACE("Found collision at: %f, with position %s and normal %s.", collision.t.value(), glm::to_string(collision.pos.value()).c_str(),  glm::to_string(collision.normal.value()).c_str());
+                    /* STRACE("Found collision at: %f, with position %s and normal %s.", collision.t.value(), glm::to_string(collision.pos.value()).c_str(),  glm::to_string(collision.normal.value()).c_str()); */
 
                     // nudge the position a bit long the collision normal
-                    /* curPos = collision.pos.value() + nudgeAmt * collision.normal.value(); */
-                    curPos = doNudge(curPos, collision);
+                    curPos = collision.pos.value() + nudgeAmt * collision.normal.value();
+                    /* curPos = doNudge(curPos, collision); */
 
                     dir = nextPos - curPos;
                     // correct direction by negating it in the normal direction to the collision.
