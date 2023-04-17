@@ -94,12 +94,12 @@ namespace Platformer {
         auto setupFriend = [this, &rng]() {
             Saga::Entity fr = world->createEntity();
             float movespeed = std::uniform_real_distribution<float>(4.f, 9.f)(rng);
-            float orbitDistance = std::uniform_real_distribution<float>(1,5)(rng);
+            float orbitDistance = std::uniform_real_distribution<float>(3,8)(rng);
             int colorIndex = std::uniform_int_distribution<int>(0,8)(rng);
 
-            /* world->emplace<Platformer::FriendController>(fr, */ 
-            /*     movespeed, orbitDistance */
-            /* ); */
+            world->emplace<Platformer::FriendController>(fr, 
+                movespeed, orbitDistance
+            );
 			world->emplace<Saga::Material>(fr, Saga::Theme_Nostalgic::colors[colorIndex]);
 			world->emplace<Saga::Mesh>(fr, Saga::Mesh::StandardType::Cylinder);
 			world->emplace<Saga::Collider>(fr);
@@ -110,7 +110,7 @@ namespace Platformer {
             float randomRadiant = std::uniform_real_distribution<float>(0.0, 2*M_PI)(rng);
 
             glm::vec3 spawnPos = glm::vec3(sin(randomRadiant),0,cos(randomRadiant)) * orbitDistance;
-            spawnPos.y = 2;
+            spawnPos.y = 10;
 
 			Saga::Transform* transform = world->emplace<Saga::Transform>(fr);
 			transform->transform->setPos(spawnPos);
@@ -132,7 +132,7 @@ namespace Platformer {
 		Saga::Entity camera = setupCamera(player);
 		Saga::Entity backingTrack = setupBackingTrack();
 
-        int friendCnt = 1;
+        int friendCnt = 10;
         while (friendCnt --> 0) 
             setupFriend();
 	}

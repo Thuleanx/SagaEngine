@@ -21,10 +21,6 @@ namespace Saga::Systems {
 	
 		Entity entity0; //!< first Entity in the collision.
 		Entity entity1; //!< second Entity in the collision. The normal direction is away from this Entity.
-
-		Collision() { }
-		Collision(float t, glm::vec3 pos, glm::vec3 normal, Entity e1, Entity e2) : 
-			t(t), pos(pos), normal(normal), entity0(e1), entity1(e2) {}
 	};
 
 	/**

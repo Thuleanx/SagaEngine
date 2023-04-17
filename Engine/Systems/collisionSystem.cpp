@@ -1,14 +1,17 @@
 #include "collisionSystem.h"
+#include "Engine/Components/collider.h"
+#include "collisionSystemOptimizationStatic.h"
+#include "collisionSystemOptimizationDynamic.h"
+#include "collisionSystemHelper.h"
+
 #include "../Gameworld/gameworld.h"
 #include "../Components/_import.h"
 #include "../Utils/geometry/geometry.h"
 #include "../_Core/asserts.h"
 #include <glm/vec3.hpp>
 #include "Engine/Components/collisionSystemData.h"
-#include "Engine/Datastructures/Accelerant/boundingBox.h"
 #include "events.h"
 #include "Graphics/modeltransform.h"
-#include "glm/gtx/string_cast.hpp"
 #include <unordered_set>
 #include <functional>
 
@@ -33,125 +36,6 @@ namespace Saga::Systems {
         }
 
         /**
-         * @brief Retrieve the world's CollisionSystemData. This should live as
-         * a component on an entity. If none exists, an entity with the component
-         * will be created.
-         *
-         * @param world the world that the data exists on. 
-         *
-         * @return a reference to the CollisionSystemData that is in this world.
-         */
-        CollisionSystemData& getSystemData(std::shared_ptr<GameWorld> world) {
-            auto allCollisionSystemData = world->viewAll<CollisionSystemData>();
-            if (allCollisionSystemData->begin() == allCollisionSystemData->end()) {
-                // if no collision data object exists
-                // we create one
-                Entity containerEntity = world->createEntity();
-                return *world->emplace<CollisionSystemData>(containerEntity);
-            }
-            return *allCollisionSystemData->begin();
-        }
-
-        /**
-         * @brief This builds the bounding volume hierarchy for all static meshes
-         * in the scene, and stores it inside of CollisionSystemData.
-         */
-        void rebuildStaticBVH(std::shared_ptr<GameWorld> world) {
-            CollisionSystemData& collisionSystemData = getSystemData(world);
-            if (!collisionSystemData.bvh.has_value())
-                collisionSystemData.bvh = BoundingVolumeHierarchy();
-
-            std::vector<BoundingVolumeHierarchy::TriangleData> allTriangles;
-
-            // first aggregate all triangle data
-            for (auto &[entity, collider, mesh, meshCollider, transform] : *world->viewGroup<Collider, Mesh, MeshCollider, Transform>()) {
-                // grab all triangles in the mesh
-                for (int triangleIndex = 0; triangleIndex < mesh->getTrianglesCnt(); triangleIndex++) {
-                    BoundingVolumeHierarchy::TriangleData triangleData;
-                    triangleData.entity = entity;
-
-                    // transform all triangles to world space
-                    for (int j = 0; j < 3; j++)
-                        triangleData.triangle[j] = transform->transform->getModelMatrix() * glm::vec4(mesh->getPos(3*triangleIndex + j), 1);
-
-                    allTriangles.push_back(triangleData);
-                }
-            }
-
-            collisionSystemData.bvh.value().build(allTriangles);
-        }
-
-        /**
-         * @brief Calls a function over the grid cells of a uniform grid that includes a certain bounding box.
-         *
-         * @param collisionSystemData the collision system data where the uniform grid is stored.
-         * @param pos the position of the bounding box.
-         * @param size of the bounding box.
-         * @param callback the function to be called over all cells this bounding box intersects with.
-         */
-        inline void runOverGridCells(CollisionSystemData& collisionSystemData, glm::vec3 pos, glm::vec3 size, std::function<void(Entity)> callback) {
-            if (collisionSystemData.uniformGrid) {
-                for (int x = pos.x - size.x; x <= pos.x + size.x; x++) 
-                for (int y = pos.y - size.y; y <= pos.y + size.y; y++) 
-                for (int z = pos.z - size.z; z <= pos.z + size.z; z++) {
-                    auto cell = collisionSystemData.uniformGrid->getCell(x, y, z);
-                    if (cell) for (Entity entity : cell.value())
-                        callback(entity);
-                }
-            }
-        }
-
-        /**
-         * @brief Add an entity to the uniform grid. Here, the entity must contain a cylinder collider 
-         * and transform, and we add this entity to any grid cell that the cylinder specified by the collider and transform 
-         * intersects.
-         *
-         * @param collisionSystemData the collision system data where the uniform grid is stored.
-         * @param entity the entity.
-         * @param cylinderCollider the cylinder collider. 
-         * @param transform used to position this cylinder collider.
-         */
-        inline void addToUniformGrid(CollisionSystemData& collisionSystemData, Entity entity, CylinderCollider& cylinderCollider, Transform& transform) {
-            glm::vec3 pos = transform.getPos();
-            for (int y = pos.y - cylinderCollider.height/2; y <= pos.y + cylinderCollider.height/2; y++) 
-                for (int x = pos.x - cylinderCollider.radius; x <= pos.x + cylinderCollider.radius; x++) 
-                    for (int z = pos.z - cylinderCollider.radius; z <= pos.z + cylinderCollider.radius; z++) 
-                        collisionSystemData.uniformGrid.value().insert(x,y,z,entity);
-        }
-
-        /**
-         * @brief Remove an entity from the uniform grid. 
-         * Here, the entity must contain a cylinder collider and transform, and we add this entity to any grid cell that the cylinder specified by the collider and transform intersects.
-         *
-         * @param collisionSystemData the collision system data where the uniform grid is stored.
-         * @param entity the entity.
-         * @param cylinderCollider the cylinder collider. 
-         * @param transform used to position this cylinder collider.
-         */
-        inline void removeFromUniformGrid(CollisionSystemData& collisionSystemData, Entity entity, CylinderCollider& cylinderCollider, Transform& transform) {
-            glm::vec3 pos = transform.getPos();
-            for (int y = pos.y - cylinderCollider.height/2; y <= pos.y + cylinderCollider.height/2; y++) 
-                for (int x = pos.x - cylinderCollider.radius; x <= pos.x + cylinderCollider.radius; x++) 
-                    for (int z = pos.z - cylinderCollider.radius; z <= pos.z + cylinderCollider.radius; z++) 
-                        collisionSystemData.uniformGrid.value().remove(x,y,z,entity);
-        }
-
-        /**
-         * @brief Build a world's uniform grid from all objects with cylinder colliders.
-         *
-         * @param world
-         */
-        void rebuildUniformGrid(std::shared_ptr<GameWorld> world) {
-            CollisionSystemData& collisionSystemData = getSystemData(world);
-            if (!collisionSystemData.uniformGrid)
-                collisionSystemData.uniformGrid = UniformGrid<Entity>();
-
-            auto allCylinders = *world->viewGroup<Collider, CylinderCollider, Transform>();
-            for (auto [entity, collider, cylinderCollider, transform] : allCylinders) 
-                addToUniformGrid(collisionSystemData, entity, *cylinderCollider, *transform);
-        }
-
-        /**
          * @brief Handle collisions between a moving ellipsoid and triangles in the scene.
          * By default, this does 100 translations before dropping further movement.
          * 
@@ -170,136 +54,46 @@ namespace Saga::Systems {
             glm::vec3 curPos = transform.transform->getPos();
             glm::vec3 nextPos = curPos + move;
 
-            const int MAX_TRANSLATIONS = 30;
-            const int MAX_NUDGES = 10;
-            const float EPSILON = 0.0001f;
-            const float nudgeAmt = 0.001f;
+            const int MAX_TRANSLATIONS = 10;
 
             std::vector<Collision> collisions;
 
+            std::optional<CylinderCollider*> cylinder;
+
+            {
+                CylinderCollider* cylinderCollider = world->getComponent<CylinderCollider>(entityEllipsoid);
+                if (cylinderCollider) cylinder = cylinderCollider;
+            }
+
             auto sysData = getSystemData(world);
-            auto allCylinders = *world->viewGroup<Collider, CylinderCollider, Transform>();
-
-            CylinderCollider* cylinderCollider = world->getComponent<CylinderCollider>(entityEllipsoid);
-
-            /**
-             * @brief Get the closest collision for the current ellipsoid starting at pos
-             * and moving to pos+dir.
-             * @param pos the position of the ellipsoid.
-             * @param dir the direction the ellipsoid is moving to.
-             * @return Collision at time t in [0,1] where position + t * dir is where the ellipsoid first collides with another object.
-             * @return nothing if no collision exists.
-             */
-            auto getClosestCollision = [&sysData,  entityEllipsoid, &ellipsoidCollider, &cylinderCollider, &transform, &world](glm::vec3 pos, glm::vec3 dir) {
-                Collision collision;
-
-                // detecting static collision
-                if (sysData.bvh) {
-                    std::optional<std::tuple<BoundingVolumeHierarchy::TriangleData*, float>> hit = sysData.bvh.value().traceEllipsoid(pos, dir, ellipsoidCollider.radius);
-
-                    if (hit) {
-                        BoundingVolumeHierarchy::TriangleData* data = std::get<0>(hit.value());
-                        float tc = std::get<1>(hit.value());
-                        glm::vec3 triangleNormal = glm::normalize(glm::cross(data->triangle[1] - data->triangle[0], data->triangle[2] - data->triangle[0]));
-                        collision = Collision(tc, tc * dir + pos, triangleNormal, entityEllipsoid, data->entity);
-                    }
-                }
-
-                // detecting dynamic collision
-                if (cylinderCollider) {
-                    std::unordered_set<Entity> visited;
-                    runOverGridCells(getSystemData(world), 
-                        pos + dir, glm::vec3(cylinderCollider->radius * 2, cylinderCollider->height, cylinderCollider->radius * 2),
-                    [&world, &transform, &entityEllipsoid, &visited, &collision, &dir, &pos, &cylinderCollider](Entity otherEntity) {
-
-                        if (visited.count(otherEntity)) return;
-                        visited.insert(otherEntity);
-
-                        auto otherCylinderCollider = world->getComponent<CylinderCollider>(otherEntity);
-                        auto otherTransform = world->getComponent<Transform>(otherEntity);
-
-                        if (!otherCylinderCollider || !otherTransform) return;
-
-
-                        std::optional<std::tuple<float, glm::vec3>> hit = Saga::Geometry::movingCylinderCylinderIntersection(
-                            cylinderCollider->height, cylinderCollider->radius, pos, 
-                            otherCylinderCollider->height, otherCylinderCollider->radius, otherTransform->getPos(), dir);
-
-                        if (hit) {
-                            auto [tc, normal] = hit.value();
-                            if ((!collision.t || collision.t.value() > tc)) 
-                                collision = Collision(tc, tc * dir + pos, normal, entityEllipsoid, otherEntity);
-                        }
-                    });
-                }
-
-                return collision;
-            };
-
-            /**
-             * @brief Nudge the ellipsoid along the direction specified by the collision normal.
-             * This prevents the ellipsoid from sliding along a surface and us detecting numerous collisions.
-             *
-             * @param pos the current position of the ellipsoid.
-             * @param collision the collision used to nudge this ellipsoid.
-             */
-            auto doNudge = [&](glm::vec3 pos, Collision &collision) {
-                glm::vec3 nudge = collision.normal.value();
-                glm::vec3 pos_nudged = collision.pos.value() + nudge * nudgeAmt;
-
-                for (int i = 0; i < MAX_NUDGES; i++) {
-                    Collision nudge_collision = getClosestCollision(pos, pos_nudged - pos);
-                    if (!nudge_collision.t) {
-                        pos = pos_nudged;
-                        break;
-                    } else {
-                        if (i == MAX_NUDGES-1) break; // might as well not do any computation if on last iteration
-
-                        glm::vec3 collisionNormal = nudge_collision.normal.value();
-                        glm::vec3 diff = collisionNormal - nudge;
-
-                        // this code is necessary when we hit an edge shared by two triangles in exactly the wrong way
-                        // this code tests whether we are nudged into the same triangle twice, and nudges you in the 
-                        // OPPOSITE direction if that happens
-                        if (glm::dot(diff, diff) < EPSILON) 
-                            nudge = -collisionNormal;
-                        else
-                            nudge = collisionNormal;
-
-                        pos_nudged = nudge_collision.pos.value() + nudge * nudgeAmt;
-
-                        // also adjust velocity so there wouldn't be any in the collision normal direction
-                        rigidBody.velocity -= glm::dot(rigidBody.velocity, nudge_collision.normal.value()) 
-                            * nudge_collision.normal.value();
-                    }
-                }
-                return pos;
-            };
 
             for (int i = 0; i < MAX_TRANSLATIONS; i++) {
                 glm::vec3 dir = nextPos - curPos;
 
                 // get closest collision
-                Collision collision = getClosestCollision(curPos, dir);
+                std::optional<Collision> collision = 
+                    getClosestCollision(world, &sysData, entityEllipsoid, ellipsoidCollider, cylinder, curPos, dir);
 
-                if (!collision.t) {
+                if (!collision) {
                     return make_pair(nextPos, collisions);
                 } else {
                     /* STRACE("Found collision at: %f, with position %s and normal %s.", collision.t.value(), glm::to_string(collision.pos.value()).c_str(),  glm::to_string(collision.normal.value()).c_str()); */
 
                     // nudge the position a bit long the collision normal
-                    curPos = collision.pos.value() + nudgeAmt * collision.normal.value();
-                    /* curPos = doNudge(curPos, collision); */
+                    curPos = collision->pos.value() + 0.001f * collision->normal.value();
+                    /* curPos = doNudge(world, &sysData, entityEllipsoid, ellipsoidCollider, */
+                    /*     cylinderCollider == nullptr ? nullptr : cylinderCollider, */
+                    /*     curPos, collision.value()); */
 
                     dir = nextPos - curPos;
                     // correct direction by negating it in the normal direction to the collision.
-                    glm::vec3 dirCorrected = dir - glm::dot(dir, collision.normal.value()) * collision.normal.value();
+                    glm::vec3 dirCorrected = dir - glm::dot(dir, collision->normal.value()) * collision->normal.value();
                     nextPos = curPos + dirCorrected;
 
                     // also adjust velocity so there wouldn't be any in the collision normal direction
-                    rigidBody.velocity -= glm::dot(rigidBody.velocity, collision.normal.value()) * collision.normal.value();
+                    rigidBody.velocity -= glm::dot(rigidBody.velocity, collision->normal.value()) * collision->normal.value();
 
-                    collisions.push_back(collision);
+                    collisions.push_back(collision.value());
                 }
             }
 
