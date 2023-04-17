@@ -91,8 +91,8 @@ namespace Saga::Systems {
          */
         inline void runOverGridCells(CollisionSystemData& collisionSystemData, glm::vec3 pos, glm::vec3 size, std::function<void(Entity)> callback) {
             if (collisionSystemData.uniformGrid) {
-                for (int y = pos.y - size.y; y <= pos.y + size.y; y++) 
                 for (int x = pos.x - size.x; x <= pos.x + size.x; x++) 
+                for (int y = pos.y - size.y; y <= pos.y + size.y; y++) 
                 for (int z = pos.z - size.z; z <= pos.z + size.z; z++) {
                     auto cell = collisionSystemData.uniformGrid->getCell(x, y, z);
                     if (cell) for (Entity entity : cell.value())
@@ -190,56 +190,47 @@ namespace Saga::Systems {
              * @return Collision at time t in [0,1] where position + t * dir is where the ellipsoid first collides with another object.
              * @return nothing if no collision exists.
              */
-            auto getClosestCollision = [&](glm::vec3 pos, glm::vec3 dir) {
+            auto getClosestCollision = [&sysData,  entityEllipsoid, &ellipsoidCollider, &cylinderCollider, &transform, &world](glm::vec3 pos, glm::vec3 dir) {
                 Collision collision;
 
                 // detecting static collision
                 if (sysData.bvh) {
-                    std::optional<std::tuple<BoundingVolumeHierarchy::TriangleData*, float>> hit = sysData.bvh.value().traceEllipsoid(curPos, dir, ellipsoidCollider.radius);
+                    std::optional<std::tuple<BoundingVolumeHierarchy::TriangleData*, float>> hit = sysData.bvh.value().traceEllipsoid(pos, dir, ellipsoidCollider.radius);
 
                     if (hit) {
                         BoundingVolumeHierarchy::TriangleData* data = std::get<0>(hit.value());
                         float tc = std::get<1>(hit.value());
                         glm::vec3 triangleNormal = glm::normalize(glm::cross(data->triangle[1] - data->triangle[0], data->triangle[2] - data->triangle[0]));
-                        collision = Collision(tc, tc * dir + curPos, triangleNormal, entityEllipsoid, data->entity);
+                        collision = Collision(tc, tc * dir + pos, triangleNormal, entityEllipsoid, data->entity);
                     }
                 }
 
                 // detecting dynamic collision
                 if (cylinderCollider) {
                     std::unordered_set<Entity> visited;
-                    /* runOverGridCells(getSystemData(world), */ 
-                    /*     pos + dir, glm::vec3(cylinderCollider->radius, cylinderCollider->height/2, cylinderCollider->radius), */
-                    /* [&world, &transform, &entityEllipsoid, &visited, &collision, &dir, &curPos, &cylinderCollider](Entity otherEntity) { */
+                    runOverGridCells(getSystemData(world), 
+                        pos + dir, glm::vec3(cylinderCollider->radius * 2, cylinderCollider->height, cylinderCollider->radius * 2),
+                    [&world, &transform, &entityEllipsoid, &visited, &collision, &dir, &pos, &cylinderCollider](Entity otherEntity) {
 
-                    auto allCylinders = *world->viewGroup<Collider, CylinderCollider, Transform>();
-                    for (auto [otherEntity, otherCollider, otherCylinderCollider,otherTransform] : allCylinders) if (otherEntity != entityEllipsoid) {
+                        if (visited.count(otherEntity)) return;
+                        visited.insert(otherEntity);
 
-                        /* if (visited.count(otherEntity)) return; */
-                        /* visited.insert(otherEntity); */
+                        auto otherCylinderCollider = world->getComponent<CylinderCollider>(otherEntity);
+                        auto otherTransform = world->getComponent<Transform>(otherEntity);
 
-                        /* auto otherCylinderCollider = world->getComponent<CylinderCollider>(otherEntity); */
-                        /* auto otherTransform = world->getComponent<Transform>(otherEntity); */
+                        if (!otherCylinderCollider || !otherTransform) return;
 
-                        /* if (!otherCylinderCollider || !otherTransform) return; */
-
-                        SDEBUG("other entity has: position: %s, radius: %.2f, height: %.2f", 
-                            glm::to_string(otherTransform->getPos()).c_str(),
-                            otherCylinderCollider->radius,
-                            otherCylinderCollider->height
-                        );
 
                         std::optional<std::tuple<float, glm::vec3>> hit = Saga::Geometry::movingCylinderCylinderIntersection(
-                            cylinderCollider->height, cylinderCollider->radius, transform.getPos(), 
+                            cylinderCollider->height, cylinderCollider->radius, pos, 
                             otherCylinderCollider->height, otherCylinderCollider->radius, otherTransform->getPos(), dir);
 
                         if (hit) {
                             auto [tc, normal] = hit.value();
                             if ((!collision.t || collision.t.value() > tc)) 
-                                collision = Collision(tc, tc * dir + curPos, normal, entityEllipsoid, otherEntity);
+                                collision = Collision(tc, tc * dir + pos, normal, entityEllipsoid, otherEntity);
                         }
-                    }
-                    /* }); */
+                    });
                 }
 
                 return collision;

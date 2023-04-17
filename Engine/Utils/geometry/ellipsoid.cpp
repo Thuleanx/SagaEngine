@@ -45,15 +45,7 @@ std::optional<float> rayEllipsoidIntersection(const glm::vec3& rayOrigin, const 
 
 std::optional<float> unitSphereTriangleCollision(const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) {
     glm::vec3 normal = glm::normalize(glm::cross(b-a, c-a));
-    SDEBUG(
-        "Computing unitSphereTriangleCollision. Sphere has position %s and direction %s. Triangle located at %s, %s, %s",
-        glm::to_string(pos).c_str(),
-        glm::to_string(dir).c_str(),
-        glm::to_string(a).c_str(),
-        glm::to_string(b).c_str(),
-        glm::to_string(c).c_str()
-    );
-    if (glm::dot(normal, dir) > 0) // if normal 
+    if (glm::dot(normal, dir) > 0) // if normal
         return {};
     // interior collision
     std::optional<float> t = rayTriangleIntersection( pos - glm::normalize(glm::cross(b-a, c-a)), dir, Triangle{a, b, c});
@@ -117,8 +109,6 @@ std::optional<float> ellipsoidTriangleCollision(const glm::vec3& ellipsoidPos, c
         // if not moving, we can't find collision. Might as well return nothing
         return {};
     }
-
-    SDEBUG("%s", glm::to_string(ellipsoidDir).c_str());
 
     // TODO: compile these out of the release build
     if (!ellipsoidRadius.x || !ellipsoidRadius.y || !ellipsoidRadius.z) SERROR("ellipsoidRadius is zero: %s", glm::to_string(ellipsoidRadius).c_str());
