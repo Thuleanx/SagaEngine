@@ -55,7 +55,7 @@ namespace Platformer {
 
 		auto setupPlane = [this]() {
 			Saga::Entity plane = world->createEntity();
-			Saga::Mesh& planeMesh = *world->emplace<Saga::Mesh>(plane, "Blender/noisyPlane.obj");
+			Saga::Mesh& planeMesh = *world->emplace<Saga::Mesh>(plane, "Resources/Meshes/environment3.obj");
 			Saga::Material& mat = *world->emplace<Saga::Material>(plane,
 				Saga::Theme_Nostalgic::colors[1]);
             Saga::Transform* transform = world->emplace<Saga::Transform>(plane);
@@ -130,7 +130,7 @@ namespace Platformer {
 		Saga::Entity camera = setupCamera(player);
 		Saga::Entity backingTrack = setupBackingTrack();
 
-        int friendCnt = 10;
+        int friendCnt = 2;
         while (friendCnt --> 0) 
             setupFriend();
 	}

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Utils/geometry/triangle.h"
 #include <glm/vec3.hpp>
 #include <vector>
 #include <optional>
@@ -48,11 +49,12 @@ namespace Saga {
     private:
         bool initialized;
 
-
         std::vector<Vertex> vertices;
         std::vector<Face> faces;
         std::vector<Edge> edges;
         std::vector<HalfEdge> halfEdges;
+
+        Geometry::Triangle toTriangle(const Face& face);
     };
 }
 

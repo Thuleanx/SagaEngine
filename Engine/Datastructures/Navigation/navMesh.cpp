@@ -5,6 +5,7 @@
 #include <limits>
 #include <unordered_map>
 #include <queue>
+#include "Engine/Utils/geometry/triangle.h"
 #include "Engine/Utils/tupleHash.h"
 
 namespace Saga {
@@ -185,7 +186,37 @@ std::optional<NavMesh::Path> NavMesh::findPath(glm::vec3 src, glm::vec3 dest) {
 }
 
 std::optional<NavMesh::LocationInCell> NavMesh::getCell(glm::vec3 pos) {
+    // if navmesh not initialized, then return nothing
+    if (!initialized) return {};
 
+    float closestDistance2 = std::numeric_limits<float>::infinity();
+    int closestCell = -1;
+    glm::vec3 closestPos;
+
+    // loop through all cells
+    // TODO: optimize with oct-tree
+    for (int cell = 0; cell < faces.size(); cell++) {
+        glm::vec3 projectedPoint = Geometry::getClosestPoint(pos, toTriangle(faces[cell]));
+        float distance2 = glm::dot(projectedPoint - pos, projectedPoint - pos);
+        if (distance2 < closestDistance2) {
+            closestDistance2 = distance2;
+            closestCell = cell;
+            closestPos = projectedPoint;
+        }
+    }
+
+    return NavMesh::LocationInCell{
+        .cell = closestCell,
+        .projectedPosition = closestPos
+    };
+}
+
+Geometry::Triangle NavMesh::toTriangle(const Face& face) {
+    return Geometry::Triangle{
+        face.halfEdge->vertex->pos,
+        face.halfEdge->nxt->vertex->pos,
+        face.halfEdge->nxt->nxt->vertex->pos
+    };
 }
 
 }

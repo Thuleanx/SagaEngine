@@ -186,14 +186,14 @@ endCollisions: {}
      */
     void collisionSystem(std::shared_ptr<GameWorld> world, float deltaTime, float time) {
         for (auto &[entity, collider, ellipsoidCollider, rigidBody, transform] : *world->viewGroup<Collider, EllipsoidCollider, RigidBody, Transform>()) {
-            Saga::CylinderCollider* cylinder = world->getComponent<CylinderCollider>(entity);
-            if (cylinder) removeFromUniformGrid(getSystemData(world), entity, *cylinder, *transform);
+            /* Saga::CylinderCollider* cylinder = world->getComponent<CylinderCollider>(entity); */
+            /* if (cylinder) removeFromUniformGrid(getSystemData(world), entity, *cylinder, *transform); */
 
             std::pair<glm::vec3, std::vector<Collision>> res = ellipsoidTriangleCollisions(world, entity, *transform, 
                 *ellipsoidCollider, *rigidBody, deltaTime * rigidBody->velocity);
             transform->transform->setPos(res.first);
 
-            if (cylinder) addToUniformGrid(getSystemData(world), entity, *cylinder, *transform);
+            /* if (cylinder) addToUniformGrid(getSystemData(world), entity, *cylinder, *transform); */
         }
         /* cylinderCylinderCollision(world, deltaTime, time); */
     }
