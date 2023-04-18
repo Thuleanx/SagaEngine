@@ -48,7 +48,7 @@ namespace Saga::Geometry {
             hiv = ((pos1.y + heightCombined) - pos0.y) / dir.y;
             if (lov > hiv) std::swap(lov, hiv);
         }
-        
+
         float loxz, hixz;
         if (!dir.x && !dir.z) {
             glm::vec2 hmtv = detectCircleCollision(glm::vec2(pos0.x,pos0.z), radius0, 
@@ -71,8 +71,8 @@ namespace Saga::Geometry {
             std::tie(loxz, hixz) = result.value();
         }
 
-        lov = std::max(0.f, lov);
-        loxz = std::max(0.f, loxz);
+        lov = std::max(lov, 0.f);
+        loxz = std::max(loxz, 0.f);
 
         bool hasCollision = 1;
         hasCollision &= loxz <= hiv && lov <= hixz; // the intervals must intersect

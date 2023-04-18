@@ -4,6 +4,7 @@
 #include "collisionSystemOptimizationDynamic.h"
 #include "collisionSystemHelper.h"
 
+#include <glm/common.hpp>
 #include "../Gameworld/gameworld.h"
 #include "../Components/_import.h"
 #include "../Utils/geometry/geometry.h"
@@ -12,6 +13,7 @@
 #include "Engine/Components/collisionSystemData.h"
 #include "events.h"
 #include "Graphics/modeltransform.h"
+#include "glm/gtx/string_cast.hpp"
 #include <unordered_set>
 #include <functional>
 
@@ -77,13 +79,11 @@ namespace Saga::Systems {
                 if (!collision) {
                     return make_pair(nextPos, collisions);
                 } else {
-                    /* STRACE("Found collision at: %f, with position %s and normal %s.", collision.t.value(), glm::to_string(collision.pos.value()).c_str(),  glm::to_string(collision.normal.value()).c_str()); */
+                    /* STRACE("Found collision at: %f, with position %s and normal %s.", collision->t.value(), glm::to_string(collision->pos.value()).c_str(),  glm::to_string(collision->normal.value()).c_str()); */
 
                     // nudge the position a bit long the collision normal
-                    curPos = collision->pos.value() + 0.001f * collision->normal.value();
-                    /* curPos = doNudge(world, &sysData, entityEllipsoid, ellipsoidCollider, */
-                    /*     cylinderCollider == nullptr ? nullptr : cylinderCollider, */
-                    /*     curPos, collision.value()); */
+                    curPos = doNudge(world, &sysData, entityEllipsoid, ellipsoidCollider,
+                        cylinder, curPos, collision.value());
 
                     dir = nextPos - curPos;
                     // correct direction by negating it in the normal direction to the collision.

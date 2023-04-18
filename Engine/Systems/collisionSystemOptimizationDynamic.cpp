@@ -1,4 +1,6 @@
 #include "collisionSystemOptimizationDynamic.h"
+#include "Engine/Components/collider.h"
+#include "Engine/Components/transform.h"
 #include "collisionSystemOptimizationStatic.h"
 #include "Engine/Utils/geometry/cylinder.h"
 #include <unordered_set>
@@ -30,30 +32,32 @@ namespace Saga::Systems {
 
         Collision collision;
 
-        runOverGridCells(*systemData.value(), pos + dir, sizeToSearch, [&](Entity otherEntity) {
-            // we dont allow self-collision
-            if (otherEntity == entity) return; 
+        for (auto [otherEntity, collider, otherCylinderCollider, otherTransform] : *world->viewGroup<Collider, CylinderCollider, Transform>()) {
 
-            if (visited.count(otherEntity)) return;
+        /* runOverGridCells(*systemData.value(), pos + dir, sizeToSearch, [&](Entity otherEntity) { */
+            // we dont allow self-collision
+            if (otherEntity == entity) continue; 
+
+            if (visited.count(otherEntity)) continue;
             visited.insert(otherEntity);
 
-            auto otherCylinderCollider = world->getComponent<CylinderCollider>(otherEntity);
-            auto otherTransform = world->getComponent<Transform>(otherEntity);
+            /* auto otherCylinderCollider = world->getComponent<CylinderCollider>(otherEntity); */
+            /* auto otherTransform = world->getComponent<Transform>(otherEntity); */
 
             // if somehow the other object got into the uniform grid in a weird way
-            if (!otherCylinderCollider || !otherTransform) return;
+            /* if (!otherCylinderCollider || !otherTransform) return; */
 
             // perform collision detection
             auto hit = Saga::Geometry::movingCylinderCylinderIntersection(
                 cylinderCollider.height, cylinderCollider.radius, pos, 
                 otherCylinderCollider->height, otherCylinderCollider->radius, otherTransform->getPos(), dir);
 
-            if (!hit) return;
+            if (!hit) continue;
 
             auto [tc, normal] = hit.value();
 
             // if we already found a better collision, ignore
-            if (collision.t && collision.t.value() <= tc) return;
+            if (collision.t && collision.t.value() <= tc) continue;
             collision = Collision {
                 .t = tc, 
                 .pos = tc * dir + pos, 
@@ -61,7 +65,8 @@ namespace Saga::Systems {
                 .entity0 = entity, 
                 .entity1 = otherEntity
             };
-        });
+        /* }); */
+        }
 
         if (!collision.t) return {};
 

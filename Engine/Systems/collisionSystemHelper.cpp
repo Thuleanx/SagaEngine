@@ -1,6 +1,7 @@
 #include "collisionSystemHelper.h"
 #include "Engine/Systems/collisionSystemOptimizationDynamic.h"
 #include "collisionSystemOptimizationStatic.h"
+#include "glm/gtx/string_cast.hpp"
 
 namespace Saga::Systems {
 
@@ -8,23 +9,27 @@ namespace Saga::Systems {
         std::optional<CollisionSystemData *> systemData, Entity entity, 
         EllipsoidCollider &ellipsoidCollider, std::optional<CylinderCollider*> cylinderCollider, glm::vec3 pos, glm::vec3 dir) {
 
-        Collision collision;
+        std::optional<Collision> collision;
 
         auto possibleStaticCollision = getClosestCollisionStatic(world, 
                 systemData, entity, ellipsoidCollider, pos, dir);
 
-        if (possibleStaticCollision)
-            collision = possibleStaticCollision.value();
+        if (possibleStaticCollision) collision = possibleStaticCollision.value();
 
         // detecting dynamic collision
         if (cylinderCollider) {
             auto possibleDynamicCollision = getClosestCollisionDynamic(world, systemData, entity, *cylinderCollider.value(), pos, dir);
-            if (possibleDynamicCollision && (!collision.t || collision.t.value() > possibleDynamicCollision->t)) 
+            /* if (possibleDynamicCollision) */
+                /* STRACE("Found collision at: %f, with position %s and normal %s.", */ 
+                /*     possibleDynamicCollision->t.value(), */ 
+                /*     glm::to_string(possibleDynamicCollision->pos.value()).c_str(), */  
+                /*     glm::to_string(possibleDynamicCollision->normal.value()).c_str()); */
+
+            if (possibleDynamicCollision && (!collision || collision->t.value() > possibleDynamicCollision->t.value())) 
                 collision = possibleDynamicCollision.value();
         }
 
-        if (collision.t) return collision;
-        return {};
+        return collision;
     }
 
     glm::vec3 doNudge(std::shared_ptr<GameWorld> world, std::optional<CollisionSystemData *> systemData, Entity entity, EllipsoidCollider &ellipsoidCollider, std::optional<CylinderCollider *> cylinderCollider, glm::vec3 pos, Collision &collision) {

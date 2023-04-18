@@ -86,7 +86,7 @@ namespace Platformer {
             world->emplace<Saga::CylinderCollider>(player, 1, 0.5);
 
 			Saga::Transform* transform = world->emplace<Saga::Transform>(player);
-			transform->transform->setPos(glm::vec3(0,10,0));
+			transform->transform->setPos(glm::vec3(0,5,0));
 			// SDEBUG("Transform: <%f, %f, %f>", pos.x, pos.y, pos.z);
 			return player;
 		};
@@ -110,7 +110,7 @@ namespace Platformer {
             float randomRadiant = std::uniform_real_distribution<float>(0.0, 2*M_PI)(rng);
 
             glm::vec3 spawnPos = glm::vec3(sin(randomRadiant),0,cos(randomRadiant)) * orbitDistance;
-            spawnPos.y = 10;
+            spawnPos.y = 5;
 
 			Saga::Transform* transform = world->emplace<Saga::Transform>(fr);
 			transform->transform->setPos(spawnPos);
