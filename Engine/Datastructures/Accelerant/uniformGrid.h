@@ -1,5 +1,6 @@
 #pragma once
 
+#include <list>
 #include <unordered_map>
 #include <set>
 #include <glm/vec3.hpp>
@@ -18,7 +19,7 @@ namespace Saga {
     */
     template <class T>
     class UniformGrid {
-        using GridCell = std::vector<T>; //!< a grid cell is simply a container of objects
+        using GridCell = std::list<T>; //!< a grid cell is simply a container of objects
     public:
         /**
          * @brief Insert an item into the grid.

@@ -18,7 +18,7 @@ namespace Saga::Systems {
     }
 
     std::optional<Collision> getClosestCollisionDynamic(std::shared_ptr<GameWorld> world, 
-        std::optional<CollisionSystemData *> systemData, 
+        std::optional<CollisionSystemData*> systemData, 
         Entity entity, CylinderCollider &cylinderCollider, glm::vec3 pos, glm::vec3 dir) {
 
         std::unordered_set<Entity> visited;
@@ -28,7 +28,7 @@ namespace Saga::Systems {
         // twice the size of the bounding box of the cylinder. Here we assume the cylinder does not move
         // that much over 1 frame. More correct thing to do would be to 
         // search over the bounding box of the movement.
-        glm::vec3 sizeToSearch = 2.f * glm::vec3(cylinderCollider.radius, cylinderCollider.height/2, cylinderCollider.radius);
+        glm::vec3 sizeToSearch = glm::vec3(cylinderCollider.radius, cylinderCollider.height/2, cylinderCollider.radius);
 
         std::optional<Collision> collision;
 
@@ -38,14 +38,14 @@ namespace Saga::Systems {
             // we dont allow self-collision
             if (otherEntity == entity) continue; 
 
-            if (visited.count(otherEntity)) continue;
-            visited.insert(otherEntity);
+            /* if (visited.count(otherEntity)) continue; */
+            /* visited.insert(otherEntity); */
 
             /* auto otherCylinderCollider = world->getComponent<CylinderCollider>(otherEntity); */
             /* auto otherTransform = world->getComponent<Transform>(otherEntity); */
 
             // if somehow the other object got into the uniform grid in a weird way
-            /* if (!otherCylinderCollider || !otherTransform) return; */
+            /* if (!otherCylinderCollider || !otherTransform) continue; */
 
             // perform collision detection
             auto hit = Saga::Geometry::movingCylinderCylinderIntersection(

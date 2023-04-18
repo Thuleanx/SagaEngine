@@ -2,6 +2,7 @@
 #include "Engine/Systems/collisionSystemOptimizationDynamic.h"
 #include "collisionSystemOptimizationStatic.h"
 #include "glm/gtx/string_cast.hpp"
+#include "Engine/_Core/logger.h"
 
 namespace Saga::Systems {
 
@@ -57,10 +58,10 @@ namespace Saga::Systems {
                 // this code is necessary when we hit an edge shared by two triangles in exactly the wrong way
                 // this code tests whether we are nudged into the same triangle twice, and nudges you in the 
                 // OPPOSITE direction if that happens
-                if (glm::dot(diff, diff) < EPSILON) 
-                    nudge = -collisionNormal;
-                else
-                    nudge = collisionNormal;
+                /* if (glm::dot(diff, diff) < EPSILON) */ 
+                /*     nudge = -collisionNormal; */
+                /* else */
+                /*     nudge = collisionNormal; */
 
                 pos_nudged = nudge_collision->pos + nudge * nudgeAmt;
 

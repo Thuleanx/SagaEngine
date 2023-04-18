@@ -13,6 +13,8 @@ namespace Saga {
 }
 
 namespace Saga::Systems {
+    const glm::vec3 gridSize = glm::vec3(3,3,3);
+
     /**
      * @brief Calls a function over the grid cells of a uniform grid that includes a certain bounding box.
      *

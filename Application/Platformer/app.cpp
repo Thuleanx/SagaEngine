@@ -87,14 +87,13 @@ namespace Platformer {
 
 			Saga::Transform* transform = world->emplace<Saga::Transform>(player);
 			transform->transform->setPos(glm::vec3(0,5,0));
-			// SDEBUG("Transform: <%f, %f, %f>", pos.x, pos.y, pos.z);
 			return player;
 		};
 
         auto setupFriend = [this, &rng]() {
             Saga::Entity fr = world->createEntity();
             float movespeed = std::uniform_real_distribution<float>(4.f, 9.f)(rng);
-            float orbitDistance = std::uniform_real_distribution<float>(3,8)(rng);
+            float orbitDistance = std::uniform_real_distribution<float>(2,3)(rng);
             int colorIndex = std::uniform_int_distribution<int>(0,8)(rng);
 
             world->emplace<Platformer::FriendController>(fr, 
@@ -114,7 +113,6 @@ namespace Platformer {
 
 			Saga::Transform* transform = world->emplace<Saga::Transform>(fr);
 			transform->transform->setPos(spawnPos);
-			// SDEBUG("Transform: <%f, %f, %f>", pos.x, pos.y, pos.z);
 			return fr;
 
         };
