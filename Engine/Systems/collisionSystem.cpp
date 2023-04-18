@@ -73,8 +73,7 @@ namespace Saga::Systems {
                 glm::vec3 dir = nextPos - curPos;
 
                 // get closest collision
-                std::optional<Collision> collision = 
-                    getClosestCollision(world, &sysData, entityEllipsoid, ellipsoidCollider, cylinder, curPos, dir);
+                std::optional<Collision> collision = getClosestCollision(world, &sysData, entityEllipsoid, ellipsoidCollider, cylinder, curPos, dir);
 
                 if (!collision) {
                     return make_pair(nextPos, collisions);
@@ -87,11 +86,11 @@ namespace Saga::Systems {
 
                     dir = nextPos - curPos;
                     // correct direction by negating it in the normal direction to the collision.
-                    glm::vec3 dirCorrected = dir - glm::dot(dir, collision->normal.value()) * collision->normal.value();
+                    glm::vec3 dirCorrected = dir - glm::dot(dir, collision->normal) * collision->normal;
                     nextPos = curPos + dirCorrected;
 
                     // also adjust velocity so there wouldn't be any in the collision normal direction
-                    rigidBody.velocity -= glm::dot(rigidBody.velocity, collision->normal.value()) * collision->normal.value();
+                    rigidBody.velocity -= glm::dot(rigidBody.velocity, collision->normal) * collision->normal;
 
                     collisions.push_back(collision.value());
                 }

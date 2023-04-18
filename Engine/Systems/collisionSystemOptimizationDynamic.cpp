@@ -30,7 +30,7 @@ namespace Saga::Systems {
         // search over the bounding box of the movement.
         glm::vec3 sizeToSearch = 2.f * glm::vec3(cylinderCollider.radius, cylinderCollider.height/2, cylinderCollider.radius);
 
-        Collision collision;
+        std::optional<Collision> collision;
 
         for (auto [otherEntity, collider, otherCylinderCollider, otherTransform] : *world->viewGroup<Collider, CylinderCollider, Transform>()) {
 
@@ -57,7 +57,8 @@ namespace Saga::Systems {
             auto [tc, normal] = hit.value();
 
             // if we already found a better collision, ignore
-            if (collision.t && collision.t.value() <= tc) continue;
+            if (collision && collision->t <= tc) continue;
+
             collision = Collision {
                 .t = tc, 
                 .pos = tc * dir + pos, 
@@ -67,8 +68,6 @@ namespace Saga::Systems {
             };
         /* }); */
         }
-
-        if (!collision.t) return {};
 
         return collision;
     }

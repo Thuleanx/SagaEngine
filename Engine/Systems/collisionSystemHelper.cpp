@@ -25,7 +25,7 @@ namespace Saga::Systems {
                 /*     glm::to_string(possibleDynamicCollision->pos.value()).c_str(), */  
                 /*     glm::to_string(possibleDynamicCollision->normal.value()).c_str()); */
 
-            if (possibleDynamicCollision && (!collision || collision->t.value() > possibleDynamicCollision->t.value())) 
+            if (possibleDynamicCollision && (!collision || collision->t > possibleDynamicCollision->t)) 
                 collision = possibleDynamicCollision.value();
         }
 
@@ -37,8 +37,8 @@ namespace Saga::Systems {
         const float EPSILON = 0.0001f;
         const float nudgeAmt = 0.001f;
 
-        glm::vec3 nudge = collision.normal.value();
-        glm::vec3 pos_nudged = collision.pos.value() + nudge * nudgeAmt;
+        glm::vec3 nudge = collision.normal;
+        glm::vec3 pos_nudged = collision.pos + nudge * nudgeAmt;
 
         for (int i = 0; i < MAX_NUDGES; i++) {
             std::optional<Collision> nudge_collision = getClosestCollision(
@@ -51,7 +51,7 @@ namespace Saga::Systems {
             } else {
                 if (i == MAX_NUDGES-1) break; // might as well not do any computation if on last iteration
 
-                glm::vec3 collisionNormal = nudge_collision->normal.value();
+                glm::vec3 collisionNormal = nudge_collision->normal;
                 glm::vec3 diff = collisionNormal - nudge;
 
                 // this code is necessary when we hit an edge shared by two triangles in exactly the wrong way
@@ -62,7 +62,7 @@ namespace Saga::Systems {
                 else
                     nudge = collisionNormal;
 
-                pos_nudged = nudge_collision->pos.value() + nudge * nudgeAmt;
+                pos_nudged = nudge_collision->pos + nudge * nudgeAmt;
 
                 // also adjust velocity so there wouldn't be any in the collision normal direction
                 /* rigidBody.velocity -= glm::dot(rigidBody.velocity, nudge_collision.normal.value()) */ 

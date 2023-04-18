@@ -15,9 +15,9 @@ namespace Saga::Systems {
 	 * @brief Collision struct that details a collision.
 	 */
 	struct Collision {
-        std::optional<float> t; //!< time at which the collision happens, if collision does happen
-        std::optional<glm::vec3> pos; //!< position of the collision.
-        std::optional<glm::vec3> normal; //!< normal direction of the collision.
+        float t; //!< time at which the collision happens.
+        glm::vec3 pos; //!< position of the collision.
+        glm::vec3 normal; //!< normal direction of the collision.
 	
 		Entity entity0; //!< first Entity in the collision.
 		Entity entity1; //!< second Entity in the collision. The normal direction is away from this Entity.
