@@ -8,8 +8,10 @@
 #include <queue>
 #include "Engine/Utils/geometry/triangle.h"
 #include "Engine/Utils/tupleHash.h"
+#include "Engine/_Core/asserts.h"
 #include "Engine/_Core/logger.h"
 #include "Graphics/global.h"
+#include "glm/gtx/string_cast.hpp"
 #include <chrono>
 #include <random>
 
@@ -55,6 +57,7 @@ void NavMesh::build(const std::vector<glm::vec3> &positions, const std::vector<g
 			halfEdges.emplace_back(
                 HalfEdge{.vertex = &vertices[u]}
             );
+
             HalfEdge *currentEdge = &halfEdges.back();
 
             vertices[u].degree++;
@@ -80,6 +83,7 @@ void NavMesh::build(const std::vector<glm::vec3> &positions, const std::vector<g
 				currentEdge->edge = &edges.back();
 				edgeMap[edgePair] = {halfEdges.size() - 1, edges.size() - 1};
 			}
+            SASSERT(currentEdge->edge != nullptr);
 
 			faceHalfEdge[j] = currentEdge;
 		}
@@ -87,6 +91,7 @@ void NavMesh::build(const std::vector<glm::vec3> &positions, const std::vector<g
         faces.emplace_back(Face{
             .halfEdge = faceHalfEdge[0]
         });
+        SASSERT(faces.back().halfEdge != nullptr);
 
 		// Assign nxt variables
         for (int j = 0; j < EDGES_IN_FACE; j++) {
@@ -95,9 +100,6 @@ void NavMesh::build(const std::vector<glm::vec3> &positions, const std::vector<g
 		}
 	}
 
-    edges.shrink_to_fit();
-
-
     initialized = true;
 }
 
@@ -105,7 +107,6 @@ std::optional<NavMesh::Path> NavMesh::findPath(glm::vec3 src, glm::vec3 dest, fl
     std::optional<LocationInCell> fromLoc = getCell(src);
     std::optional<LocationInCell> toLoc = getCell(dest);
     if (!fromLoc || !toLoc) return {};
-
     if (fromLoc.value().cell == toLoc.value().cell) {
         // if in the same cell, shortest distance is simply from -> to.
         return {};
@@ -114,26 +115,34 @@ std::optional<NavMesh::Path> NavMesh::findPath(glm::vec3 src, glm::vec3 dest, fl
     int n = edges.size();
 
     float d[n]; float h[n]; int p[n];
+    HalfEdge* half[n];
+
     std::fill(d, d+n, std::numeric_limits<float>::infinity());
     std::fill(h, h+n, std::numeric_limits<float>::infinity());
     std::fill(p, p+n, -1);
+    std::fill(half, half+n, nullptr);
 
-    HalfEdge* half[n];
 
     using distanceEstimate = std::tuple<float, int>; // distance, halfEdge
-    std::priority_queue<distanceEstimate, 
+    std::priority_queue<distanceEstimate,
         std::vector<distanceEstimate>, std::greater<distanceEstimate>> pq;
 
     { // loop through all edges in the start cell
         HalfEdge* halfEdge = faces[fromLoc.value().cell].halfEdge;
+
         for (int _ = 0; _ < 3; _++, halfEdge = halfEdge->nxt) {
-            int edgeIndex = std::distance(halfEdge->edge, &edges[0]);
+            int edgeIndex = std::distance(edges.data(), halfEdge->edge);
+            int halfEdgeIndex = std::distance(halfEdges.data(), halfEdge);
+
             d[edgeIndex] = glm::distance(src, edges[edgeIndex].center);
             h[edgeIndex] = glm::distance(dest, edges[edgeIndex].center);
+
             half[edgeIndex] = halfEdge;
-            pq.push({d[edgeIndex] + h[edgeIndex], edgeIndex});
+            SASSERT(&halfEdges[halfEdgeIndex] == half[edgeIndex]);
+            pq.push({d[edgeIndex] + h[edgeIndex], halfEdgeIndex});
         }
     }
+
 
     std::array<int, 3> goalEdges;
     { // loop through all edges in the end cell
@@ -146,12 +155,14 @@ std::optional<NavMesh::Path> NavMesh::findPath(glm::vec3 src, glm::vec3 dest, fl
 
     int bestEdge = -1;
 
-    while (!pq.empty()) {
-        int he = std::get<1>(pq.top());
-        int e = std::distance(halfEdges[he].edge, &edges[0]);
-        float d_e = std::get<0>(pq.top());
+    while (pq.size()) {
+        auto [d_e, he] = pq.top();
+        int e = std::distance(edges.data(), halfEdges[he].edge);
         pq.pop();
+
+        /* SDEBUG("should be equal: %d, %d", &halfEdges[he], half[e]); */
         if (&halfEdges[he] != half[e] || d_e != d[e] + h[e]) continue;
+        /* SDEBUG("edge: %d with distance %f", e, d_e); */
 
         // if is one of the goal edges
         if (std::find(goalEdges.begin(), goalEdges.end(), e) != goalEdges.end()) {
@@ -161,12 +172,12 @@ std::optional<NavMesh::Path> NavMesh::findPath(glm::vec3 src, glm::vec3 dest, fl
 
         for (auto* halfEdge : { edges[e].halfEdge, edges[e].halfEdge->twin }) if (halfEdge) {
             for (auto* nxtEdge : {halfEdge->nxt, halfEdge->nxt->nxt} ) {
-                int to = std::distance(nxtEdge->edge, &edges[0]);
+                int to = std::distance(edges.data(), nxtEdge->edge);
                 float dist = glm::distance(edges[e].center, nxtEdge->edge->center);
                 if (d[to] > d[e] + dist) {
                     d[to] = d[e] + dist;
                     p[to] = e;
-                    int halfEdgeIndex = std::distance(nxtEdge, &halfEdges[0]);
+                    int halfEdgeIndex = std::distance(halfEdges.data(), nxtEdge);
                     half[to] = nxtEdge;
                     if (h[to] == -1) h[to] = glm::distance(edges[to].center, dest);
                     pq.push({d[to] + h[to], halfEdgeIndex});
@@ -195,6 +206,8 @@ std::optional<NavMesh::Path> NavMesh::findPath(glm::vec3 src, glm::vec3 dest, fl
         bestEdge = p[bestEdge];
     }
     std::reverse(portalsInPath.begin(), portalsInPath.end());
+
+    /* SDEBUG("Produced Path: from %s to %s", glm::to_string(src).c_str(), to_string(dest).c_str()); */
 
     return Path{
         .length = pathLength,
@@ -251,6 +264,9 @@ NavMesh::WalkablePath NavMesh::tracePath(const Path &path) const {
     }
 
     positions.push_back(path.to);
+
+    std::reverse(positions.begin(), positions.end());
+
     return WalkablePath{
         .radius = path.radius,
         .positions = positions

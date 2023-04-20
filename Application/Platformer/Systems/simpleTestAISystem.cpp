@@ -5,6 +5,8 @@
 #include "Engine/Gameworld/gameworld.h"
 #include "Engine/Systems/system.h"
 #include "Engine/Systems/systemManager.h"
+#include "Engine/_Core/logger.h"
+#include "glm/gtx/string_cast.hpp"
 
 namespace Platformer::Systems {
 
@@ -18,17 +20,22 @@ void simpleTestAISystem(std::shared_ptr<Saga::GameWorld> world, float deltaTime,
                 if (optionalPath) testAI->path = navMesh.tracePath(optionalPath.value());
             }
         }
-        glm::vec3 curPos = transform->getPos();
+        glm::vec3 curPos = transform->getPos() - glm::vec3(0,.5,0);
         while (testAI->path->positions.size() && glm::distance(testAI->path->positions.back(), curPos) < 0.001f) testAI->path->positions.pop_back();
-        // walk towards next waypoint
-        glm::vec3 dir = testAI->path->positions.back() - curPos;
-        float len = dir.length();
-        if (len) dir /= len;
 
-        float walkAmt = std::clamp(deltaTime * testAI->movementSpeed, 0.0f, len);
+        if (testAI->path->positions.size()) {
+            // walk towards next waypoint
+            glm::vec3 dir = testAI->path->positions.back() - curPos;
+            float len = glm::length(dir);
+            if (len) dir /= len;
+            /* SDEBUG("%s walking towards %s with distance: %.4f", glm::to_string(curPos).c_str(), glm::to_string(testAI->path->positions.back()).c_str(), len); */
 
-        glm::vec3 nxtPos = curPos + dir * walkAmt;
-        transform->transform->setPos(nxtPos);
+            float walkAmt = std::clamp(deltaTime * testAI->movementSpeed, 0.0f, len);
+            /* SDEBUG("direction: %s; amt: %f", glm::to_string(dir).c_str(), walkAmt); */
+
+            glm::vec3 nxtPos = curPos + dir * walkAmt;
+            transform->transform->setPos(nxtPos + glm::vec3(0,.5,0));
+        }
     }
 }
 
