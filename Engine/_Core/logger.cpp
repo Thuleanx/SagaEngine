@@ -12,26 +12,10 @@
 
 namespace Saga {
 
-void reportAssertionFailed(const char* expression, const char* message, const char* file, int line, ...) {
-
-	char outMessage[32000] = {0};
-	va_list arg_ptr;
-	va_start(arg_ptr, line);
-	vsnprintf(outMessage, 32000, message, arg_ptr);
-	va_end(arg_ptr);
-
-	SERROR("Assertion Failure: %s, message: '%s', in file: %s, line: %d\n", 
-		expression, std::string(outMessage).c_str(), file, line);
-
-	shutDownLogger();
-}
-
 bool initializeLogger() {
 	// TODO: create log file
     static plog::ColorConsoleAppender<plog::TxtFormatter> appender;
     plog::init(plog::Severity::debug, "sagaruntime.log").addAppender(&appender);
-    PLOGI.printf("%d, %s", 32, "test");
-    PLOG_DEBUG << "Logger initialized.";
 	SINFO("Logger initialized.");
 	return true;
 }

@@ -58,7 +58,7 @@ void shutDownLogger();
  * @brief Log fatal-level messages.
  * @param message formatted string, similar to printf.
  */
-#define SFATAL(message, ...) logOutput(Saga::LogLevel::FATAL, message, ##__VA_ARGS__)
+#define SFATAL(message, ...) PLOG(plog::fatal).printf(message, ##__VA_ARGS__)
 #endif
 
 #ifndef SERROR
@@ -66,7 +66,7 @@ void shutDownLogger();
  * @brief Log error-level messages.
  * @param message formatted string, similar to printf.
  */
-#define SERROR(message, ...) logOutput(Saga::LogLevel::ERROR, message, ##__VA_ARGS__)
+#define SERROR(message, ...) PLOG(plog::error).printf(message, ##__VA_ARGS__)
 #endif
 
 #if LOG_WARN_ENABLED == 1
@@ -75,7 +75,7 @@ void shutDownLogger();
  * @brief Log warn-level messages.
  * @param message formatted string, similar to printf.
  */
-#define SWARN(message, ...) logOutput(Saga::LogLevel::WARN, message, ##__VA_ARGS__)
+#define SWARN(message, ...) PLOG(plog::warning).printf(message, ##__VA_ARGS__)
 #endif
 #else
 #define SWARN(message, ...)
@@ -99,7 +99,7 @@ void shutDownLogger();
  * @brief Log debug-level messages.
  * @param message formatted string, similar to printf.
  */
-#define SDEBUG(message, ...) logOutput(Saga::LogLevel::DEBUG, message, ##__VA_ARGS__)
+#define SDEBUG(message, ...) PLOG(plog::debug).printf(message, ##__VA_ARGS__)
 #endif
 #else
 #define SDEBUG(message, ...)
@@ -111,7 +111,7 @@ void shutDownLogger();
  * @brief Log trace-level messages.
  * @param message formatted string, similar to printf.
  */
-#define STRACE(message, ...) logOutput(Saga::LogLevel::TRACE, message, ##__VA_ARGS__)
+#define STRACE(message, ...) PLOG(plog::verbose).printf(message, ##__VA_ARGS__)
 #endif
 #else
 #define STRACE(message, ...)

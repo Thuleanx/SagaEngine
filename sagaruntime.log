@@ -1,1 +1,14 @@
-﻿
+﻿2023-04-20 12:37:07.011 INFO  [22156] [Saga::initializeLogger@19] Logger initialized.
+2023-04-20 12:37:07.011 INFO  [22156] [Window::Window@12] Window starting.
+2023-04-20 12:37:07.501 INFO  [22156] [Saga::Core::Core@17] Start initializing application.
+2023-04-20 12:37:07.541 INFO  [22156] [Saga::AudioEngine::init@127] Fmod Studio System Created.
+2023-04-20 12:37:08.002 INFO  [22156] [Saga::AudioEngine::init@132] Fmod Studio System Initialized.
+2023-04-20 12:37:08.002 INFO  [22156] [Saga::AudioEngine::loadBank@156] Attempting to load bank: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:37:08.045 INFO  [22156] [Saga::AudioEngine::loadBank@166] Loading bank success: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:37:08.045 INFO  [22156] [Saga::AudioEngine::loadBank@156] Attempting to load bank: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:37:08.091 INFO  [22156] [Saga::AudioEngine::loadBank@166] Loading bank success: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:37:08.091 WARN  [22156] [Saga::GameWorld::registerGroup@89] A group with the same signature already exists. Group consists of: N4Saga8ColliderE, N4Saga16CylinderColliderE, N4Saga9RigidBodyE, N4Saga9TransformE.
+2023-04-20 12:37:08.092 INFO  [22156] [Saga::NavMesh::buildFromFile@16] Building nav mesh from file Resources/Meshes/environment3nav.obj
+2023-04-20 12:37:08.092 INFO  [22156] [Saga::NavMesh::buildFromFile@19] Complete building nav mesh from file Resources/Meshes/environment3nav.obj. The mesh contains 28 vertices and 26 faces.
+2023-04-20 12:37:08.092 FATAL [22156] [Platformer::App::App@24] Assertion failed: (0 == 1) with message
+2023-04-20 12:37:08.092 INFO  [22156] [Saga::shutDownLogger@24] Logger shut down.
