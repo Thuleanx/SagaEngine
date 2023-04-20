@@ -16,6 +16,7 @@ namespace Saga {
     *
     * @tparam T the type of objects stored in each of the grid's cells.
     * @note useful for optimizing collisions of dynamic entities.
+     * @ingroup datastructures
     */
     template <class T>
     class UniformGrid {

@@ -13,6 +13,8 @@ namespace Saga {
     /**
      * @brief A tree of bounding volumes, with leaf nodes containing a collection of triangles. 
      * Useful as a space-accelerant structure to speed up collision detection.
+     *
+     * @ingroup datastructures
      */
     class BoundingVolumeHierarchy {
     public:

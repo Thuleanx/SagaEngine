@@ -40,6 +40,7 @@ namespace Saga {
 
 	/**
 	 * @brief A mapping between events (which are ints under the hood) and callbacks.
+     * @ingroup datastructures
 	 */
 	class EventMap {
 	public: 

@@ -9,8 +9,10 @@
 #include <memory>
 
 namespace Saga {
-	/// @brief Stores data for implementing the Audio Engine.
-	///		This includes various maps to fmod events and banks, as well as a reference to FMOD_STUDIO_SYSTEM.
+    /**
+    * @brief Stores data for implementing the Audio Engine. This includes various maps to fmod events and banks, as well as a reference to FMOD_STUDIO_SYSTEM.
+    * @ingroup audio
+    */
 	struct AudioImplementation {
 		/// @brief FMOD studio system used to interact with Fmod studio
 		FMOD_STUDIO_SYSTEM* studioSystem = nullptr;
@@ -26,12 +28,14 @@ namespace Saga {
 
 	/**
 	 * @brief An audio instance equivalent to an instance of a sound. Can be start and stop. 
-	 * For correct 3D positioning of an instance, make sure to update the 3D position every frame.
-	 */
+     * For correct 3D positioning of an instance, make sure to update the 3D position every frame.
+     * @ingroup audio
+     */
 	using AudioEventInstance = FMOD_STUDIO_EVENTINSTANCE*;
 
 	/** 
 	 * @brief This contains a collection of methods that interfaces with the FMOD studio API to play audio.
+     * @ingroup audio
 	 */
 	namespace AudioEngine {
 		/// @brief Data used for operating the AudioEngine.

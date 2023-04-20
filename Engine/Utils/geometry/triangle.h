@@ -6,8 +6,10 @@
 
 namespace Saga::Geometry {
     /**
-        * @brief Represents a 3D triangle, equipped with some utility functions
-        */
+     * @brief Represents a 3D triangle, equipped with some utility functions
+     *
+     * @ingroup geometry
+     */
     struct Triangle {
         glm::vec3 a,b,c;
 
@@ -45,6 +47,8 @@ namespace Saga::Geometry {
      * @param rayDirection direction of the ray.
      * @param triangle the triangle.
      *
+     * @ingroup geometry
+     *
      * @return float t in [0,1] such that origin + t * rayDirection is the intersection point between the ray and the triangle. 
      * @return nothing if t does not exist, or is not in range, or is grazing (parallel to the triangle).
      * @return 0 if ray starts out intersecting the triangle.
@@ -56,6 +60,8 @@ namespace Saga::Geometry {
      *
      * @param pointPos position of the point in cartesian coordinate.
      * @param triangle the triangle.
+     *
+     * @ingroup geometry
      *
      * @return glm::vec3 a point inside the triangle whose euclidean distance is cloest to the pointPos.
      */

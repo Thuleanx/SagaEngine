@@ -9,6 +9,7 @@ namespace Saga {
 	 * @brief Map that has Types as key.
 	 * 
 	 * @tparam DataType the type of the value of the map.
+     * @ingroup datastructures
 	 */
 	template <class DataType>
 	class TypeMap {

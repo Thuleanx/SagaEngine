@@ -31,3 +31,4 @@ Documentation/
 build/
 
 .cache/clangd
+doxygen-awesome-css/

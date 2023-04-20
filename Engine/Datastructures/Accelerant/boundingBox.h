@@ -7,6 +7,8 @@ namespace Saga {
 
     /**
      * @brief Represents a bounding box.
+     *
+     * @ingroup datastructures
      */
     struct BoundingBox {
         static float const oo; //!< infinity value. No bounding box's absolute value in any dimension can exceed this.

@@ -16,7 +16,7 @@ namespace Saga::Systems {
      * a component on an entity. If none exists, an entity with the component
      * will be created.
      *
-     * @param world the world that the data exists on. 
+     * @param world the world that the data exists on.
      *
      * @return a reference to the CollisionSystemData that is in this world.
      */

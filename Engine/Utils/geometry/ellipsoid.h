@@ -16,6 +16,8 @@ namespace Saga {
          * @return std::optional<float> t in the range [0,1] such that origin + t * rayDirection is the intersection between the ray and the ellipsoid.
          * @return nothing if no such t exists.
          * @return 0 if ray starts out intersecting the the ellipsoid.
+         *
+         * @ingroup geometry
          */
         std::optional<float> rayEllipsoidIntersection(const glm::vec3& rayOrigin, const glm::vec3& rayDirection, const glm::vec3& position, const glm::vec3& radius);
 
@@ -27,6 +29,8 @@ namespace Saga {
          * @return float t in the range [0,1] such that origin + t * rayDirection is the intersection between the ray and the unit sphere. 
          * @return 0 if ray origin already intersect the unit sphere.
          * @return nothing if no intersection exists.
+         *
+         * @ingroup geometry
          */
         std::optional<float> rayUnitSphereAtOriginIntersection(const glm::vec3& origin, const glm::vec3& rayDirection);
 
@@ -39,7 +43,9 @@ namespace Saga {
          * @param b triangle second point in counter-clockwise order.
          * @param c triangle third point in counter-clockwise order.
          * @return float positive t such that pos + t * dir is the first time the unit sphere intersects with the triangle. 
-         * 	If they already intersects, then this would be the time they exits. -1 if no such time exists. t is in the range [0,1] otherwise
+         * If they already intersects, then this would be the time they exits. -1 if no such time exists. t is in the range [0,1] otherwise
+         *
+         * @ingroup geometry
          */
         std::optional<float> unitSphereTriangleCollision(const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c);
 
@@ -51,6 +57,8 @@ namespace Saga {
          * @param ellipsoidRadius0 radius of the first ellipsoid.
          * @param ellipsoidPos1 position of the second ellipsoid.
          * @param ellipsoidRadius1 radius of the second ellipsoid.
+         *
+         * @ingroup geometry
          */
         std::optional<float> movingEllipsoidEllipsoidIntersection(
             const glm::vec3 &ellipsoidPos0, const glm::vec3 &ellipsoidDir0, const glm::vec3 &ellipsoidRadius0,
@@ -68,6 +76,8 @@ namespace Saga {
 		 * @return float t in [0,1] such that ellipsoidPos + t * ellipsoidDir is the first time the ellipsoid intersects with the triangle.
          * @return float t in [0,1] such that ellipsoidPos * t * ellipsoidDir is the time the ellipsoid exits the triangle, should it already intersect at ellipsoidPos.
          * @return nothing if t does not exists, or is not in range, or the ellipsoid is not moving.
+         *
+         * @ingroup geometry
 		 */
         std::optional<float> ellipsoidTriangleCollision(const glm::vec3& ellipsoidPos, const glm::vec3& ellipsoidDir, 
 			const glm::vec3& ellipsoidRadius, const glm::vec3& a, const glm::vec3& b, const glm::vec3& c);
@@ -83,6 +93,8 @@ namespace Saga {
          * @return float t in [0,1] such that pos + dir * t is when the sphere collide with the line segment.
          * @return float t in [0,1] such that pos + dir * t is when the sphere exits the line segment, if the sphere already collides at pos.
          * @return nothing if no such point exists, or none exists in the given range.
+         *
+         * @ingroup geometry
          */
         std::optional<float> unitSphereEdgeCollision(const glm::vec3& pos, const glm::vec3& dir,
                 const glm::vec3& c, const glm::vec3& d);

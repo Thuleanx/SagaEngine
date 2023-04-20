@@ -12,6 +12,8 @@ namespace Saga::Geometry {
      * @param bPos center of the second circle.
      * @param bRadius radius of the second circle.
      * @return glm::vec2 zero if non overlapping. The minimum translation vector with respect to the first circle otherwise.
+     *
+     * @ingroup geometry
      */
     glm::vec2 detectCircleCollision(const glm::vec2& aPos, const float &aRadius, const glm::vec2& bPos, const float &bRadius);
 
@@ -23,6 +25,8 @@ namespace Saga::Geometry {
      * @return tlo <= thi such that origin + tlo * rayDirection is the intersection between the ray and the unit circle, 
      *  and the same applies to thi.
      * @return nothing if no intersection exists.
+     *
+     * @ingroup geometry
      */
     std::optional<std::tuple<float,float>> rayUnitCircleAtOriginIntersection(const glm::vec2& origin, const glm::vec2& rayDirection);
 }

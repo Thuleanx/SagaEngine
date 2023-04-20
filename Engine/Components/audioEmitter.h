@@ -8,6 +8,7 @@ namespace Saga {
 /**
  * @brief Component for emitting sound events.
  * @ingroup component
+ * @ingroup audio
  */
 struct AudioEmitter {
 	std::string eventName; //!< name of the event. Typically "event:/eventName".
