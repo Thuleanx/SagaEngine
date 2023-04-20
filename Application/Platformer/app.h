@@ -11,8 +11,9 @@ public:
 private:
 	void setupWorld();
 	void setupSystems();
+    virtual void update(float deltaTime, float time) override;
 
-	std::shared_ptr<Saga::GameWorld> world;
+	std::shared_ptr<Saga::GameWorld> mainWorld;
 	std::shared_ptr<Saga::AudioEventInstance> loopEvent;
 };
 

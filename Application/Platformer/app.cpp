@@ -9,12 +9,13 @@
 #include "../General/Systems/playerInputSystem.h"
 #include "../General/Systems/thirdPersonCameraSystem.h"
 #include "Components/playerController.h"
+#include "imgui.h"
 #include <stdlib.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "config.h"
-#include <random>
 #include <chrono>
+#include <random>
 
 namespace Platformer {
 	App::App() {
@@ -28,16 +29,16 @@ namespace Platformer {
 	}
 
 	void App::setupWorld() {
-		world = createGameWorld();
+		mainWorld = createGameWorld();
 		setupSystems();
 
         std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
 
 		auto setupCamera = [this](Saga::Entity player) {
-			Saga::Entity camera = world->createEntity();
+			Saga::Entity camera = mainWorld->createEntity();
 			std::shared_ptr<GraphicsEngine::Camera> defaultCamera 
 				= std::make_shared<GraphicsEngine::Camera>();
-			Saga::Camera& camComponent = *world->emplace<Saga::Camera>(camera, Saga::Camera{
+			Saga::Camera& camComponent = *mainWorld->emplace<Saga::Camera>(camera, Saga::Camera{
 				defaultCamera,  // camera
 				true, // clearColorBufferOnDraw
 				Saga::Theme_Nostalgic::colors[3], // clearColor
@@ -47,90 +48,90 @@ namespace Platformer {
 
 			camComponent.camera->setPos(glm::vec3(0,8,0));
 
-			world->emplace<Saga::Transform>(camera);
-			Application::ThirdPersonCamera &tpcamera = *world->emplace<Application::ThirdPersonCamera>(camera,
-				world->getComponent<Saga::Transform>(player));
+			mainWorld->emplace<Saga::Transform>(camera);
+			Application::ThirdPersonCamera &tpcamera = *mainWorld->emplace<Application::ThirdPersonCamera>(camera,
+				mainWorld->getComponent<Saga::Transform>(player));
 
 			return camera;
 		};
 
 		auto setupPlane = [this]() {
-			Saga::Entity plane = world->createEntity();
-			Saga::Mesh& planeMesh = *world->emplace<Saga::Mesh>(plane, "Resources/Meshes/environment3.obj");
-			Saga::Material& mat = *world->emplace<Saga::Material>(plane,
+			Saga::Entity plane = mainWorld->createEntity();
+			Saga::Mesh& planeMesh = *mainWorld->emplace<Saga::Mesh>(plane, "Resources/Meshes/environment3.obj");
+			Saga::Material& mat = *mainWorld->emplace<Saga::Material>(plane,
 				Saga::Theme_Nostalgic::colors[1]);
-            Saga::Transform* transform = world->emplace<Saga::Transform>(plane);
+            Saga::Transform* transform = mainWorld->emplace<Saga::Transform>(plane);
 
-			world->emplace<Saga::Collider>(plane);
-			world->emplace<Saga::MeshCollider>(plane);
+			mainWorld->emplace<Saga::Collider>(plane);
+			mainWorld->emplace<Saga::MeshCollider>(plane);
 
 			return plane;
 		};
 
 		auto setupLights = [this]() {
-			Saga::Entity lightEnt = world->createEntity();
-			Saga::Light& light = *world->emplace<Saga::Light>(lightEnt, GraphicsEngine::LightType::DIRECTIONAL, glm::normalize(glm::vec3(-1, -1, 0)));
-			Saga::Transform& transform = *world->emplace<Saga::Transform>(lightEnt);
+			Saga::Entity lightEnt = mainWorld->createEntity();
+			Saga::Light& light = *mainWorld->emplace<Saga::Light>(lightEnt, GraphicsEngine::LightType::DIRECTIONAL, glm::normalize(glm::vec3(-1, -1, 0)));
+			Saga::Transform& transform = *mainWorld->emplace<Saga::Transform>(lightEnt);
 			return lightEnt;
 		};
 
 		auto setupPlayer = [this]() {
-			Saga::Entity player = world->createEntity();
-			world->emplace<Application::PlayerInput>(player);
-			world->emplace<Platformer::PlayerController>(player, 5);
-			world->emplace<Saga::Material>(player, Saga::Theme_Nostalgic::colors[0]);
-			world->emplace<Saga::Mesh>(player, Saga::Mesh::StandardType::Sphere);
-			world->emplace<Saga::Collider>(player);
-			world->emplace<Saga::EllipsoidCollider>(player, glm::vec3(0.5f)); // sphere collider
-			world->emplace<Saga::RigidBody>(player);
-            world->emplace<Saga::CylinderCollider>(player, 1, 0.5);
+			Saga::Entity player = mainWorld->createEntity();
+			mainWorld->emplace<Application::PlayerInput>(player);
+			mainWorld->emplace<Platformer::PlayerController>(player, 5);
+			mainWorld->emplace<Saga::Material>(player, Saga::Theme_Nostalgic::colors[0]);
+			mainWorld->emplace<Saga::Mesh>(player, Saga::Mesh::StandardType::Sphere);
+			mainWorld->emplace<Saga::Collider>(player);
+			mainWorld->emplace<Saga::EllipsoidCollider>(player, glm::vec3(0.5f)); // sphere collider
+			mainWorld->emplace<Saga::RigidBody>(player);
+            mainWorld->emplace<Saga::CylinderCollider>(player, 1, 0.5);
 
-			Saga::Transform* transform = world->emplace<Saga::Transform>(player);
+			Saga::Transform* transform = mainWorld->emplace<Saga::Transform>(player);
 			transform->transform->setPos(glm::vec3(0,10,0));
 			return player;
 		};
 
         auto setupFriend = [this, &rng]() {
-            Saga::Entity fr = world->createEntity();
+            Saga::Entity fr = mainWorld->createEntity();
             float movespeed = std::uniform_real_distribution<float>(4.f, 9.f)(rng);
             float orbitDistance = std::uniform_real_distribution<float>(2,3)(rng);
             int colorIndex = std::uniform_int_distribution<int>(0,8)(rng);
 
-            world->emplace<Platformer::FriendController>(fr, 
+            mainWorld->emplace<Platformer::FriendController>(fr, 
                 movespeed, orbitDistance
             );
-			world->emplace<Saga::Material>(fr, Saga::Theme_Nostalgic::colors[colorIndex]);
-			world->emplace<Saga::Mesh>(fr, Saga::Mesh::StandardType::Sphere);
-			world->emplace<Saga::Collider>(fr);
-			world->emplace<Saga::EllipsoidCollider>(fr, glm::vec3(0.5f)); // sphere collider
-			world->emplace<Saga::RigidBody>(fr);
-            world->emplace<Saga::CylinderCollider>(fr, 1, 0.5);
+			mainWorld->emplace<Saga::Material>(fr, Saga::Theme_Nostalgic::colors[colorIndex]);
+			mainWorld->emplace<Saga::Mesh>(fr, Saga::Mesh::StandardType::Sphere);
+			mainWorld->emplace<Saga::Collider>(fr);
+			mainWorld->emplace<Saga::EllipsoidCollider>(fr, glm::vec3(0.5f)); // sphere collider
+			mainWorld->emplace<Saga::RigidBody>(fr);
+            mainWorld->emplace<Saga::CylinderCollider>(fr, 1, 0.5);
 
             float randomRadiant = std::uniform_real_distribution<float>(0.0, 2*M_PI)(rng);
 
             glm::vec3 spawnPos = glm::vec3(sin(randomRadiant),0,cos(randomRadiant)) * orbitDistance;
             spawnPos.y = 5;
 
-			Saga::Transform* transform = world->emplace<Saga::Transform>(fr);
+			Saga::Transform* transform = mainWorld->emplace<Saga::Transform>(fr);
 			transform->transform->setPos(spawnPos);
 			return fr;
 
         };
 
 		auto setupBackingTrack = [this]() {
-			Saga::Entity backingTrack = world->createEntity();
-            world->emplace<Saga::AudioEmitter>(backingTrack, "event:/Loop", true);
-			world->emplace<Saga::Transform>(backingTrack);
+			Saga::Entity backingTrack = mainWorld->createEntity();
+            mainWorld->emplace<Saga::AudioEmitter>(backingTrack, "event:/Loop", true);
+			mainWorld->emplace<Saga::Transform>(backingTrack);
 			return backingTrack;
 		};
 
         auto setupNavMesh = [this]() {
-            Saga::Entity navMeshContainer = world->createEntity();
-            auto navmesh = world->emplace<Saga::NavMeshData>(navMeshContainer);
+            Saga::Entity navMeshContainer = mainWorld->createEntity();
+            auto navmesh = mainWorld->emplace<Saga::NavMeshData>(navMeshContainer);
             navmesh->buildFromFile("Resources/Meshes/environment3nav.obj");
-            world->emplace<Saga::Transform>(navMeshContainer)->transform->setPos(glm::vec3(0,0.1,0));
-            world->emplace<Saga::Mesh>(navMeshContainer, "Resources/Meshes/environment3nav.obj");
-            world->emplace<Saga::Material>(navMeshContainer, glm::vec3(0,0,0.5));
+            mainWorld->emplace<Saga::Transform>(navMeshContainer)->transform->setPos(glm::vec3(0,0.1,0));
+            mainWorld->emplace<Saga::Mesh>(navMeshContainer, "Resources/Meshes/environment3nav.obj");
+            mainWorld->emplace<Saga::Material>(navMeshContainer, glm::vec3(0,0,0.5));
         };
 
 		Saga::Entity plane = setupPlane();
@@ -147,15 +148,15 @@ namespace Platformer {
 	}
 
 	void App::setupSystems() {
-		Saga::Systems::registerDrawSystem(world);
-		Saga::Systems::registerCollisionSystem(world);
-		Platformer::Systems::registerPlayerControllerSystem(world);
-		Platformer::Systems::registerFriendControllerSystem(world);
-		Application::Systems::registerThirdPersonCameraSystem(world);
+		Saga::Systems::registerDrawSystem(mainWorld);
+		Saga::Systems::registerCollisionSystem(mainWorld);
+		Platformer::Systems::registerPlayerControllerSystem(mainWorld);
+		Platformer::Systems::registerFriendControllerSystem(mainWorld);
+		Application::Systems::registerThirdPersonCameraSystem(mainWorld);
 
-		Saga::Systems::setupAudioSystem(world);
+		Saga::Systems::setupAudioSystem(mainWorld);
 
-		auto& systems = world->getSystems();
+		auto& systems = mainWorld->getSystems();
 
 		// draw system
 		systems.addStagedSystem(std::make_shared<Saga::System<>>(Saga::Systems::drawSystem), Saga::SystemManager::Stage::Draw);
@@ -175,4 +176,34 @@ namespace Platformer {
 		systems.addStagedSystem(std::make_shared<Saga::System<float, float>>(Platformer::Systems::playerControllerSystem));
 		systems.addStagedSystem(std::make_shared<Saga::System<float, float>>(Platformer::Systems::friendControllerSystem));
 	}
+
+    void App::update(float deltaTime, float time) {
+        Saga::App::update(deltaTime, time);
+
+        auto setupFriend = [this](glm::vec3 pos) {
+            Saga::Entity fr = mainWorld->createEntity();
+
+			mainWorld->emplace<Saga::Material>(fr, Saga::Theme_Nostalgic::colors[1]);
+			mainWorld->emplace<Saga::Mesh>(fr, Saga::Mesh::StandardType::Sphere);
+			mainWorld->emplace<Saga::Collider>(fr);
+			mainWorld->emplace<Saga::EllipsoidCollider>(fr, glm::vec3(0.5f)); // sphere collider
+            mainWorld->emplace<Saga::CylinderCollider>(fr, 1, 0.5);
+			mainWorld->emplace<Saga::RigidBody>(fr);
+
+			Saga::Transform* transform = mainWorld->emplace<Saga::Transform>(fr);
+			transform->transform->setPos(pos + glm::vec3(0,1,0));
+			return fr;
+        };
+
+        ImGui::Begin("Friend Creation Tool", NULL, ImGuiWindowFlags_MenuBar);
+        if (ImGui::Button("Spawn Random Friend")) {
+            // chooses a random point on the navmesh
+            for (auto navData : *mainWorld->viewAll<Saga::NavMeshData>()) {
+                glm::vec3 spawnPos = navData.getRandomPosition();
+                setupFriend(spawnPos);
+                break; // we only spawn it on the first navmesh
+            }
+        }
+        ImGui::End();
+    }
 }

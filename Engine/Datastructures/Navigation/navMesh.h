@@ -53,9 +53,11 @@ namespace Saga {
 
         void buildFromFile(const std::string &filepath);
         void build(const std::vector<glm::vec3> &position, const std::vector<glm::ivec3> &faces);
+
         std::optional<Path> findPath(glm::vec3 from, glm::vec3 to, float radius);
-        WalkablePath tracePath(const Path& path);
-        std::optional<LocationInCell> getCell(glm::vec3 pos);
+        WalkablePath tracePath(const Path& path) const;
+        std::optional<LocationInCell> getCell(glm::vec3 pos) const;
+        glm::vec3 getRandomPosition() const;
     private:
         bool initialized;
 
@@ -64,7 +66,7 @@ namespace Saga {
         std::vector<Edge> edges;
         std::vector<HalfEdge> halfEdges;
 
-        Geometry::Triangle toTriangle(const Face& face);
+        Geometry::Triangle toTriangle(const Face& face) const;
     };
 }
 

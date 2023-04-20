@@ -21,7 +21,7 @@ public:
 	 * @param deltaTime time since the last update.
 	 * @param time time ellapsed since the start of the Application.
 	 */
-	void update(float deltaTime, float time);
+	virtual void update(float deltaTime, float time);
 
 	/**
 	 * @brief This invokes the FixedUpdate stages of any world, if that world has been started. 

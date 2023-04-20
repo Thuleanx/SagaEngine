@@ -3,12 +3,15 @@
 #include <glm/geometric.hpp>
 #include <iterator>
 #include <limits>
+#include <random>
 #include <unordered_map>
 #include <queue>
 #include "Engine/Utils/geometry/triangle.h"
 #include "Engine/Utils/tupleHash.h"
 #include "Engine/_Core/logger.h"
 #include "Graphics/global.h"
+#include <chrono>
+#include <random>
 
 namespace Saga {
 
@@ -199,7 +202,7 @@ std::optional<NavMesh::Path> NavMesh::findPath(glm::vec3 src, glm::vec3 dest, fl
     };
 }
 
-std::optional<NavMesh::LocationInCell> NavMesh::getCell(glm::vec3 pos) {
+std::optional<NavMesh::LocationInCell> NavMesh::getCell(glm::vec3 pos) const {
     // if navmesh not initialized, then return nothing
     if (!initialized) return {};
 
@@ -225,7 +228,7 @@ std::optional<NavMesh::LocationInCell> NavMesh::getCell(glm::vec3 pos) {
     };
 }
 
-Geometry::Triangle NavMesh::toTriangle(const Face& face) {
+Geometry::Triangle NavMesh::toTriangle(const Face& face) const {
     return Geometry::Triangle{
         face.halfEdge->vertex->pos,
         face.halfEdge->nxt->vertex->pos,
@@ -233,7 +236,7 @@ Geometry::Triangle NavMesh::toTriangle(const Face& face) {
     };
 }
 
-NavMesh::WalkablePath NavMesh::tracePath(const Path &path) {
+NavMesh::WalkablePath NavMesh::tracePath(const Path &path) const {
     glm::vec3 apexPoint = path.from;
 
     std::vector<glm::vec3> positions;
@@ -250,6 +253,28 @@ NavMesh::WalkablePath NavMesh::tracePath(const Path &path) {
         .radius = path.radius,
         .positions = positions
     };
+}
+
+glm::vec3 NavMesh::getRandomPosition() const {
+    std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+    int faceIndex = std::uniform_int_distribution<int>(0, faces.size()-1)(rng);
+    
+    const Face& face = faces.at(faceIndex);
+
+    float u = std::uniform_real_distribution<float>(0, 1)(rng);
+    float v = std::uniform_real_distribution<float>(0, 1 - u)(rng);
+    float w = 1 - u - v;
+
+    float coef[3] = {u,v,w};
+    glm::vec3 point = glm::vec3(0,0,0);
+
+    const HalfEdge* halfEdge = face.halfEdge;
+
+    for (int i = 0; i < 3; i++) {
+        point += halfEdge->vertex->pos * coef[i];
+        halfEdge = halfEdge->nxt;
+    }
+    return point;
 }
 
 }
