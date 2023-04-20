@@ -56,6 +56,11 @@ namespace Saga::Geometry {
         glm::vec3 barycentricPos = triangle.toBarycentric(pointPos);
         barycentricPos[0] = std::clamp(barycentricPos[0], 0.f, 1.f);
         barycentricPos[1] = std::clamp(barycentricPos[1], 0.f, 1.f);
+        float tot = barycentricPos[0] + barycentricPos[1];
+        if (tot > 1) { // if still outside the triangle after the clamp, we scale down
+            barycentricPos[0] /= tot;
+            barycentricPos[1] /= tot;
+        }
         return barycentricPos[0] * (triangle.b - triangle.a) + barycentricPos[1] * (triangle.c - triangle.a) + triangle.a;
     }
 }

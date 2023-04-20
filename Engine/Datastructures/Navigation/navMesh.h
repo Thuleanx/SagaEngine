@@ -2,6 +2,8 @@
 
 #include "Engine/Utils/geometry/triangle.h"
 #include <glm/vec3.hpp>
+#include <string>
+#include <utility>
 #include <vector>
 #include <optional>
 
@@ -38,13 +40,21 @@ namespace Saga {
 
         struct Path {
             float length;
+            float radius;
             glm::vec3 from;
             glm::vec3 to;
-            std::vector<int> edges;
+            std::vector<std::pair<glm::vec3, glm::vec3>> portals;
         };
 
+        struct WalkablePath {
+            float radius;
+            std::vector<glm::vec3> positions;
+        };
+
+        void buildFromFile(const std::string &filepath);
         void build(const std::vector<glm::vec3> &position, const std::vector<glm::ivec3> &faces);
-        std::optional<Path> findPath(glm::vec3 from, glm::vec3 to);
+        std::optional<Path> findPath(glm::vec3 from, glm::vec3 to, float radius);
+        WalkablePath tracePath(const Path& path);
         std::optional<LocationInCell> getCell(glm::vec3 pos);
     private:
         bool initialized;
