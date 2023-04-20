@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "Engine/_Core/logger.h"
 #include <iostream>
 using namespace GraphicsEngine;
 
@@ -65,7 +66,7 @@ void Camera::rotate(float angle, glm::vec3 axis){
 
 void Camera::setLook(glm::vec3 newLook){
     if(glm::cross(newLook, m_up) == glm::vec3(0)){
-        std::cout<<"Error: Look vector cannot be parallel to up vector!"<<std::endl;
+        SERROR("Error: Look vector cannot be parallel to up vector!");
         return;
     }
     m_look = glm::normalize(newLook);
@@ -79,7 +80,7 @@ glm::vec3 Camera::getLook(){
 
 void Camera::setUp(glm::vec3 newUp){
     if(glm::cross(newUp, m_look) == glm::vec3(0)){
-        std::cout<<"Error: Up vector cannot be parallel to look vector!"<<std::endl;
+        SERROR("Error: Up vector cannot be parallel to look vector!");
         return;
     }
     m_up = newUp;

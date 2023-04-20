@@ -1,4 +1,5 @@
 #include "texture.h"
+#include "Engine/_Core/logger.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -37,7 +38,7 @@ Texture::Texture(std::string filepath, GLenum texUnit, GLint internalFormat, GLe
     int width, height, numChannels;
     unsigned char* data = stbi_load(filepath.c_str(), &width, &height, &numChannels, 4);
     if (stbi_failure_reason()){
-        std::cout << stbi_failure_reason() << std::endl;
+        SERROR(stbi_failure_reason());
     }
     glTexImage2D(m_texTarget, 0, internalFormat, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     stbi_image_free(data);

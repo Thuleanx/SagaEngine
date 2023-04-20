@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/_Core/logger.h"
 #include "debug.h"
 
 #include <fstream>
@@ -42,13 +43,14 @@ public:
             glDeleteShader(shaderIDs[i]);
         }
 
-        std::cout << "END OF SHADERLOADER" << std::endl;
+        SINFO("END OF SHADERLOADER");
+
         return programID;
     }
 
 private:
     static std::string readFile(const char *filePath) {
-        std::cout << "READ FILE: " << std::string(filePath) << std::endl;
+        SINFO("READFILE %s", filePath);
         std::string content;
         std::ifstream fileStream(filePath, std::ios::in);
 
@@ -69,17 +71,17 @@ private:
     }
 
     static GLuint createAndCompileShader(GLenum shaderType, const char *filepath) {
-        std::cout << "CREATE AND COMPILE SHADER: " << shaderType << std::endl;
+        SINFO("Create and Compile Shader: %s", filepath);
         GLuint shaderID = glCreateShader(shaderType);
 
         // Read shader file
         std::string shaderStr = readFile(filepath);
         const char *shaderSrc = shaderStr.c_str();
 
-        std::cout << "GL SHADER SOURCE" << std::endl;
+        SINFO("GL SHADER SOURCE");
         glShaderSource(shaderID, 1, &shaderSrc, NULL);
 
-        std::cout << "GL COMPILE SHADER: " << shaderID << std::endl;
+        SINFO("GL COMPILE SHADER: %d", shaderID);
         glCompileShader(shaderID);
 
         // Print info log if shader fails to compile

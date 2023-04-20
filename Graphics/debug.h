@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/_Core/logger.h"
 #include <GL/glew.h>
 
 #include <iostream>
@@ -21,7 +22,7 @@ namespace Debug {
                 case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
                 case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
             }
-            std::cout << error << " | " << file << " (" << line << ")" << std::endl;
+            SERROR("%s | %s (%d)", error.c_str(), file, line);
         }
         return errorCode;
     }

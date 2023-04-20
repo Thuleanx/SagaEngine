@@ -16,6 +16,14 @@ bool initializeLogger() {
 	// TODO: create log file
     static plog::ColorConsoleAppender<plog::TxtFormatter> appender;
     plog::init(plog::Severity::debug, "sagaruntime.log").addAppender(&appender);
+
+    PLOG_VERBOSE << "This is a VERBOSE message";
+    PLOG_DEBUG << "This is a DEBUG message";
+    PLOG_INFO << "This is an INFO message";
+    PLOG_WARNING << "This is a WARNING message";
+    PLOG_ERROR << "This is an ERROR message";
+    PLOG_FATAL << "This is a FATAL message";
+
 	SINFO("Logger initialized.");
 	return true;
 }
@@ -27,50 +35,5 @@ void shutDownLogger() {
 	fflush(stderr);
 }
 
-void logOutput(LogLevel level, const char* message, ...) {
-	const char* LEVEL_STR[6] = {
-		"[FATAL]: ", 
-		"[ERROR]: ",
-		"[WARN]: ",
-		"[INFO]: ",
-		"[DEBUG]: ",
-		"[TRACE]: "
-	};
-	bool isError = level < 2;
-
-	char outMessage[32000] = {0};
-
-	// put the variadic arguments into the message.
-	va_list arg_ptr;
-    va_start(arg_ptr, message);
-	vsnprintf(outMessage, 32000, message, arg_ptr);
-	va_end(arg_ptr);
-
-    // prepend the error level to the message.
-	char outMessage2[32000] = {0};
-	sprintf(outMessage2, "%s%s\n", LEVEL_STR[level], outMessage);
-
-	if (isError) {
-		#ifdef SAGA_DEBUG
-			fflush(stdout);
-			fflush(stderr);
-		#endif
-		fprintf(stderr, "%s", outMessage2);
-		#ifdef SAGA_DEBUG
-			fflush(stderr);
-		#endif
-	}
-	else {
-		#ifdef SAGA_DEBUG
-			fflush(stdout);
-			fflush(stderr);
-		#endif
-		fprintf(stdout, "%s", outMessage2);
-		#ifdef SAGA_DEBUG
-			fflush(stdout);
-		#endif
-	}
-
-}
 
 } // namespace Saga

@@ -26,12 +26,13 @@ Core::~Core() {
 
 void Core::update(double deltaTime, double time) {
 
-    ImGui::Begin("Frame data");
-    if (deltaTime) 
-        ImGui::Text("fps: %.2f", 1/deltaTime);
-    else
-        ImGui::Text("fps: inf");
-    ImGui::End();
+    /* ImGui::Begin("Frame data"); */
+    /* if (deltaTime) */ 
+    /*     ImGui::Text("fps: %.2f", 1/deltaTime); */
+    /* else */
+    /*     ImGui::Text("fps: inf"); */
+    /* ImGui::End(); */
+    ImGui::ShowMetricsWindow();
 
 	AudioEngine::update();
 	application->update(deltaTime, time);

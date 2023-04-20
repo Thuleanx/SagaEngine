@@ -12,3 +12,214 @@
 2023-04-20 12:37:08.092 INFO  [22156] [Saga::NavMesh::buildFromFile@19] Complete building nav mesh from file Resources/Meshes/environment3nav.obj. The mesh contains 28 vertices and 26 faces.
 2023-04-20 12:37:08.092 FATAL [22156] [Platformer::App::App@24] Assertion failed: (0 == 1) with message
 2023-04-20 12:37:08.092 INFO  [22156] [Saga::shutDownLogger@24] Logger shut down.
+2023-04-20 12:40:16.324 INFO  [8680] [Saga::initializeLogger@19] Logger initialized.
+2023-04-20 12:40:16.324 INFO  [8680] [Window::Window@12] Window starting.
+2023-04-20 12:40:16.785 INFO  [8680] [Saga::Core::Core@17] Start initializing application.
+2023-04-20 12:40:16.824 INFO  [8680] [Saga::AudioEngine::init@127] Fmod Studio System Created.
+2023-04-20 12:40:17.220 INFO  [8680] [Saga::AudioEngine::init@132] Fmod Studio System Initialized.
+2023-04-20 12:40:17.220 INFO  [8680] [Saga::AudioEngine::loadBank@156] Attempting to load bank: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:40:17.283 INFO  [8680] [Saga::AudioEngine::loadBank@166] Loading bank success: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:40:17.283 INFO  [8680] [Saga::AudioEngine::loadBank@156] Attempting to load bank: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:40:17.329 INFO  [8680] [Saga::AudioEngine::loadBank@166] Loading bank success: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:40:17.329 WARN  [8680] [Saga::GameWorld::registerGroup@89] A group with the same signature already exists. Group consists of: N4Saga8ColliderE, N4Saga16CylinderColliderE, N4Saga9RigidBodyE, N4Saga9TransformE.
+2023-04-20 12:40:17.330 INFO  [8680] [Saga::NavMesh::buildFromFile@16] Building nav mesh from file Resources/Meshes/environment3nav.obj
+2023-04-20 12:40:17.330 INFO  [8680] [Saga::NavMesh::buildFromFile@19] Complete building nav mesh from file Resources/Meshes/environment3nav.obj. The mesh contains 28 vertices and 26 faces.
+2023-04-20 12:40:17.331 INFO  [8680] [Window::run@22] Window loop starting.
+2023-04-20 12:40:17.334 WARN  [8680] [Saga::AudioEngine::createInstance@230] Fmod event "event:/Loop" has not been loaded. Loading the event
+2023-04-20 12:40:17.334 INFO  [8680] [Saga::BoundingVolumeHierarchy::build@48] Bounding Volume Hierarchy created with 55 triangles.
+2023-04-20 12:41:04.820 INFO  [8680] [Window::run@24] Window loop ended.
+2023-04-20 12:41:04.843 INFO  [8680] [Window::run@26] Window ended.
+2023-04-20 12:41:04.843 INFO  [8680] [Saga::AudioEngine::unloadBank@172] Attempting to unload bank: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:41:04.843 INFO  [8680] [Saga::AudioEngine::unloadBank@179] Unload bank success: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:41:04.843 INFO  [8680] [Saga::AudioEngine::unloadBank@172] Attempting to unload bank: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:41:04.843 INFO  [8680] [Saga::AudioEngine::unloadBank@179] Unload bank success: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:41:05.045 INFO  [8680] [Saga::AudioEngine::release@150] Fmod Studio System Released.
+2023-04-20 12:41:05.045 INFO  [8680] [Saga::shutDownLogger@24] Logger shut down.
+2023-04-20 12:44:14.346 INFO  [24000] [Saga::initializeLogger@19] Logger initialized.
+2023-04-20 12:44:14.346 INFO  [24000] [Window::Window@12] Window starting.
+2023-04-20 12:44:14.818 INFO  [24000] [Saga::Core::Core@17] Start initializing application.
+2023-04-20 12:44:14.859 INFO  [24000] [Saga::AudioEngine::init@127] Fmod Studio System Created.
+2023-04-20 12:44:15.266 INFO  [24000] [Saga::AudioEngine::init@132] Fmod Studio System Initialized.
+2023-04-20 12:44:15.266 INFO  [24000] [Saga::AudioEngine::loadBank@156] Attempting to load bank: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:44:15.312 INFO  [24000] [Saga::AudioEngine::loadBank@166] Loading bank success: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:44:15.312 INFO  [24000] [Saga::AudioEngine::loadBank@156] Attempting to load bank: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:44:15.342 INFO  [24000] [Saga::AudioEngine::loadBank@166] Loading bank success: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:44:15.342 WARN  [24000] [Saga::GameWorld::registerGroup@89] A group with the same signature already exists. Group consists of: N4Saga8ColliderE, N4Saga16CylinderColliderE, N4Saga9RigidBodyE, N4Saga9TransformE.
+2023-04-20 12:44:15.343 INFO  [24000] [Saga::NavMesh::buildFromFile@16] Building nav mesh from file Resources/Meshes/environment3nav.obj
+2023-04-20 12:44:15.344 INFO  [24000] [Saga::NavMesh::buildFromFile@19] Complete building nav mesh from file Resources/Meshes/environment3nav.obj. The mesh contains 28 vertices and 26 faces.
+2023-04-20 12:44:15.345 INFO  [24000] [Window::run@22] Window loop starting.
+2023-04-20 12:44:15.348 WARN  [24000] [Saga::AudioEngine::createInstance@230] Fmod event "event:/Loop" has not been loaded. Loading the event
+2023-04-20 12:44:15.349 INFO  [24000] [Saga::BoundingVolumeHierarchy::build@48] Bounding Volume Hierarchy created with 55 triangles.
+2023-04-20 12:44:27.670 INFO  [24000] [Window::run@24] Window loop ended.
+2023-04-20 12:44:27.680 INFO  [24000] [Window::run@26] Window ended.
+2023-04-20 12:44:27.680 INFO  [24000] [Saga::AudioEngine::unloadBank@172] Attempting to unload bank: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:44:27.680 INFO  [24000] [Saga::AudioEngine::unloadBank@179] Unload bank success: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:44:27.680 INFO  [24000] [Saga::AudioEngine::unloadBank@172] Attempting to unload bank: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:44:27.681 INFO  [24000] [Saga::AudioEngine::unloadBank@179] Unload bank success: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:44:27.865 INFO  [24000] [Saga::AudioEngine::release@150] Fmod Studio System Released.
+2023-04-20 12:44:27.865 INFO  [24000] [Saga::shutDownLogger@24] Logger shut down.
+2023-04-20 12:46:50.066 DEBUG [9484] [Saga::initializeLogger@21] This is a DEBUG message
+2023-04-20 12:46:50.066 INFO  [9484] [Saga::initializeLogger@22] This is an INFO message
+2023-04-20 12:46:50.066 WARN  [9484] [Saga::initializeLogger@23] This is a WARNING message
+2023-04-20 12:46:50.066 ERROR [9484] [Saga::initializeLogger@24] This is an ERROR message
+2023-04-20 12:46:50.066 FATAL [9484] [Saga::initializeLogger@25] This is a FATAL message
+2023-04-20 12:46:50.066 INFO  [9484] [Saga::initializeLogger@27] Logger initialized.
+2023-04-20 12:46:50.066 INFO  [9484] [Window::Window@12] Window starting.
+2023-04-20 12:46:50.511 INFO  [9484] [Saga::Core::Core@17] Start initializing application.
+2023-04-20 12:46:50.549 INFO  [9484] [Saga::AudioEngine::init@127] Fmod Studio System Created.
+2023-04-20 12:46:50.964 INFO  [9484] [Saga::AudioEngine::init@132] Fmod Studio System Initialized.
+2023-04-20 12:46:50.965 INFO  [9484] [Saga::AudioEngine::loadBank@156] Attempting to load bank: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:46:51.009 INFO  [9484] [Saga::AudioEngine::loadBank@166] Loading bank success: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:46:51.009 INFO  [9484] [Saga::AudioEngine::loadBank@156] Attempting to load bank: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:46:51.055 INFO  [9484] [Saga::AudioEngine::loadBank@166] Loading bank success: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:46:51.056 WARN  [9484] [Saga::GameWorld::registerGroup@89] A group with the same signature already exists. Group consists of: N4Saga8ColliderE, N4Saga16CylinderColliderE, N4Saga9RigidBodyE, N4Saga9TransformE.
+2023-04-20 12:46:51.057 INFO  [9484] [Saga::NavMesh::buildFromFile@16] Building nav mesh from file Resources/Meshes/environment3nav.obj
+2023-04-20 12:46:51.057 INFO  [9484] [Saga::NavMesh::buildFromFile@19] Complete building nav mesh from file Resources/Meshes/environment3nav.obj. The mesh contains 28 vertices and 26 faces.
+2023-04-20 12:46:51.058 INFO  [9484] [Window::run@22] Window loop starting.
+2023-04-20 12:46:51.061 WARN  [9484] [Saga::AudioEngine::createInstance@230] Fmod event "event:/Loop" has not been loaded. Loading the event
+2023-04-20 12:46:51.061 INFO  [9484] [Saga::BoundingVolumeHierarchy::build@48] Bounding Volume Hierarchy created with 55 triangles.
+2023-04-20 12:47:02.130 INFO  [9484] [Window::run@24] Window loop ended.
+2023-04-20 12:47:02.139 INFO  [9484] [Window::run@26] Window ended.
+2023-04-20 12:47:02.139 INFO  [9484] [Saga::AudioEngine::unloadBank@172] Attempting to unload bank: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:47:02.139 INFO  [9484] [Saga::AudioEngine::unloadBank@179] Unload bank success: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:47:02.139 INFO  [9484] [Saga::AudioEngine::unloadBank@172] Attempting to unload bank: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:47:02.139 INFO  [9484] [Saga::AudioEngine::unloadBank@179] Unload bank success: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:47:02.326 INFO  [9484] [Saga::AudioEngine::release@150] Fmod Studio System Released.
+2023-04-20 12:47:02.326 INFO  [9484] [Saga::shutDownLogger@32] Logger shut down.
+2023-04-20 12:56:31.232 DEBUG [22688] [Saga::initializeLogger@21] This is a DEBUG message
+2023-04-20 12:56:31.233 INFO  [22688] [Saga::initializeLogger@22] This is an INFO message
+2023-04-20 12:56:31.233 WARN  [22688] [Saga::initializeLogger@23] This is a WARNING message
+2023-04-20 12:56:31.233 ERROR [22688] [Saga::initializeLogger@24] This is an ERROR message
+2023-04-20 12:56:31.233 FATAL [22688] [Saga::initializeLogger@25] This is a FATAL message
+2023-04-20 12:56:31.233 INFO  [22688] [Saga::initializeLogger@27] Logger initialized.
+2023-04-20 12:56:31.233 INFO  [22688] [Window::Window@12] Window starting.
+2023-04-20 12:56:31.743 INFO  [22688] [GraphicsEngine::Graphics::initializeGLEW@22] GLEWInit status: 0
+2023-04-20 12:56:31.750 INFO  [22688] [GraphicsEngine::Graphics::initialize@31] initalize text renderer
+2023-04-20 12:56:31.750 INFO  [22688] [GraphicsEngine::Graphics::initialize@34] add standard shapes
+2023-04-20 12:56:31.750 INFO  [22688] [GraphicsEngine::ShaderLoader::createAndCompileShader@74] Create and Compile Shader: (null)
+2023-04-20 12:56:31.751 INFO  [22688] [GraphicsEngine::ShaderLoader::readFile@53] READFILE Resources/Shaders/phong.vert
+2023-04-20 12:56:31.752 INFO  [22688] [GraphicsEngine::ShaderLoader::createAndCompileShader@74] Create and Compile Shader: (null)
+2023-04-20 12:56:31.752 INFO  [22688] [GraphicsEngine::ShaderLoader::readFile@53] READFILE Resources/Shaders/phong.frag
+2023-04-20 12:56:31.752 INFO  [22688] [GraphicsEngine::ShaderLoader::createShaderProgram@46] END OF SHADERLOADER
+2023-04-20 12:56:31.752 INFO  [22688] [GraphicsEngine::ShaderLoader::createAndCompileShader@74] Create and Compile Shader: (null)
+2023-04-20 12:56:31.752 INFO  [22688] [GraphicsEngine::ShaderLoader::readFile@53] READFILE Resources/Shaders/text.vert
+2023-04-20 12:56:31.753 INFO  [22688] [GraphicsEngine::ShaderLoader::createAndCompileShader@74] Create and Compile Shader: (null)
+2023-04-20 12:56:31.753 INFO  [22688] [GraphicsEngine::ShaderLoader::readFile@53] READFILE Resources/Shaders/text.frag
+2023-04-20 12:56:31.753 INFO  [22688] [GraphicsEngine::ShaderLoader::createShaderProgram@46] END OF SHADERLOADER
+2023-04-20 12:56:31.753 INFO  [22688] [GraphicsEngine::Graphics::initialize@47] adding font: opensans
+2023-04-20 12:56:31.757 INFO  [22688] [Saga::Core::Core@17] Start initializing application.
+2023-04-20 12:56:31.803 INFO  [22688] [Saga::AudioEngine::init@127] Fmod Studio System Created.
+2023-04-20 12:56:32.332 INFO  [22688] [Saga::AudioEngine::init@132] Fmod Studio System Initialized.
+2023-04-20 12:56:32.332 INFO  [22688] [Saga::AudioEngine::loadBank@156] Attempting to load bank: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:56:32.393 INFO  [22688] [Saga::AudioEngine::loadBank@166] Loading bank success: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 12:56:32.393 INFO  [22688] [Saga::AudioEngine::loadBank@156] Attempting to load bank: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:56:32.439 INFO  [22688] [Saga::AudioEngine::loadBank@166] Loading bank success: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 12:56:32.439 WARN  [22688] [Saga::GameWorld::registerGroup@89] A group with the same signature already exists. Group consists of: N4Saga8ColliderE, N4Saga16CylinderColliderE, N4Saga9RigidBodyE, N4Saga9TransformE.
+2023-04-20 12:56:32.440 INFO  [22688] [Saga::NavMesh::buildFromFile@16] Building nav mesh from file Resources/Meshes/environment3nav.obj
+2023-04-20 12:56:32.440 INFO  [22688] [Saga::NavMesh::buildFromFile@19] Complete building nav mesh from file Resources/Meshes/environment3nav.obj. The mesh contains 28 vertices and 26 faces.
+2023-04-20 12:56:32.441 INFO  [22688] [Window::run@22] Window loop starting.
+2023-04-20 12:56:32.444 WARN  [22688] [Saga::AudioEngine::createInstance@230] Fmod event "event:/Loop" has not been loaded. Loading the event
+2023-04-20 12:56:32.445 INFO  [22688] [Saga::BoundingVolumeHierarchy::build@48] Bounding Volume Hierarchy created with 55 triangles.
+2023-04-20 13:03:28.924 DEBUG [5776] [Saga::initializeLogger@21] This is a DEBUG message
+2023-04-20 13:03:28.924 INFO  [5776] [Saga::initializeLogger@22] This is an INFO message
+2023-04-20 13:03:28.924 WARN  [5776] [Saga::initializeLogger@23] This is a WARNING message
+2023-04-20 13:03:28.924 ERROR [5776] [Saga::initializeLogger@24] This is an ERROR message
+2023-04-20 13:03:28.924 FATAL [5776] [Saga::initializeLogger@25] This is a FATAL message
+2023-04-20 13:03:28.924 INFO  [5776] [Saga::initializeLogger@27] Logger initialized.
+2023-04-20 13:03:28.924 INFO  [5776] [Window::Window@12] Window starting.
+2023-04-20 13:03:29.358 INFO  [5776] [GraphicsEngine::Graphics::initializeGLEW@22] GLEWInit status: 0
+2023-04-20 13:03:29.363 INFO  [5776] [GraphicsEngine::Graphics::initialize@31] initalize text renderer
+2023-04-20 13:03:29.363 INFO  [5776] [GraphicsEngine::Graphics::initialize@34] add standard shapes
+2023-04-20 13:03:29.364 INFO  [5776] [GraphicsEngine::ShaderLoader::createAndCompileShader@74] Create and Compile Shader: (null)
+2023-04-20 13:03:29.364 INFO  [5776] [GraphicsEngine::ShaderLoader::readFile@53] READFILE Resources/Shaders/phong.vert
+2023-04-20 13:03:29.364 INFO  [5776] [GraphicsEngine::ShaderLoader::createAndCompileShader@81] GL SHADER SOURCE
+2023-04-20 13:03:29.364 INFO  [5776] [GraphicsEngine::ShaderLoader::createAndCompileShader@84] GL COMPILE SHADER: 1
+2023-04-20 13:03:29.364 INFO  [5776] [GraphicsEngine::ShaderLoader::createAndCompileShader@74] Create and Compile Shader: (null)
+2023-04-20 13:03:29.364 INFO  [5776] [GraphicsEngine::ShaderLoader::readFile@53] READFILE Resources/Shaders/phong.frag
+2023-04-20 13:03:29.364 INFO  [5776] [GraphicsEngine::ShaderLoader::createAndCompileShader@81] GL SHADER SOURCE
+2023-04-20 13:03:29.364 INFO  [5776] [GraphicsEngine::ShaderLoader::createAndCompileShader@84] GL COMPILE SHADER: 2
+2023-04-20 13:03:29.365 INFO  [5776] [GraphicsEngine::ShaderLoader::createShaderProgram@46] END OF SHADERLOADER
+2023-04-20 13:03:29.365 INFO  [5776] [GraphicsEngine::ShaderLoader::createAndCompileShader@74] Create and Compile Shader: (null)
+2023-04-20 13:03:29.365 INFO  [5776] [GraphicsEngine::ShaderLoader::readFile@53] READFILE Resources/Shaders/text.vert
+2023-04-20 13:03:29.365 INFO  [5776] [GraphicsEngine::ShaderLoader::createAndCompileShader@81] GL SHADER SOURCE
+2023-04-20 13:03:29.365 INFO  [5776] [GraphicsEngine::ShaderLoader::createAndCompileShader@84] GL COMPILE SHADER: 4
+2023-04-20 13:03:29.365 INFO  [5776] [GraphicsEngine::ShaderLoader::createAndCompileShader@74] Create and Compile Shader: (null)
+2023-04-20 13:03:29.365 INFO  [5776] [GraphicsEngine::ShaderLoader::readFile@53] READFILE Resources/Shaders/text.frag
+2023-04-20 13:03:29.366 INFO  [5776] [GraphicsEngine::ShaderLoader::createAndCompileShader@81] GL SHADER SOURCE
+2023-04-20 13:03:29.366 INFO  [5776] [GraphicsEngine::ShaderLoader::createAndCompileShader@84] GL COMPILE SHADER: 5
+2023-04-20 13:03:29.366 INFO  [5776] [GraphicsEngine::ShaderLoader::createShaderProgram@46] END OF SHADERLOADER
+2023-04-20 13:03:29.366 INFO  [5776] [GraphicsEngine::Graphics::initialize@47] adding font: opensans
+2023-04-20 13:03:29.370 INFO  [5776] [Saga::Core::Core@17] Start initializing application.
+2023-04-20 13:03:29.409 INFO  [5776] [Saga::AudioEngine::init@127] Fmod Studio System Created.
+2023-04-20 13:03:29.857 INFO  [5776] [Saga::AudioEngine::init@132] Fmod Studio System Initialized.
+2023-04-20 13:03:29.857 INFO  [5776] [Saga::AudioEngine::loadBank@156] Attempting to load bank: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 13:03:29.902 INFO  [5776] [Saga::AudioEngine::loadBank@166] Loading bank success: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 13:03:29.902 INFO  [5776] [Saga::AudioEngine::loadBank@156] Attempting to load bank: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 13:03:29.933 INFO  [5776] [Saga::AudioEngine::loadBank@166] Loading bank success: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 13:03:29.933 WARN  [5776] [Saga::GameWorld::registerGroup@89] A group with the same signature already exists. Group consists of: N4Saga8ColliderE, N4Saga16CylinderColliderE, N4Saga9RigidBodyE, N4Saga9TransformE.
+2023-04-20 13:03:29.934 INFO  [5776] [Saga::NavMesh::buildFromFile@16] Building nav mesh from file Resources/Meshes/environment3nav.obj
+2023-04-20 13:03:29.934 INFO  [5776] [Saga::NavMesh::buildFromFile@19] Complete building nav mesh from file Resources/Meshes/environment3nav.obj. The mesh contains 28 vertices and 26 faces.
+2023-04-20 13:03:29.935 INFO  [5776] [Window::run@22] Window loop starting.
+2023-04-20 13:03:29.938 WARN  [5776] [Saga::AudioEngine::createInstance@230] Fmod event "event:/Loop" has not been loaded. Loading the event
+2023-04-20 13:03:29.939 INFO  [5776] [Saga::BoundingVolumeHierarchy::build@48] Bounding Volume Hierarchy created with 55 triangles.
+2023-04-20 13:03:29.939 ERROR [5776] [Debug::checkGLError@25] INVALID_ENUM | C:/Users/Neuthal/Documents/GitHub/SagaEngine/Graphics/GLWrappers/shader.cpp (100)
+2023-04-20 13:05:59.189 DEBUG [9748] [Saga::initializeLogger@21] This is a DEBUG message
+2023-04-20 13:05:59.190 INFO  [9748] [Saga::initializeLogger@22] This is an INFO message
+2023-04-20 13:05:59.190 WARN  [9748] [Saga::initializeLogger@23] This is a WARNING message
+2023-04-20 13:05:59.190 ERROR [9748] [Saga::initializeLogger@24] This is an ERROR message
+2023-04-20 13:05:59.190 FATAL [9748] [Saga::initializeLogger@25] This is a FATAL message
+2023-04-20 13:05:59.190 INFO  [9748] [Saga::initializeLogger@27] Logger initialized.
+2023-04-20 13:05:59.190 INFO  [9748] [Window::Window@12] Window starting.
+2023-04-20 13:05:59.606 INFO  [9748] [GraphicsEngine::Graphics::initializeGLEW@22] GLEWInit status: 0
+2023-04-20 13:05:59.610 INFO  [9748] [GraphicsEngine::Graphics::initialize@31] initalize text renderer
+2023-04-20 13:05:59.610 INFO  [9748] [GraphicsEngine::Graphics::initialize@34] add standard shapes
+2023-04-20 13:06:53.067 DEBUG [31508] [Saga::initializeLogger@21] This is a DEBUG message
+2023-04-20 13:06:53.067 INFO  [31508] [Saga::initializeLogger@22] This is an INFO message
+2023-04-20 13:06:53.067 WARN  [31508] [Saga::initializeLogger@23] This is a WARNING message
+2023-04-20 13:06:53.067 ERROR [31508] [Saga::initializeLogger@24] This is an ERROR message
+2023-04-20 13:06:53.068 FATAL [31508] [Saga::initializeLogger@25] This is a FATAL message
+2023-04-20 13:06:53.068 INFO  [31508] [Saga::initializeLogger@27] Logger initialized.
+2023-04-20 13:06:53.068 INFO  [31508] [Window::Window@12] Window starting.
+2023-04-20 13:06:53.492 INFO  [31508] [GraphicsEngine::Graphics::initializeGLEW@22] GLEWInit status: 0
+2023-04-20 13:06:53.497 INFO  [31508] [GraphicsEngine::Graphics::initialize@31] initalize text renderer
+2023-04-20 13:06:53.497 INFO  [31508] [GraphicsEngine::Graphics::initialize@34] add standard shapes
+2023-04-20 13:06:53.498 INFO  [31508] [GraphicsEngine::ShaderLoader::createAndCompileShader@74] Create and Compile Shader: Resources/Shaders/phong.vert
+2023-04-20 13:06:53.498 INFO  [31508] [GraphicsEngine::ShaderLoader::readFile@53] READFILE Resources/Shaders/phong.vert
+2023-04-20 13:06:53.498 INFO  [31508] [GraphicsEngine::ShaderLoader::createAndCompileShader@81] GL SHADER SOURCE
+2023-04-20 13:06:53.498 INFO  [31508] [GraphicsEngine::ShaderLoader::createAndCompileShader@84] GL COMPILE SHADER: 1
+2023-04-20 13:06:53.498 INFO  [31508] [GraphicsEngine::ShaderLoader::createAndCompileShader@74] Create and Compile Shader: Resources/Shaders/phong.frag
+2023-04-20 13:06:53.498 INFO  [31508] [GraphicsEngine::ShaderLoader::readFile@53] READFILE Resources/Shaders/phong.frag
+2023-04-20 13:06:53.499 INFO  [31508] [GraphicsEngine::ShaderLoader::createAndCompileShader@81] GL SHADER SOURCE
+2023-04-20 13:06:53.499 INFO  [31508] [GraphicsEngine::ShaderLoader::createAndCompileShader@84] GL COMPILE SHADER: 2
+2023-04-20 13:06:53.499 INFO  [31508] [GraphicsEngine::ShaderLoader::createShaderProgram@46] END OF SHADERLOADER
+2023-04-20 13:06:53.499 INFO  [31508] [GraphicsEngine::ShaderLoader::createAndCompileShader@74] Create and Compile Shader: Resources/Shaders/text.vert
+2023-04-20 13:06:53.499 INFO  [31508] [GraphicsEngine::ShaderLoader::readFile@53] READFILE Resources/Shaders/text.vert
+2023-04-20 13:06:53.500 INFO  [31508] [GraphicsEngine::ShaderLoader::createAndCompileShader@81] GL SHADER SOURCE
+2023-04-20 13:06:53.500 INFO  [31508] [GraphicsEngine::ShaderLoader::createAndCompileShader@84] GL COMPILE SHADER: 4
+2023-04-20 13:06:53.500 INFO  [31508] [GraphicsEngine::ShaderLoader::createAndCompileShader@74] Create and Compile Shader: Resources/Shaders/text.frag
+2023-04-20 13:06:53.500 INFO  [31508] [GraphicsEngine::ShaderLoader::readFile@53] READFILE Resources/Shaders/text.frag
+2023-04-20 13:06:53.500 INFO  [31508] [GraphicsEngine::ShaderLoader::createAndCompileShader@81] GL SHADER SOURCE
+2023-04-20 13:06:53.500 INFO  [31508] [GraphicsEngine::ShaderLoader::createAndCompileShader@84] GL COMPILE SHADER: 5
+2023-04-20 13:06:53.500 INFO  [31508] [GraphicsEngine::ShaderLoader::createShaderProgram@46] END OF SHADERLOADER
+2023-04-20 13:06:53.500 INFO  [31508] [GraphicsEngine::Graphics::initialize@47] adding font: opensans
+2023-04-20 13:06:53.504 INFO  [31508] [Saga::Core::Core@17] Start initializing application.
+2023-04-20 13:06:53.548 INFO  [31508] [Saga::AudioEngine::init@127] Fmod Studio System Created.
+2023-04-20 13:06:53.963 INFO  [31508] [Saga::AudioEngine::init@132] Fmod Studio System Initialized.
+2023-04-20 13:06:53.963 INFO  [31508] [Saga::AudioEngine::loadBank@156] Attempting to load bank: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 13:06:54.025 INFO  [31508] [Saga::AudioEngine::loadBank@166] Loading bank success: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 13:06:54.025 INFO  [31508] [Saga::AudioEngine::loadBank@156] Attempting to load bank: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 13:06:54.071 INFO  [31508] [Saga::AudioEngine::loadBank@166] Loading bank success: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 13:06:54.072 WARN  [31508] [Saga::GameWorld::registerGroup@89] A group with the same signature already exists. Group consists of: N4Saga8ColliderE, N4Saga16CylinderColliderE, N4Saga9RigidBodyE, N4Saga9TransformE.
+2023-04-20 13:06:54.073 INFO  [31508] [Saga::NavMesh::buildFromFile@16] Building nav mesh from file Resources/Meshes/environment3nav.obj
+2023-04-20 13:06:54.073 INFO  [31508] [Saga::NavMesh::buildFromFile@19] Complete building nav mesh from file Resources/Meshes/environment3nav.obj. The mesh contains 28 vertices and 26 faces.
+2023-04-20 13:06:54.075 INFO  [31508] [Window::run@22] Window loop starting.
+2023-04-20 13:06:54.079 WARN  [31508] [Saga::AudioEngine::createInstance@230] Fmod event "event:/Loop" has not been loaded. Loading the event
+2023-04-20 13:06:54.079 INFO  [31508] [Saga::BoundingVolumeHierarchy::build@48] Bounding Volume Hierarchy created with 55 triangles.
+2023-04-20 13:07:09.090 INFO  [31508] [Window::run@24] Window loop ended.
+2023-04-20 13:07:09.104 INFO  [31508] [Window::run@26] Window ended.
+2023-04-20 13:07:09.105 INFO  [31508] [Saga::AudioEngine::unloadBank@172] Attempting to unload bank: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 13:07:09.106 INFO  [31508] [Saga::AudioEngine::unloadBank@179] Unload bank success: FMOD/Saga/Build/Desktop/Master.bank.
+2023-04-20 13:07:09.106 INFO  [31508] [Saga::AudioEngine::unloadBank@172] Attempting to unload bank: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 13:07:09.106 INFO  [31508] [Saga::AudioEngine::unloadBank@179] Unload bank success: FMOD/Saga/Build/Desktop/Master.strings.bank.
+2023-04-20 13:07:09.293 INFO  [31508] [Saga::AudioEngine::release@150] Fmod Studio System Released.
+2023-04-20 13:07:09.293 INFO  [31508] [Saga::shutDownLogger@32] Logger shut down.

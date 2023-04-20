@@ -1,4 +1,5 @@
 #include "font.h"
+#include "Engine/_Core/logger.h"
 #include <iostream>
 using namespace GraphicsEngine;
 
@@ -6,13 +7,13 @@ Font::Font(const std::string filepath){
     FT_Library ft;
     if (FT_Init_FreeType(&ft))
     {
-        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+        SERROR("ERROR::FREETYPE: Could not init FreeType Library");
     }
 
     FT_Face face;
     if (FT_New_Face(ft, filepath.data(), 0, &face))
     {
-        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;  
+        SERROR("ERROR::FREETYPE: Failed to load font");
     }
 
     FT_Set_Pixel_Sizes(face, 0, 48);
@@ -36,7 +37,7 @@ Font::~Font(){
 void Font::createGlyphTexture(unsigned char c, FT_Face &face){
     if (FT_Load_Char(face, c, FT_LOAD_RENDER))
     {
-        std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+        SERROR("ERROR::FREETYTPE: Failed to load Glyph");
         return;
     }
     // generate texture

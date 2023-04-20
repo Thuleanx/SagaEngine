@@ -39,16 +39,6 @@ enum LogLevel {
 bool initializeLogger();
 
 /**
- * @brief Log an output.
- * 
- * @param level level of the output. 
- * @see LogLevel
- * @param message message of the output, as a formatted string similar to printf.
- * @param ... any arguments to the formatted string.
- */
-void logOutput(LogLevel level, const char* message, ...);
-
-/**
  * @brief Shut down the logger, and flush any buffered output.
  */
 void shutDownLogger();

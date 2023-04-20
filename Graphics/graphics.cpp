@@ -1,4 +1,5 @@
 #include "graphics.h"
+#include "Engine/_Core/logger.h"
 #include "shapedata.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -18,7 +19,7 @@ Graphics::~Graphics(){
 
 void Graphics::initializeGLEW(){
     glewExperimental = GL_TRUE;
-    std::cout<<"GLEWInit status: "<<glewInit()<<std::endl;
+    SINFO("GLEWInit status: %d", glewInit());
 }
 
 void Graphics::initialize(){
@@ -27,10 +28,10 @@ void Graphics::initialize(){
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 
-    std::cout<<"initialize text renderer"<<std::endl;
+    SINFO("initalize text renderer");
     m_textRenderer->initialize();
 
-    std::cout<<"add shapes"<<std::endl;
+    SINFO("add standard shapes");
     addShape("quad", quadVertexBufferData, VAOAttrib::POS | VAOAttrib::NORM | VAOAttrib::UV);
     addShape("cube", cubeVertexBufferData, VAOAttrib::POS | VAOAttrib::NORM | VAOAttrib::UV);
     addShape("sphere", sphereVertexBufferData, VAOAttrib::POS | VAOAttrib::NORM | VAOAttrib::UV);
@@ -43,7 +44,7 @@ void Graphics::initialize(){
     
     addMaterial("default", glm::vec3(1));
 
-    std::cout<<"add font"<<std::endl;
+    SINFO("adding font: %s", "opensans");
     addFont("opensans", "Resources/Fonts/OpenSans.ttf");
     getFont("opensans");
 }
