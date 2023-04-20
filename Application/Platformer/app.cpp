@@ -79,7 +79,7 @@ namespace Platformer {
 			world->emplace<Application::PlayerInput>(player);
 			world->emplace<Platformer::PlayerController>(player, 5);
 			world->emplace<Saga::Material>(player, Saga::Theme_Nostalgic::colors[0]);
-			world->emplace<Saga::Mesh>(player, Saga::Mesh::StandardType::Cylinder);
+			world->emplace<Saga::Mesh>(player, Saga::Mesh::StandardType::Sphere);
 			world->emplace<Saga::Collider>(player);
 			world->emplace<Saga::EllipsoidCollider>(player, glm::vec3(0.5f)); // sphere collider
 			world->emplace<Saga::RigidBody>(player);
@@ -100,7 +100,7 @@ namespace Platformer {
                 movespeed, orbitDistance
             );
 			world->emplace<Saga::Material>(fr, Saga::Theme_Nostalgic::colors[colorIndex]);
-			world->emplace<Saga::Mesh>(fr, Saga::Mesh::StandardType::Cylinder);
+			world->emplace<Saga::Mesh>(fr, Saga::Mesh::StandardType::Sphere);
 			world->emplace<Saga::Collider>(fr);
 			world->emplace<Saga::EllipsoidCollider>(fr, glm::vec3(0.5f)); // sphere collider
 			world->emplace<Saga::RigidBody>(fr);

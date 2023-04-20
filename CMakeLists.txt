@@ -18,6 +18,7 @@ set(GLM_SOURCE_DIR "External/glm-master")
 set(STB_SOURCE_DIR "External/stb")
 set(IMGUI_SOURCE_DIR "External/imgui")
 set(FREETYPE_SOURCE_DIR "External/freetype")
+set(SPDLOG_SOURCE_DIR "External/spdlog")
 set(FMOD_DIR "C:/Program Files (x86)/FMOD SoundSystem/FMOD Studio API Windows")
 
 #GLFW settings
@@ -40,25 +41,13 @@ add_subdirectory(${FREETYPE_SOURCE_DIR})
 
 add_library(StaticGLEW STATIC ${GLEW_SOURCE_DIR}/src/glew.c)
 
-# Add fmod
-# add_library(fmod SHARED IMPORTED)
-# set_property(TARGET fmod PROPERTY
-#             IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/External/fmod.core/lib/x64/fmod.dll")
-# set_property(TARGET fmod PROPERTY
-#              IMPORTED_IMPLIB "${CMAKE_CURRENT_SOURCE_DIR}/External/fmod/core/lib/x64/fmod_vc.lib")
-
-# add_library(fmodstudio SHARED IMPORTED)
-# set_property(TARGET fmodstudio PROPERTY
-#              IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/External/fmod/studio/lib/x64/fmodstudio.dll")
-# set_property(TARGET fmodstudio PROPERTY
-#              IMPORTED_IMPLIB "${CMAKE_CURRENT_SOURCE_DIR}/External/fmod/studio/lib/x64/fmodstudio_vc.lib")
-
 include_directories(${GLFW_SOURCE_DIR}/include
                     ${GLFW_SOURCE_DIR}/deps
                     ${GLEW_SOURCE_DIR}/include
                     ${STB_SOURCE_DIR}
                     ${FREETYPE_SOURCE_DIR}/include
                     ${PROJECT_SOURCE_DIR}
+                    ${SPDLOG_SOURCE_DIR}/include
                     ${FMOD_DIR}/api/core/inc
                     ${FMOD_DIR}/api/studio/inc
                     )
@@ -143,11 +132,8 @@ add_executable(${PROJECT_NAME}
     External/stb/stb_image.h
 )
 
-target_link_libraries(${PROJECT_NAME} glfw StaticGLEW glm freetype ${OPENGL_LIBRARIES})
-# target_link_libraries(${PROJECT_NAME} 
-# 	${CMAKE_CURRENT_SOURCE_DIR}/External/fmod/core/lib/x86/libfmod.a 
-# 	${CMAKE_CURRENT_SOURCE_DIR}/External/fmod/studio/lib/x86/libfmodstudio.a)
-# target_link_libraries(${PROJECT_NAME} fmodstudio fmod)
+target_link_libraries(${PROJECT_NAME} glfw StaticGLEW glm freetype ${OPENGL_LIBRARIES} )
+
 target_link_libraries(${PROJECT_NAME} 
 	${FMOD_DIR}/api/core/lib/x64/fmod_vc.lib
 	${FMOD_DIR}/api/studio/lib/x64/fmodstudio_vc.lib)
