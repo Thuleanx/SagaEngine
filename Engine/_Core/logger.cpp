@@ -4,6 +4,11 @@
 #include <iostream>
 #include <string.h>
 #include <cstdarg>
+#include "plog/Appenders/ColorConsoleAppender.h"
+#include "plog/Formatters/TxtFormatter.h"
+#include "plog/Init.h"
+#include "plog/Severity.h"
+#include "plog/Initializers/RollingFileInitializer.h"
 
 namespace Saga {
 
@@ -23,6 +28,10 @@ void reportAssertionFailed(const char* expression, const char* message, const ch
 
 bool initializeLogger() {
 	// TODO: create log file
+    static plog::ColorConsoleAppender<plog::TxtFormatter> appender;
+    plog::init(plog::Severity::debug, "sagaruntime.log").addAppender(&appender);
+    PLOGI.printf("%d, %s", 32, "test");
+    PLOG_DEBUG << "Logger initialized.";
 	SINFO("Logger initialized.");
 	return true;
 }

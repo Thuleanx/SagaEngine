@@ -1,6 +1,7 @@
 #pragma once
 #include "../defines.h"
 #include <string>
+#include "plog/Log.h"
 
 // from https://www.youtube.com/watch?v=l9e8PJskYnI&list=PLv8Ddw9K0JPg1BEO-RS-0MYs423cvLVtj&index=5
 
@@ -86,7 +87,7 @@ void shutDownLogger();
  * @brief Log info-level messages.
  * @param message formatted string, similar to printf.
  */
-#define SINFO(message, ...) logOutput(Saga::LogLevel::INFO, message, ##__VA_ARGS__)
+#define SINFO(message, ...) PLOG(plog::info).printf(message, ##__VA_ARGS__)
 #endif
 #else
 #define SINFO(message, ...)

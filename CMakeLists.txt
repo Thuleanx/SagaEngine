@@ -18,7 +18,7 @@ set(GLM_SOURCE_DIR "External/glm-master")
 set(STB_SOURCE_DIR "External/stb")
 set(IMGUI_SOURCE_DIR "External/imgui")
 set(FREETYPE_SOURCE_DIR "External/freetype")
-set(SPDLOG_SOURCE_DIR "External/spdlog")
+set(PLOG_SOURCE_DIR "External/plog")
 set(FMOD_DIR "C:/Program Files (x86)/FMOD SoundSystem/FMOD Studio API Windows")
 
 #GLFW settings
@@ -47,7 +47,7 @@ include_directories(${GLFW_SOURCE_DIR}/include
                     ${STB_SOURCE_DIR}
                     ${FREETYPE_SOURCE_DIR}/include
                     ${PROJECT_SOURCE_DIR}
-                    ${SPDLOG_SOURCE_DIR}/include
+                    ${PLOG_SOURCE_DIR}/include
                     ${FMOD_DIR}/api/core/inc
                     ${FMOD_DIR}/api/studio/inc
                     )
