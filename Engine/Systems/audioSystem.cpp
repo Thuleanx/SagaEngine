@@ -81,8 +81,8 @@ namespace Saga::Systems {
 
 	void setupAudioSystem(std::shared_ptr<GameWorld> world) {
 		registerAudioSystem(world);
-		world->getSystems().addStagedSystem(std::make_shared<System<>>(audioEmitterAwake), SystemManager::Stage::Awake);
-		world->getSystems().addStagedSystem(std::make_shared<System<float, float>>(audioEmitterUpdate), SystemManager::Stage::Update);
-		world->getSystems().addStagedSystem(std::make_shared<System<>>(audioEmitterUnload), SystemManager::Stage::Cleanup);
+		world->getSystems().addStagedSystem(System<>(audioEmitterAwake), SystemManager::Stage::Awake);
+		world->getSystems().addStagedSystem(System<float, float>(audioEmitterUpdate), SystemManager::Stage::Update);
+		world->getSystems().addStagedSystem(System<>(audioEmitterUnload), SystemManager::Stage::Cleanup);
 	}
 };

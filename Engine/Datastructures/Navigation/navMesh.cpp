@@ -74,7 +74,8 @@ void NavMesh::build(const std::vector<glm::vec3> &positions, const std::vector<g
 			} else {
                 edges.emplace_back(Edge{
                     .halfEdge = currentEdge,
-                    .highestAdminissibleRadius = glm::distance(vertices[u].pos, vertices[v].pos)
+                    .highestAdminissibleRadius = glm::distance(vertices[u].pos, vertices[v].pos),
+                    .center = (vertices[u].pos + vertices[v].pos) / 2.f
                 });
 				currentEdge->edge = &edges.back();
 				edgeMap[edgePair] = {halfEdges.size() - 1, edges.size() - 1};
@@ -129,6 +130,7 @@ std::optional<NavMesh::Path> NavMesh::findPath(glm::vec3 src, glm::vec3 dest, fl
             int edgeIndex = std::distance(halfEdge->edge, &edges[0]);
             d[edgeIndex] = glm::distance(src, edges[edgeIndex].center);
             h[edgeIndex] = glm::distance(dest, edges[edgeIndex].center);
+            half[edgeIndex] = halfEdge;
             pq.push({d[edgeIndex] + h[edgeIndex], edgeIndex});
         }
     }

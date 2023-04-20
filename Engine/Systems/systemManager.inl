@@ -5,12 +5,12 @@
 
 namespace Saga {
 	template <typename ...DataType>
-    EventMap::Id SystemManager::addStagedSystem(std::shared_ptr<System<DataType...>> system, Stage stage) {
-        return stagedSystemsMap.addListener(stage, system); }
+    EventMap::Id SystemManager::addStagedSystem(System<DataType...> system, Stage stage) {
+        return stagedSystemsMap.addListener(stage, std::make_shared<System<DataType...>>(system)); }
 
 	template <typename Event, typename ...DataType>
-	EventMap::Id SystemManager::addEventSystem(Event event, std::shared_ptr<System<DataType...>> system) {
-        return eventSystemsMap[(int) event].addListener((Entity) -1, system); // ensures no message events gets triggered
+	EventMap::Id SystemManager::addEventSystem(Event event, System<DataType...> system) {
+        return eventSystemsMap[(int) event].addListener((Entity) -1, std::make_shared<System<DataType...>>(system)); // ensures no message events gets triggered
 	}
 
 	template <typename Event>
@@ -25,8 +25,8 @@ namespace Saga {
 
 	
 	template <typename Event, typename ...DataType>
-	EventMap::Id SystemManager::addEventSystem(Event event, Saga::Entity entity, std::shared_ptr<System<Saga::Entity, DataType...>> system) {
-		return eventSystemsMap[(int) event].addListener(entity, system);
+	EventMap::Id SystemManager::addEventSystem(Event event, Saga::Entity entity, System<Saga::Entity, DataType...> system) {
+		return eventSystemsMap[(int) event].addListener(std::make_shared<System<Saga::Entity, DataType...>>(entity), system);
 	}
 
 	template <typename Event>

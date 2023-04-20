@@ -214,7 +214,7 @@ endCollisions: {}
 
 		auto& systems = world->getSystems();
 		// collision handling on fixedUpdate
-		systems.addStagedSystem(std::make_shared<Saga::System<>>(collisionSystem_startup), Saga::SystemManager::Stage::Awake);
-		systems.addStagedSystem(std::make_shared<Saga::System<float, float>>(collisionSystem), Saga::SystemManager::Stage::FixedUpdate);
+		systems.addStagedSystem(Saga::System<>(collisionSystem_startup), Saga::SystemManager::Stage::Awake);
+		systems.addStagedSystem(Saga::System<float, float>(collisionSystem), Saga::SystemManager::Stage::FixedUpdate);
     }
 }

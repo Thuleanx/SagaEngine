@@ -60,6 +60,7 @@ public:
 	typename std::vector<Component>::iterator end();
     typename std::vector<Component>::const_iterator begin() const;
     typename std::vector<Component>::const_iterator end() const;
+    std::size_t size() const { return std::distance(end(), begin()); }
 
 	/**
 	 * @brief Get a pointer to a Component attached to an entity.

@@ -53,7 +53,7 @@ public:
 	 * @return EventMap::Id id of the System, can be used to remove the system later.
 	 */
 	template <typename ...DataType>
-	EventMap::Id addStagedSystem(std::shared_ptr<System<DataType...>> system, Stage stage = Stage::Update);
+	EventMap::Id addStagedSystem(System<DataType...> system, Stage stage = Stage::Update);
 
 	/**
 	 * @brief Remove a staged System.
@@ -76,7 +76,7 @@ public:
 	 * @return EventMap::Id id of the System, can be used to remove the system later
 	 */
 	template <typename Event, typename ...DataType>
-	EventMap::Id addEventSystem(Event event, std::shared_ptr<System<DataType...>> system);
+	EventMap::Id addEventSystem(Event event, System<DataType...> system);
 
 	/**
 	 * @brief Remove the System from being called when an event is broadcasted.
@@ -100,7 +100,7 @@ public:
 	 * @return EventMap::Id id of the System, can be used to remove it later.
 	 */
 	template <typename Event, typename ...DataType>
-	EventMap::Id addEventSystem(Event event, Saga::Entity entity, std::shared_ptr<System<Saga::Entity, DataType...>> system);
+	EventMap::Id addEventSystem(Event event, Saga::Entity entity, System<Saga::Entity, DataType...> system);
 
 	/**
 	 * @brief Remove the System from being called when an event is delivered.

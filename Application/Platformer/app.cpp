@@ -1,6 +1,8 @@
 #include "app.h"
 #include "Application/Platformer/Components/friendController.h"
+#include "Application/Platformer/Components/simpleTestAI.h"
 #include "Application/Platformer/Systems/friendControllerSystem.h"
+#include "Application/Platformer/Systems/simpleTestAISystem.h"
 #include "Engine/Components/collider.h"
 #include "Engine/Components/navigation/navMeshData.h"
 #include "Engine/Constants/colorthemes.h"
@@ -140,7 +142,7 @@ namespace Platformer {
 		Saga::Entity camera = setupCamera(player);
 		Saga::Entity backingTrack = setupBackingTrack();
 
-        int friendCnt = 2;
+        int friendCnt = 0;
         while (friendCnt --> 0) 
             setupFriend();
 
@@ -151,6 +153,7 @@ namespace Platformer {
 		Saga::Systems::registerDrawSystem(mainWorld);
 		Saga::Systems::registerCollisionSystem(mainWorld);
 		Platformer::Systems::registerPlayerControllerSystem(mainWorld);
+        Platformer::Systems::registerSimpleTestAISystem(mainWorld);
 		Platformer::Systems::registerFriendControllerSystem(mainWorld);
 		Application::Systems::registerThirdPersonCameraSystem(mainWorld);
 
@@ -159,7 +162,7 @@ namespace Platformer {
 		auto& systems = mainWorld->getSystems();
 
 		// draw system
-		systems.addStagedSystem(std::make_shared<Saga::System<>>(Saga::Systems::drawSystem), Saga::SystemManager::Stage::Draw);
+		systems.addStagedSystem(Saga::System<>(Saga::Systems::drawSystem), Saga::SystemManager::Stage::Draw);
 		// draw on resize
 		systems.addWindowResizeSystem(Saga::Systems::drawSystem_OnResize);
 
@@ -170,11 +173,11 @@ namespace Platformer {
 		systems.addKeyboardEventSystem(GLFW_KEY_D, Application::Systems::playerInputSystem_OnRightButton);
 		systems.addKeyboardEventSystem(GLFW_KEY_SPACE, Application::Systems::playerInputSystem_OnJumpButton);
 
-		systems.addStagedSystem(std::make_shared<Saga::System<float, float>>(Application::Systems::thirdPersonCameraSystem), Saga::SystemManager::Stage::LateUpdate);
+		systems.addStagedSystem(Saga::System<float, float>(Application::Systems::thirdPersonCameraSystem), Saga::SystemManager::Stage::LateUpdate);
 		systems.addMousePosSystem(Application::Systems::thirdPersonCameraSystem_OnMousePos);
 
-		systems.addStagedSystem(std::make_shared<Saga::System<float, float>>(Platformer::Systems::playerControllerSystem));
-		systems.addStagedSystem(std::make_shared<Saga::System<float, float>>(Platformer::Systems::friendControllerSystem));
+		systems.addStagedSystem(Saga::System<float, float>(Platformer::Systems::playerControllerSystem));
+		systems.addStagedSystem(Saga::System<float, float>(Platformer::Systems::friendControllerSystem));
 	}
 
     void App::update(float deltaTime, float time) {
@@ -185,13 +188,12 @@ namespace Platformer {
 
 			mainWorld->emplace<Saga::Material>(fr, Saga::Theme_Nostalgic::colors[1]);
 			mainWorld->emplace<Saga::Mesh>(fr, Saga::Mesh::StandardType::Sphere);
-			mainWorld->emplace<Saga::Collider>(fr);
-			mainWorld->emplace<Saga::EllipsoidCollider>(fr, glm::vec3(0.5f)); // sphere collider
-            mainWorld->emplace<Saga::CylinderCollider>(fr, 1, 0.5);
-			mainWorld->emplace<Saga::RigidBody>(fr);
+            mainWorld->emplace<SimpleTestAI>(fr, SimpleTestAI{
+                .movementSpeed = 2.0f
+            });
 
 			Saga::Transform* transform = mainWorld->emplace<Saga::Transform>(fr);
-			transform->transform->setPos(pos + glm::vec3(0,1,0));
+			transform->transform->setPos(pos + glm::vec3(0,0.5f,0));
 			return fr;
         };
 
