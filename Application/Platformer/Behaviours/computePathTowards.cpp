@@ -29,7 +29,7 @@ namespace Platformer {
         Saga::NavMesh::WalkablePath walkablePath = navMeshData.value()->tracePath(path.value());
 
         blackboard.put(pathKey, walkablePath);
-        STRACE("computed path to player of length %f ending at %s", path->length, glm::to_string(path->to).c_str());
+        /* STRACE("computed path to player of length %f ending at %s", path->length, glm::to_string(path->to).c_str()); */
 
         return Saga::BehaviourTree::SUCCESS;
     }

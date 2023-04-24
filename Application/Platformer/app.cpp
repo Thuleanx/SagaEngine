@@ -222,9 +222,11 @@ namespace Platformer {
         if (ImGui::Button("Spawn Random Friend")) {
             // chooses a random point on the navmesh
             for (auto navData : *mainWorld->viewAll<Saga::NavMeshData>()) {
-                glm::vec3 spawnPos = navData.getRandomPosition();
-                setupFriend(spawnPos);
-                break; // we only spawn it on the first navmesh
+                std::optional<glm::vec3> spawnPos = navData.getRandomPosition();
+                if (spawnPos) {
+                    setupFriend(spawnPos.value());
+                    break; // we only spawn it on the first navmesh
+                }
             }
         }
         ImGui::End();

@@ -21,7 +21,7 @@ namespace Platformer {
         if (!transform) return Saga::BehaviourTree::FAIL;
 
         blackboard.put<glm::vec3>(key, transform->getPos());
-        STRACE("loaded player position at %s", glm::to_string(transform->getPos()).c_str());
+        /* STRACE("loaded player position at %s", glm::to_string(transform->getPos()).c_str()); */
 
         return Saga::BehaviourTree::SUCCESS;
     }
