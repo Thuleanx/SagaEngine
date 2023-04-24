@@ -53,7 +53,6 @@ namespace Saga::BehaviourTreeNodes {
         if (!lastRunningChild) lastRunningChild = 0;
 
         BehaviourTree::Status result = children[lastRunningChild.value()]->update(seconds, blackboard, ranChildLastFrame);
-        STRACE("Running: %d", lastRunningChild);
         ranChildLastFrame = true;
 
         if (result == BehaviourTree::SUCCESS && ++lastRunningChild.value() < children.size()) {

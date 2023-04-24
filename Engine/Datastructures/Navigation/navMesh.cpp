@@ -109,7 +109,12 @@ std::optional<NavMesh::Path> NavMesh::findPath(glm::vec3 src, glm::vec3 dest, fl
     if (!fromLoc || !toLoc) return {};
     if (fromLoc.value().cell == toLoc.value().cell) {
         // if in the same cell, shortest distance is simply from -> to.
-        return {};
+        return Path{
+            .length = glm::distance(src, dest),
+            .from = src,
+            .to = dest,
+            .portals = {}
+        };
     }
 
     int n = edges.size();
@@ -164,6 +169,8 @@ std::optional<NavMesh::Path> NavMesh::findPath(glm::vec3 src, glm::vec3 dest, fl
         if (&halfEdges[he] != half[e] || d_e != d[e] + h[e]) continue;
         /* SDEBUG("edge: %d with distance %f", e, d_e); */
 
+        SDEBUG("process edge %d of heuristic %f and value %f", e, h[e], d[e]);
+
         // if is one of the goal edges
         if (std::find(goalEdges.begin(), goalEdges.end(), e) != goalEdges.end()) {
             bestEdge = e;
@@ -179,7 +186,7 @@ std::optional<NavMesh::Path> NavMesh::findPath(glm::vec3 src, glm::vec3 dest, fl
                     p[to] = e;
                     int halfEdgeIndex = std::distance(halfEdges.data(), nxtEdge);
                     half[to] = nxtEdge;
-                    if (h[to] == -1) h[to] = glm::distance(edges[to].center, dest);
+                    if (h[to] == std::numeric_limits<float>::infinity()) h[to] = glm::distance(edges[to].center, dest);
                     pq.push({d[to] + h[to], halfEdgeIndex});
                 }
             }
@@ -198,7 +205,7 @@ std::optional<NavMesh::Path> NavMesh::findPath(glm::vec3 src, glm::vec3 dest, fl
         dest = edges[bestEdge].center;
     };
 
-    float pathLength = d[bestEdge] + h[bestEdge];
+    float pathLength = d[bestEdge] + glm::distance(edges[bestEdge].center, dest);
 
     std::vector<std::pair<glm::vec3, glm::vec3>> portalsInPath;
     while (bestEdge != -1) {
@@ -236,6 +243,7 @@ std::optional<NavMesh::LocationInCell> NavMesh::getCell(glm::vec3 pos) const {
             closestPos = projectedPoint;
         }
     }
+    SINFO("found closest cell: %d", closestCell);
 
     return NavMesh::LocationInCell{
         .cell = closestCell,

@@ -40,8 +40,6 @@ namespace Platformer {
         glm::vec3 nxtPos = curPos + dir * walkAmt;
         transform->transform->setPos(nxtPos);
 
-        STRACE("walking path");
-
 
         return Saga::BehaviourTree::RUNNING;
     }

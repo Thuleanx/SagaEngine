@@ -12,11 +12,9 @@ namespace Saga::BehaviourTreeNodes {
 
     BehaviourTree::Status
     Wait::update(float seconds, Blackboard &blackboard, bool executedLastFrame) {
-        STRACE("%f, %d, %s", durationSeconds, uid, timeleftBlackboardKey.c_str());
         if (!executedLastFrame) blackboard.put(timeleftBlackboardKey, durationSeconds);
 
         std::optional<float> result = blackboard.get<float>(timeleftBlackboardKey);
-        STRACE("%f", result ? result.value() : 0);
         if (!result || result.value() < 0)
             return BehaviourTree::SUCCESS;
 

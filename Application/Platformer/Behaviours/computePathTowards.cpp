@@ -4,6 +4,7 @@
 #include "Engine/Components/transform.h"
 #include "Engine/Gameworld/gameworld.h"
 #include "Engine/_Core/logger.h"
+#include "glm/gtx/string_cast.hpp"
 
 namespace Platformer {
     ComputePathTowards::ComputePathTowards(const std::string &targetKey, const std::string &pathKey) : targetKey(targetKey), pathKey(pathKey) { }
@@ -22,13 +23,13 @@ namespace Platformer {
 
         std::optional<Saga::NavMesh::Path> path = 
             navMeshData.value()->findPath(transform->getPos(), toPos.value(), 0);
-        
+
         if (!path) return Saga::BehaviourTree::FAIL;
 
         Saga::NavMesh::WalkablePath walkablePath = navMeshData.value()->tracePath(path.value());
 
         blackboard.put(pathKey, walkablePath);
-        STRACE("computed path to player");
+        STRACE("computed path to player of length %f ending at %s", path->length, glm::to_string(path->to).c_str());
 
         return Saga::BehaviourTree::SUCCESS;
     }
