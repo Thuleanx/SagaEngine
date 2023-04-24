@@ -15,7 +15,7 @@ namespace Saga {
 bool initializeLogger() {
 	// TODO: create log file
     static plog::ColorConsoleAppender<plog::TxtFormatter> appender;
-    plog::init(plog::Severity::debug, "sagaruntime.log").addAppender(&appender);
+    plog::init(plog::Severity::verbose, "sagaruntime.log").addAppender(&appender);
 
     PLOG_VERBOSE << "This is a VERBOSE message";
     PLOG_DEBUG << "This is a DEBUG message";

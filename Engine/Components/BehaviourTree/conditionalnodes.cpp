@@ -3,7 +3,7 @@
 
 namespace Saga::BehaviourTreeNodes {
 
-    BehaviourTree::Status Conditional::update(float seconds, BehaviourTree::Blackboard &blackboard, bool updatedLastFrame) {
+    BehaviourTree::Status Conditional::update(float seconds, Blackboard &blackboard, bool updatedLastFrame) {
         if (!evaluate(blackboard)) {
             skipChildLastFrame = true;
             return BehaviourTree::FAIL;

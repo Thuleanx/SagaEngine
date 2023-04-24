@@ -5,47 +5,39 @@
 #include <map>
 #include <any>
 #include <optional>
+#include "Engine/Components/BehaviourTree/blackboard.h"
+#include "Engine/Entity/entity.h"
 #include "Engine/_Core/logger.h"
 
 namespace Saga {
+    class GameWorld;
+
     class BehaviourTree {
     public:
         enum Status {
             SUCCESS, FAIL, RUNNING
         };
 
-        class Blackboard {
-        private:
-            std::map<std::string, std::any> board;
-        public:
-            template <typename T>
-            inline std::optional<T> get(const std::string &id) {
-                try {
-                    if (!board.count(id)) 
-                        return {};
-                    return std::any_cast<T>(id);
-                } catch (const std::bad_any_cast& e) {
-                    std::string fmt = "Trying to retrieve item of id %s in blackboard. \
-                                       Wanted type [%s] but the blackboards data is actually [%s]: \
-                                       get error: %s";
-                    SERROR(fmt.c_str(), id.c_str(), typeid(T).name(), board.at(id).type().name(), e.what());
-                }
-                return {};
-            }
-
-            template <class T>
-            inline void put(const std::string &id, T value) { board[id] = value; }
-        };
-
-        class BehaviourTreeNode {
+        class Node {
             public:
                 virtual Status update(float seconds, Blackboard &blackboard, bool updatedLastFrame) = 0;
         };
 
 
-
         void update(float deltaTime, Blackboard& blackboard);
+
+        template <typename T, typename ...Args>
+        std::shared_ptr<T> makeRoot(Args &&... args) {
+            static_assert(std::is_base_of<Node, T>::value, "Type assigned to root must be a Behaviour tree node");
+            firstFrame = true;
+            std::shared_ptr<T> newRootPtr = std::make_shared<T>(args...);
+            root = newRootPtr;
+            return newRootPtr;
+        }
+
+        void setRoot(std::shared_ptr<Node> rootNode);
     private:
-        std::unique_ptr<BehaviourTreeNode> root;
+        bool firstFrame = true;
+        std::shared_ptr<Node> root;
     };
 }

@@ -3,12 +3,13 @@
 
 namespace Saga::BehaviourTreeNodes {
 
-    Decorator& Decorator::setChild(std::shared_ptr<BehaviourTreeNode> child) {
+    std::shared_ptr<BehaviourTree::Node> Decorator::setChild(std::shared_ptr<Node> child) {
         this->child = child;
+        return child;
     }
 
     // INVERSE
-    BehaviourTree::Status Inverse::update(float seconds, BehaviourTree::Blackboard& blackboard, bool updatedLastFrame) {
+    BehaviourTree::Status Inverse::update(float seconds, Blackboard& blackboard, bool updatedLastFrame) {
         if (child) {
             BehaviourTree::Status childRunStatus = child->update(seconds, blackboard, updatedLastFrame);
 
@@ -30,7 +31,7 @@ namespace Saga::BehaviourTreeNodes {
     RepeatMultipleTimes::RepeatMultipleTimes(int maxCount) : maxCount(maxCount), repeatCount(0) {}
     RepeatMultipleTimes::RepeatMultipleTimes(const RepeatMultipleTimes &other) : maxCount(other.maxCount), repeatCount(other.repeatCount) {}
 
-    BehaviourTree::Status RepeatMultipleTimes::update(float seconds, BehaviourTree::Blackboard &blackboard, bool updatedLastFrame) {
+    BehaviourTree::Status RepeatMultipleTimes::update(float seconds, Blackboard &blackboard, bool updatedLastFrame) {
         if (!updatedLastFrame) repeatCount = 0;
 
         if (repeatCount < maxCount) {
@@ -48,20 +49,20 @@ namespace Saga::BehaviourTreeNodes {
     }
 
     // SUCCEEDER
-    BehaviourTree::Status Succeeder::update(float seconds, BehaviourTree::Blackboard& blackboard, bool updatedLastFrame) {
+    BehaviourTree::Status Succeeder::update(float seconds, Blackboard& blackboard, bool updatedLastFrame) {
         if (child) child->update(seconds, blackboard, updatedLastFrame);
         return BehaviourTree::SUCCESS;
     }
 
     // REPEATER 
-    BehaviourTree::Status Repeat::update(float seconds, BehaviourTree::Blackboard& blackboard, bool updatedLastFrame) {
+    BehaviourTree::Status Repeat::update(float seconds, Blackboard& blackboard, bool updatedLastFrame) {
         if (child)
             child->update(seconds, blackboard, updatedLastFrame);
         return BehaviourTree::RUNNING;
     }
 
     // REPEAT UNTIL FAIL
-    BehaviourTree::Status RepeatUntilFail::update(float seconds, BehaviourTree::Blackboard& blackboard, bool updatedLastFrame) {
+    BehaviourTree::Status RepeatUntilFail::update(float seconds, Blackboard& blackboard, bool updatedLastFrame) {
         if (child && child->update(seconds, blackboard, updatedLastFrame) == BehaviourTree::FAIL)
             return BehaviourTree::FAIL;
         return BehaviourTree::RUNNING;

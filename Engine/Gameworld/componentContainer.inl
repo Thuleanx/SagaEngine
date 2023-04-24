@@ -39,6 +39,12 @@ Component* ComponentContainer<Component>::emplace(const Entity entity, Args &&..
 }
 
 template <typename Component>
+std::optional<Component*> ComponentContainer<Component>::any() {
+    if (begin() == end()) return {};
+    return &*begin();
+}
+
+template <typename Component>
 Component* ComponentContainer<Component>::getComponent(const Entity entity) {
 	if (!componentMap.count(entity)) return nullptr;
 	int index = componentMap[entity];

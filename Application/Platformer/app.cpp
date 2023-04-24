@@ -1,12 +1,20 @@
 #include "app.h"
+#include "Application/Platformer/Behaviours/computePathTowards.h"
+#include "Application/Platformer/Behaviours/loadPlayerPosition.h"
+#include "Application/Platformer/Behaviours/walkPath.h"
 #include "Application/Platformer/Components/friendController.h"
 #include "Application/Platformer/Components/simpleTestAI.h"
 #include "Application/Platformer/Systems/friendControllerSystem.h"
 #include "Application/Platformer/Systems/simpleTestAISystem.h"
+#include "Engine/Components/BehaviourTree/behaviourtree.h"
+#include "Engine/Components/BehaviourTree/blackboard.h"
+#include "Engine/Components/BehaviourTree/compositenodes.h"
+#include "Engine/Components/BehaviourTree/tasknodes.h"
 #include "Engine/Components/collider.h"
 #include "Engine/Components/navigation/navMeshData.h"
 #include "Engine/Constants/colorthemes.h"
 #include "Engine/Entity/entity.h"
+#include "Engine/Systems/aiSystem.h"
 #include "Systems/playerControllerSystem.h"
 #include "../General/Systems/playerInputSystem.h"
 #include "../General/Systems/thirdPersonCameraSystem.h"
@@ -152,6 +160,7 @@ namespace Platformer {
 	void App::setupSystems() {
 		Saga::Systems::registerDrawSystem(mainWorld);
 		Saga::Systems::registerCollisionSystem(mainWorld);
+        Saga::Systems::registerAISystems(mainWorld);
 		Platformer::Systems::registerPlayerControllerSystem(mainWorld);
         Platformer::Systems::registerSimpleTestAISystem(mainWorld);
 		Platformer::Systems::registerFriendControllerSystem(mainWorld);
@@ -188,12 +197,24 @@ namespace Platformer {
 
 			mainWorld->emplace<Saga::Material>(fr, Saga::Theme_Nostalgic::colors[1]);
 			mainWorld->emplace<Saga::Mesh>(fr, Saga::Mesh::StandardType::Sphere);
-            mainWorld->emplace<SimpleTestAI>(fr, SimpleTestAI{
-                .movementSpeed = 2.0f
-            });
 
 			Saga::Transform* transform = mainWorld->emplace<Saga::Transform>(fr);
 			transform->transform->setPos(pos + glm::vec3(0,0.5f,0));
+
+            Saga::BehaviourTree* behaviourTree = mainWorld->emplace<Saga::BehaviourTree>(fr);
+            behaviourTree
+                ->makeRoot<Saga::BehaviourTreeNodes::SequenceNode>()
+                ->makeChild<Platformer::LoadPlayerPosition>("player_position")
+                ->makeChild<Platformer::ComputePathTowards>("player_position", "path")
+                ->makeChild<Platformer::WalkPath>("path", "movement_speed")
+                ->makeChild<Saga::BehaviourTreeNodes::Wait>(4);
+
+            Saga::Blackboard* blackboard = mainWorld->emplace<Saga::Blackboard>(fr);
+
+            blackboard->put("movement_speed", 2.0f);
+            blackboard->entity = fr;
+            blackboard->world = mainWorld;
+
 			return fr;
         };
 

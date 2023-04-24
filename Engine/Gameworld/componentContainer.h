@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <vector>
 #include <unordered_map>
 #include <memory>
@@ -60,7 +61,12 @@ public:
 	typename std::vector<Component>::iterator end();
     typename std::vector<Component>::const_iterator begin() const;
     typename std::vector<Component>::const_iterator end() const;
+
+    /**
+     * @brief Retrieve the size of the container.
+     */
     std::size_t size() const { return std::distance(begin(), end()); }
+
 
 	/**
 	 * @brief Get a pointer to a Component attached to an entity.
@@ -69,6 +75,14 @@ public:
 	 * @return Component* the Component attached to the entity. nullptr if none exists.
 	 */
 	Component* getComponent(const Entity entity);
+
+    /**
+     * @brief Return any component in the container.
+     * 
+     * @return Component* a pointer to said component if possible.
+     * @return nothing if this container is empty.
+     */
+    std::optional<Component*> any();
 
 	/**
 	 * @brief Determine if an entity has this type of Component attached.

@@ -1,23 +1,23 @@
 #include "compositenodes.h"
+#include "Engine/_Core/logger.h"
 
 namespace Saga::BehaviourTreeNodes {
 
-    CompositeNode& CompositeNode::addChild(
-            std::shared_ptr<BehaviourTreeNode> child) {
+    std::shared_ptr<CompositeNode> CompositeNode::addChild(std::shared_ptr<Node> child) {
         children.push_back(child);
-        return *this;
+        return shared_from_this();
     }
 
     void CompositeNode::reset() { lastRunningChild = {}; }
 
     BehaviourTree::Status
     SelectorNode::update(float seconds,
-            BehaviourTree::Blackboard &blackboard,
+            Blackboard &blackboard,
             bool updatedLastFrame) {
         if (!updatedLastFrame) reset();
 
         for (int i = 0; i < children.size(); i++) {
-            std::shared_ptr<BehaviourTreeNode> child = children[i];
+            std::shared_ptr<Node> child = children[i];
 
             bool updatedChildLastFrame = lastRunningChild && lastRunningChild.value() == i;
             BehaviourTree::Status result = child->update(
@@ -37,20 +37,34 @@ namespace Saga::BehaviourTreeNodes {
 
     BehaviourTree::Status
     SequenceNode::update(float seconds,
-            BehaviourTree::Blackboard &blackboard,
+            Blackboard &blackboard,
             bool updatedLastFrame) {
-        if (!updatedLastFrame) reset();
-        if (lastRunningChild && (lastRunningChild.value() < 0 || lastRunningChild.value() >= children.size()))
+
+        if (!updatedLastFrame) {
             reset();
+            ranChildLastFrame = false;
+        }
+
+        if (lastRunningChild && (lastRunningChild.value() < 0 || lastRunningChild.value() >= children.size())) {
+            reset();
+            ranChildLastFrame = false;
+        }
 
         if (!lastRunningChild) lastRunningChild = 0;
 
-        BehaviourTree::Status result = children[lastRunningChild.value()]->update(seconds, blackboard, updatedLastFrame);
+        BehaviourTree::Status result = children[lastRunningChild.value()]->update(seconds, blackboard, ranChildLastFrame);
+        STRACE("Running: %d", lastRunningChild);
+        ranChildLastFrame = true;
 
-        if (result == BehaviourTree::SUCCESS && ++lastRunningChild.value() < children.size())
+        if (result == BehaviourTree::SUCCESS && ++lastRunningChild.value() < children.size()) {
+            ranChildLastFrame = false;
+            return BehaviourTree::RUNNING;
+        }
+        else if (result == BehaviourTree::RUNNING)
             return BehaviourTree::RUNNING;
 
         reset();
+        ranChildLastFrame = false;
         return result;
     }
 
