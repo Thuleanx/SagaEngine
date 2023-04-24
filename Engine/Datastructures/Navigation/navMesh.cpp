@@ -258,6 +258,7 @@ NavMesh::WalkablePath NavMesh::tracePath(const Path &path) const {
 
     positions.push_back(apexPoint);
 
+    // trace through the center of each portal
     for (int i = 0; i < path.portals.size(); i++) {
         auto [left, right] = path.portals[i];
         positions.push_back((left + right) / 2.f);
