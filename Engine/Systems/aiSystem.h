@@ -14,7 +14,7 @@ namespace Saga::Systems {
      * @ingroup system
      * @param world
      */
-    void registerAISystems(std::shared_ptr<GameWorld> world);
+    void registerAISystems(std::shared_ptr<GameWorld> world );
 
     /**
      * @brief Updates AI systems in the world. This includes updating 

@@ -127,6 +127,7 @@ std::optional<NavMesh::Path> NavMesh::findPath(glm::vec3 src, glm::vec3 dest, fl
     // src and dest are no longer useful here
     int n = edges.size();
 
+    // TODO: maybe we can allocate this beforehand in the datastructure, and reuse 
     float sourceDistance[n]; 
     float heuristicToDest[n]; 
     int previousEdgeIndex[n];
@@ -303,7 +304,7 @@ NavMesh::WalkablePath NavMesh::tracePath(const Path &path) const {
 // UTILITY FUNCTIONS
 
 std::optional<glm::vec3> NavMesh::getRandomPosition() const {
-    if (!faces.size()) return {};
+    if (!initialized || !faces.size()) return {};
 
     std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
     int faceIndex = std::uniform_int_distribution<int>(0, faces.size()-1)(rng);

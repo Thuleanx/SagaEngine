@@ -9,9 +9,9 @@ namespace Saga::BehaviourTreeNodes {
     }
 
     // INVERSE
-    BehaviourTree::Status Inverse::update(float seconds, Blackboard& blackboard, bool updatedLastFrame) {
+    BehaviourTree::Status Inverse::update(Blackboard& blackboard, bool updatedLastFrame) {
         if (child) {
-            BehaviourTree::Status childRunStatus = child->update(seconds, blackboard, updatedLastFrame);
+            BehaviourTree::Status childRunStatus = child->update(blackboard, updatedLastFrame);
 
             switch (childRunStatus) {
                 case BehaviourTree::RUNNING:
@@ -27,21 +27,22 @@ namespace Saga::BehaviourTreeNodes {
     }
 
     // LIMITER
-    RepeatMultipleTimes::RepeatMultipleTimes() : maxCount(0), repeatCount(0) {}
-    RepeatMultipleTimes::RepeatMultipleTimes(int maxCount) : maxCount(maxCount), repeatCount(0) {}
-    RepeatMultipleTimes::RepeatMultipleTimes(const RepeatMultipleTimes &other) : maxCount(other.maxCount), repeatCount(other.repeatCount) {}
+    RepeatMultipleTimes::RepeatMultipleTimes(int maxCount) : runCount(maxCount), repeatCount(0) {}
+    RepeatMultipleTimes::RepeatMultipleTimes(const RepeatMultipleTimes &other) : runCount(other.runCount), repeatCount(other.repeatCount) {}
 
-    BehaviourTree::Status RepeatMultipleTimes::update(float seconds, Blackboard &blackboard, bool updatedLastFrame) {
+    BehaviourTree::Status RepeatMultipleTimes::update(Blackboard &blackboard, bool updatedLastFrame) {
         if (!updatedLastFrame) repeatCount = 0;
 
-        if (repeatCount < maxCount) {
-            BehaviourTree::Status status = child->update(seconds, blackboard, updatedLastFrame);
+        if (!child) return BehaviourTree::FAIL;
+
+        if (repeatCount < runCount) {
+            BehaviourTree::Status status = child->update(blackboard, updatedLastFrame);
             if (status == BehaviourTree::FAIL)
                 return BehaviourTree::FAIL;
             repeatCount += status == BehaviourTree::SUCCESS;
         }
 
-        if (repeatCount == maxCount) {
+        if (repeatCount == runCount) {
             repeatCount = 0;
             return BehaviourTree::SUCCESS;
         }
@@ -49,21 +50,21 @@ namespace Saga::BehaviourTreeNodes {
     }
 
     // SUCCEEDER
-    BehaviourTree::Status Succeeder::update(float seconds, Blackboard& blackboard, bool updatedLastFrame) {
-        if (child) child->update(seconds, blackboard, updatedLastFrame);
+    BehaviourTree::Status Succeeder::update(Blackboard& blackboard, bool updatedLastFrame) {
+        if (child) child->update(blackboard, updatedLastFrame);
         return BehaviourTree::SUCCESS;
     }
 
     // REPEATER 
-    BehaviourTree::Status Repeat::update(float seconds, Blackboard& blackboard, bool updatedLastFrame) {
+    BehaviourTree::Status Repeat::update(Blackboard& blackboard, bool updatedLastFrame) {
         if (child)
-            child->update(seconds, blackboard, updatedLastFrame);
+            child->update(blackboard, updatedLastFrame);
         return BehaviourTree::RUNNING;
     }
 
     // REPEAT UNTIL FAIL
-    BehaviourTree::Status RepeatUntilFail::update(float seconds, Blackboard& blackboard, bool updatedLastFrame) {
-        if (child && child->update(seconds, blackboard, updatedLastFrame) == BehaviourTree::FAIL)
+    BehaviourTree::Status RepeatUntilFail::update(Blackboard& blackboard, bool updatedLastFrame) {
+        if (child && child->update(blackboard, updatedLastFrame) == BehaviourTree::FAIL)
             return BehaviourTree::FAIL;
         return BehaviourTree::RUNNING;
     }

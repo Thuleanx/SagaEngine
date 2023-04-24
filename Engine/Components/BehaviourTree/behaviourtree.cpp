@@ -3,9 +3,9 @@
 
 namespace Saga {
 
-    void BehaviourTree::update(float deltaTime, Blackboard& blackboard) {
+    void BehaviourTree::update(Blackboard& blackboard) {
         if (root) {
-            root->update(deltaTime, blackboard, !firstFrame);
+            root->update(blackboard, !firstFrame);
             firstFrame = false;
         }
     }

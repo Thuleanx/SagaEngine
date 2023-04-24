@@ -13,9 +13,11 @@ void registerAISystems(std::shared_ptr<GameWorld> world) {
 
 void AIupdateSystem(std::shared_ptr<GameWorld> world, float deltaTime, float time) {
     for (auto [entity, behaviourTree, blackboard] : *world->viewGroup<Saga::BehaviourTree, Saga::Blackboard>()) {
-        blackboard->put("time", time);
-        blackboard->put("deltaTime", deltaTime);
-        behaviourTree->update(deltaTime, *blackboard);
+        blackboard->entity = entity;
+        blackboard->world = world;
+        blackboard->time = time;
+        blackboard->deltaTime = deltaTime;
+        behaviourTree->update(*blackboard);
     }
 }
 

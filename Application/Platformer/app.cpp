@@ -212,8 +212,6 @@ namespace Platformer {
             Saga::Blackboard* blackboard = mainWorld->emplace<Saga::Blackboard>(fr);
 
             blackboard->put("movement_speed", 2.0f);
-            blackboard->entity = fr;
-            blackboard->world = mainWorld;
 
 			return fr;
         };

@@ -5,7 +5,7 @@ It is written from scratch, with the exception of a stencil graphics library, an
 OpenGL and a custom Entity Component System.
 Here are the main selling points of the engine:
 - __Simple__: [Component](#component) can be any struct or class, [Systems](#systems) are any function that accepts a [GameWorld](#Saga::GameWorld), 
-and [Entity](Saga::entity_type ) is an integer.
+and [Entity](#Saga::entity_type) is an integer.
 - __Fast__: Continuous collision detection runs at 60 fps even with a scene with 130000+ triangles on its mesh colliders.
 All dynamic colliders are modelled as axis-aligned ellipsoids, which means fast continuous collision detection.
 - __Quality of life integrations__: With FMOD Audio Engine for adaptive 3D sound, and imgui for editor GUI.
