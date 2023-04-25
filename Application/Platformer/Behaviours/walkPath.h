@@ -7,7 +7,7 @@ namespace Platformer {
         public:
             WalkPath(const std::string& pathKey, const std::string& speedKey);
 
-            virtual Saga::BehaviourTree::Status update(float seconds, Saga::Blackboard& blackboard, bool executedLastFrame) override;
+            virtual Saga::BehaviourTree::Status update(Saga::Blackboard& blackboard, bool executedLastFrame) override;
         private:
             const std::string pathKey;
             const std::string speedKey;

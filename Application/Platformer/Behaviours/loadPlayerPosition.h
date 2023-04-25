@@ -8,7 +8,7 @@ namespace Platformer {
     public:
         LoadPlayerPosition(const std::string &key);
 
-        virtual Saga::BehaviourTree::Status update(float seconds, Saga::Blackboard& blackboard, bool executedLastFrame) override;
+        virtual Saga::BehaviourTree::Status update(Saga::Blackboard& blackboard, bool executedLastFrame) override;
     private:
         const std::string key;
     };

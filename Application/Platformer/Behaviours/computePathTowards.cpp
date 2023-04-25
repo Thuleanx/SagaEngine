@@ -9,7 +9,7 @@
 namespace Platformer {
     ComputePathTowards::ComputePathTowards(const std::string &targetKey, const std::string &pathKey) : targetKey(targetKey), pathKey(pathKey) { }
     
-    Saga::BehaviourTree::Status ComputePathTowards::update(float seconds, Saga::Blackboard& blackboard, bool executedLastFrame) {
+    Saga::BehaviourTree::Status ComputePathTowards::update(Saga::Blackboard& blackboard, bool executedLastFrame) {
         auto world = blackboard.world;
 
         auto toPos = blackboard.get<glm::vec3>(targetKey);

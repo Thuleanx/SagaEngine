@@ -8,7 +8,7 @@ namespace Platformer {
     WalkPath::WalkPath(const std::string& pathKey,
             const std::string& speedKey) : pathKey(pathKey), speedKey(speedKey) {}
 
-    Saga::BehaviourTree::Status WalkPath::update(float seconds, Saga::Blackboard& blackboard, bool executedLastFrame) {
+    Saga::BehaviourTree::Status WalkPath::update(Saga::Blackboard& blackboard, bool executedLastFrame) {
         if (!blackboard.world) return Saga::BehaviourTree::FAIL;
 
         std::optional<Saga::NavMesh::WalkablePath> path = blackboard.get<Saga::NavMesh::WalkablePath>(pathKey);
@@ -35,7 +35,7 @@ namespace Platformer {
         float len = glm::length(dir);
         if (len) dir /= len;
 
-        float walkAmt = std::clamp(seconds * movementSpeed.value(), 0.0f, len);
+        float walkAmt = std::clamp(blackboard.deltaTime * movementSpeed.value(), 0.0f, len);
 
         glm::vec3 nxtPos = curPos + dir * walkAmt;
         transform->transform->setPos(nxtPos);

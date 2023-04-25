@@ -9,7 +9,7 @@
 namespace Platformer {
     LoadPlayerPosition::LoadPlayerPosition(const std::string& key) : key(key) { }
 
-    Saga::BehaviourTree::Status LoadPlayerPosition::update(float seconds, Saga::Blackboard& blackboard, bool executedLastFrame) {
+    Saga::BehaviourTree::Status LoadPlayerPosition::update(Saga::Blackboard& blackboard, bool executedLastFrame) {
         if (!blackboard.world) return Saga::BehaviourTree::FAIL;
 
         auto playerController = blackboard.world->viewAll<PlayerController>()->any();
