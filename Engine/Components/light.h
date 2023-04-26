@@ -1,7 +1,11 @@
 #pragma once
 
-#include "Graphics/light.h"
 #include <memory>
+#include <glm/vec3.hpp>
+
+namespace GraphicsEngine {
+    class Light;
+}
 
 namespace Saga {
 
@@ -19,14 +23,34 @@ struct Light {
 	 */
 	Light();
 
-	/**
-	 * @brief Construct a new Light object of a certain type.
-	 * 
-	 * @param type type of the light. Can be GraphicsEngine::LightType::Directional or GraphicsEngine::LightType::Point
-	 * @param lightData if the light is directional, this is the normalized direction vector. Otherwise, it is the position of the light.
-	 * @param lightColor color of the light, where (1,1,1) is white and (0,0,0) is black.
-	 */
-	Light(GraphicsEngine::LightType type, glm::vec3 lightData, glm::vec3 lightColor = glm::vec3(1));
+    /**
+     * @brief Consturct a new Directional Light object.
+     *
+     * @param direction the direction of the light
+     * @param lightColor the rgb color of the light, in the range [0,1] for each component.
+     */
+    Light(glm::vec3 direction, glm::vec3 lightColor);
+
+    /**
+     * @brief Construct a new Point Light object.
+     *
+     * @param position
+     * @param attenuationFunction here, the falloff is defined as 1 / (atten[0] + atten[1] * d + atten[2]*d) where d is distance
+     * to the light.
+     * @param lightColor the rgb color of the light, in the range [0,1] for each component.
+     */
+    Light(glm::vec3 position, glm::vec3 attenuationFunction, glm::vec3 lightColor);
+
+    /**
+     * @brief Construct a new Spot Light object.
+     *
+     * @param position
+     * @param direction
+     * @param innerAngle the inner angle of the spot light, in radians.
+     * @param outerAngle the outer angle of the spot light, in radians. Must be at least inner angle
+     * @param lightColor the rgb color of the light, in the range [0,1] for each component.
+     */
+    Light(glm::vec3 position, glm::vec3 direction, glm::vec3 attenuationFunction, float innerAngle, float outerAngle, glm::vec3 lightColor = glm::vec3(1));
 };
 
 }

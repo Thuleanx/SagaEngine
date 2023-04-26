@@ -22,6 +22,7 @@ uniform vec3 coeffs; // vec3(ka, kd, ks)
 uniform int lightType[16]; // 0 = point light, 1 = directional light
 uniform vec3 lightColor[16];
 uniform vec3 lightFunction[16]; // Attenuation coefficients
+uniform vec2 lightAngle[16];
 uniform vec3 worldSpace_lightPos[16]; //Light Positions
 uniform vec3 worldSpace_lightDir[16]; //Light Directions
 uniform int numLights; // Max number of lights = 8
@@ -31,6 +32,7 @@ out vec4 fragColor;
 vec3 getToLight(int lightIndex) {
     int LIGHT_POINT = 0;
     int LIGHT_DIRECTIONAL = 1;
+    int LIGHT_SPOT = 2;
 
     if (lightType[lightIndex] == LIGHT_POINT) {
         return normalize(worldSpace_lightPos[lightIndex] - worldSpace_pos);
@@ -38,14 +40,22 @@ vec3 getToLight(int lightIndex) {
     else if (lightType[lightIndex] == LIGHT_DIRECTIONAL) {
         return normalize(-worldSpace_lightDir[lightIndex]);
     }
+    else if (lightType[lightIndex] == LIGHT_SPOT) {
+        return normalize(worldSpace_lightPos[lightIndex] - worldSpace_pos);
+    }
 
     return vec3(0);
 }
 
+float saturate(float a) {
+	return clamp(a,0,1);
+}
+
 float attenuationFactor(int lightIndex) {
     int LIGHT_POINT = 0;
+    int LIGHT_SPOT = 2;
 
-    if (lightType[lightIndex] == LIGHT_POINT) {
+    if (lightType[lightIndex] == LIGHT_POINT || lightType[lightIndex] == LIGHT_SPOT) {
         vec3 coeffs = lightFunction[lightIndex];
         float d = length(worldSpace_lightPos[lightIndex] - worldSpace_pos);
         return 1.0 / (coeffs.x + coeffs.y * d + coeffs.z * d * d);
@@ -54,9 +64,32 @@ float attenuationFactor(int lightIndex) {
     return 1;
 }
 
+float falloff(int lightIndex) {
+    int LIGHT_SPOT = 2;
+
+    if (lightType[lightIndex] == LIGHT_SPOT) {
+        vec3 dirToLight = getToLight(lightIndex);
+        vec3 lightDir = normalize(worldSpace_lightDir[lightIndex]);
+
+        float angle = abs(acos(dot(-dirToLight, lightDir)));
+
+        float lightInnerAngle = lightAngle[lightIndex].x;
+        float lightOuterAngle = lightAngle[lightIndex].y;
+
+        float t = saturate((angle - lightInnerAngle) / (lightOuterAngle - lightInnerAngle));
+
+        float falloff = -2*t*t*t + 3*t*t;
+
+        return saturate(1-falloff); 
+    }
+
+    return 1;
+}
+
 float computeDiffuseIntensity(vec3 worldSpace_toLight) {
     // Dot product to get diffuse intensity
-    return max(dot(worldSpace_toLight, normalize(worldSpace_norm)), 0);
+    float diffMult = saturate(dot(normalize(worldSpace_norm), worldSpace_toLight));
+    return diffMult;
 }
 
 float computeSpecularIntensity(vec3 worldSpace_toLight, vec3 worldSpace_toEye) {
@@ -65,11 +98,17 @@ float computeSpecularIntensity(vec3 worldSpace_toLight, vec3 worldSpace_toEye) {
         return 0;
     }
 
+    if (dot(worldSpace_toLight, worldSpace_norm) < 0) {
+        return 0;
+    }
+
     //reflect toLight
     vec3 worldSpace_toLightReflected = reflect(-worldSpace_toLight, normalize(worldSpace_norm));
 
+    float specMult = saturate(dot(worldSpace_toLightReflected, worldSpace_toEye));
+
     //Compute specular intensity using toEye, reflected light, and shininess
-    return pow(max(dot(worldSpace_toLightReflected, worldSpace_toEye), 0), shininess);
+    return pow(specMult, shininess);
 }
 
 void main() {
@@ -92,14 +131,14 @@ void main() {
         float diffuse_intensity = computeDiffuseIntensity(worldSpace_toLight);
         float specular_intensity = computeSpecularIntensity(worldSpace_toLight, worldSpace_toEye);
 
-        float att = attenuationFactor(i);
-
+        float att = attenuationFactor(i) * falloff(i);
 
         diff = diff + diffuse_intensity * lightColor[i] * att;
         spec = spec + specular_intensity * lightColor[i] * att;
     }
 
     // Apply global coefficients and object color to the diffuse and specular components
+
     diff = diff * vec3(coeffs.y);
     spec = spec * vec3(coeffs.z);
 

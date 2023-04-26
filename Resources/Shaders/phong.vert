@@ -14,8 +14,9 @@ out vec2 tex_coord;
 out vec3 vertColor;
 
 void main() {
-    worldSpace_pos = vec3(view*model*vec4(pos, 1.0));
+    worldSpace_pos = vec3(model*vec4(pos, 1.0));
     worldSpace_norm = vec3(transpose(inverse(model))*vec4(norm, 0.0));
+
     tex_coord = uv;
     vertColor = color;
 

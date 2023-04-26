@@ -1,20 +1,34 @@
 #include "light.h"
+#include "Engine/_Core/logger.h"
+#include "glm/gtx/string_cast.hpp"
 
+#include <iostream>
 using namespace GraphicsEngine;
 
-Light::Light(LightType type, glm::vec3 lightData, glm::vec3 lightColor):
-    m_lightType(type),
-    m_lightColor(lightColor),
-    m_lightFunction(glm::vec3(1))
-{
-    switch(type){
-        case LightType::POINT:
-            m_lightPos = lightData;
-            break;
-        case LightType::DIRECTIONAL:
-            m_lightDir = lightData;
-            break;
-    }
+
+Light::Light(glm::vec3 direction, glm::vec3 lightColor) :
+    m_lightType(DIRECTIONAL),
+    m_lightDir(direction), 
+    m_lightColor(lightColor) {}
+
+Light::Light(glm::vec3 position, glm::vec3 attenuationFunction, glm::vec3 lightColor) :
+    m_lightType(POINT),
+    m_lightPos(position),
+    m_lightFunction(attenuationFunction),
+    m_lightColor(lightColor) {}
+
+Light::Light(glm::vec3 position, glm::vec3 direction, glm::vec3 attenuationFunction, float innerAngle, float outerAngle, glm::vec3 lightColor) :
+    m_lightType(SPOT),
+    m_lightPos(position),
+    m_lightDir(direction), 
+    m_lightFunction(attenuationFunction), 
+    m_lightAngle(innerAngle, outerAngle),
+    m_lightColor(lightColor) {
+
+    SDEBUG(glm::to_string(m_lightPos).c_str());
+    SDEBUG(glm::to_string(m_lightDir).c_str());
+    SDEBUG(glm::to_string(m_lightFunction).c_str());
+    SDEBUG(glm::to_string(m_lightAngle).c_str());
 }
 
 Light::~Light(){
@@ -68,3 +82,9 @@ void Light::setType(LightType newType){
 LightType Light::getType(){
     return m_lightType;
 }
+
+void Light::setAngle(float innerAngle, float outerAngle) {
+    m_lightAngle = glm::vec2(innerAngle, outerAngle);
+}
+
+glm::vec2 Light::getAngle() { return m_lightAngle; }

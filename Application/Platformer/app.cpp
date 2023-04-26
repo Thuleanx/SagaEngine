@@ -80,8 +80,16 @@ namespace Platformer {
 
 		auto setupLights = [this]() {
 			Saga::Entity lightEnt = mainWorld->createEntity();
-			Saga::Light& light = *mainWorld->emplace<Saga::Light>(lightEnt, GraphicsEngine::LightType::DIRECTIONAL, glm::normalize(glm::vec3(-1, -1, 0)));
+			Saga::Light& light = *mainWorld->emplace<Saga::Light>(
+                lightEnt, // entity
+                glm::vec3(0,3,0), // light position
+                glm::vec3(0,-1,0), // light direction
+                glm::vec3(1,0,0), // attentuation function
+                0.2, 1, // angles
+                glm::vec3(1,0,0) // light color
+            );
 			Saga::Transform& transform = *mainWorld->emplace<Saga::Transform>(lightEnt);
+            transform.transform->setPos(glm::vec3(0,3,0));
 			return lightEnt;
 		};
 
@@ -139,9 +147,9 @@ namespace Platformer {
             Saga::Entity navMeshContainer = mainWorld->createEntity();
             auto navmesh = mainWorld->emplace<Saga::NavMeshData>(navMeshContainer);
             navmesh->buildFromFile("Resources/Meshes/environment3nav.obj");
-            mainWorld->emplace<Saga::Transform>(navMeshContainer)->transform->setPos(glm::vec3(0,0.1,0));
-            mainWorld->emplace<Saga::Mesh>(navMeshContainer, "Resources/Meshes/environment3nav.obj");
-            mainWorld->emplace<Saga::Material>(navMeshContainer, glm::vec3(0,0,0.5));
+            /* mainWorld->emplace<Saga::Transform>(navMeshContainer)->transform->setPos(glm::vec3(0,0.1,0)); */
+            /* mainWorld->emplace<Saga::Mesh>(navMeshContainer, "Resources/Meshes/environment3nav.obj"); */
+            /* mainWorld->emplace<Saga::Material>(navMeshContainer, glm::vec3(0,0,0.5)); */
         };
 
 		Saga::Entity plane = setupPlane();

@@ -6,12 +6,15 @@
 namespace GraphicsEngine {
 enum LightType {
     POINT,
-    DIRECTIONAL
+    DIRECTIONAL,
+    SPOT
 };
 
 class Light {
 public:
-    Light(LightType type, glm::vec3 lightData, glm::vec3 lightColor = glm::vec3(1));
+    Light(glm::vec3 direction, glm::vec3 lightColor);
+    Light(glm::vec3 position, glm::vec3 attenuationFunction, glm::vec3 lightColor);
+    Light(glm::vec3 position, glm::vec3 direction, glm::vec3 attenuationFunction, float innerAngle, float outerAngle, glm::vec3 lightColor);
     ~Light();
 
     // Functions for point lights
@@ -34,11 +37,16 @@ public:
     void setType(LightType newType);
     LightType getType();
 
+    // Utility function for the light angle
+    void setAngle(float innerAngle, float outerAngle);
+    glm::vec2 getAngle();
+
 private:
     LightType m_lightType;
     glm::vec3 m_lightPos;
     glm::vec3 m_lightDir;
     glm::vec3 m_lightColor;
     glm::vec3 m_lightFunction;
+    glm::vec2 m_lightAngle;
 };
 } // namespace GraphicsEngine

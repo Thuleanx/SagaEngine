@@ -1,4 +1,5 @@
 #include "shader.h"
+#include "glm/gtx/string_cast.hpp"
 
 using namespace GraphicsEngine;
 
@@ -66,11 +67,14 @@ void Shader::setLights(std::vector<std::shared_ptr<Light>> lights) {
 		std::vector<int> lightType;
 		std::vector<float> lightColor;
 		std::vector<float> lightFunction;
+        std::vector<float> lightAngle;
 		std::vector<float> worldSpace_lightPos;
 		std::vector<float> worldSpace_lightDir;
+
 		lightType.resize(numLights);
 		lightColor.resize(numLights * 3);
 		lightFunction.resize(numLights * 3);
+        lightAngle.resize(numLights*2);
 		worldSpace_lightPos.resize(numLights * 3);
 		worldSpace_lightDir.resize(numLights * 3);
 		for (int i = 0; i < numLights; i++) {
@@ -94,6 +98,28 @@ void Shader::setLights(std::vector<std::shared_ptr<Light>> lights) {
 				worldSpace_lightDir[i * 3 + 1] = lights[i]->getDir().y;
 				worldSpace_lightDir[i * 3 + 2] = lights[i]->getDir().z;
 				break;
+            case LightType::SPOT:
+                lightType[i] = 2;
+
+                SDEBUG(glm::to_string(lights[i]->getPos()).c_str());
+                SDEBUG(glm::to_string(lights[i]->getDir()).c_str());
+
+				worldSpace_lightPos[i * 3] = lights[i]->getPos().x;
+				worldSpace_lightPos[i * 3 + 1] = lights[i]->getPos().y;
+				worldSpace_lightPos[i * 3 + 2] = lights[i]->getPos().z;
+
+				worldSpace_lightDir[i * 3] = lights[i]->getDir().x;
+				worldSpace_lightDir[i * 3 + 1] = lights[i]->getDir().y;
+				worldSpace_lightDir[i * 3 + 2] = lights[i]->getDir().z;
+
+				lightFunction[i * 3] = lights[i]->getAttenuation().x;
+				lightFunction[i * 3 + 1] = lights[i]->getAttenuation().y;
+				lightFunction[i * 3 + 2] = lights[i]->getAttenuation().z;
+
+                lightAngle[i*2] = lights[i]->getAngle().x;
+                lightAngle[i*2+1] = lights[i]->getAngle().y;
+
+                break;
 			}
 		}
 		glUniform1i(glGetUniformLocation(m_handle, "numLights"), numLights);
@@ -104,6 +130,10 @@ void Shader::setLights(std::vector<std::shared_ptr<Light>> lights) {
 		Debug::checkGLError();
 		glUniform3fv(glGetUniformLocation(m_handle, "lightFunction"), numLights, lightFunction.data());
 		Debug::checkGLError();
+
+		glUniform2fv(glGetUniformLocation(m_handle, "lightAngle"), numLights, lightAngle.data());
+		Debug::checkGLError();
+
 		glUniform3fv(glGetUniformLocation(m_handle, "worldSpace_lightPos"), numLights, worldSpace_lightPos.data());
 		Debug::checkGLError();
 		// std::cout << worldSpace_lightDir[0] << std::endl;
