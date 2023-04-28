@@ -44,7 +44,21 @@ float shadow() {
     // depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
 
-    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+    float maxBias = 0.05, minBias = 0.005;
+    
+    float surfaceAlignment = dot(worldSpace_norm, -worldSpace_lightDir[0]);
+
+    float biasParam = 1.0 - max(surfaceAlignment, 0);
+
+    float bias = mix(minBias, maxBias, biasParam);
+
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+    if (projCoords.z > 1.0)
+        shadow = 0.0;
+
+    // if surface is vertical
+    if (abs(surfaceAlignment) < 0.0001)
+        shadow = 1.0;
 
     return shadow;
 }

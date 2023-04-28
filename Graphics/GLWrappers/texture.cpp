@@ -1,5 +1,6 @@
 #include "texture.h"
 #include "Engine/_Core/logger.h"
+#include "glm/gtc/type_ptr.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -75,6 +76,12 @@ void Texture::unbind() {
 void Texture::unbind(GLenum texUnit) {
     glActiveTexture(texUnit);
     glBindTexture(m_texTarget, 0);
+}
+
+void Texture::setBorderColor(glm::vec4 color) {
+    bind();
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(color)); 
+    unbind();
 }
 
 GLuint Texture::getHandle() {

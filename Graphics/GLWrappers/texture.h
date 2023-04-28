@@ -24,6 +24,7 @@ public:
     void bind(GLenum texUnit);
     void unbind();
     void unbind(GLenum texUnit);
+    void setBorderColor(glm::vec4 color);
     GLuint getHandle();
     GLuint getTexUnitUint();
     GLenum getTexUnitEnum();

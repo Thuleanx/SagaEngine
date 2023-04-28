@@ -15,36 +15,44 @@
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/quaternion_geometric.hpp"
 #include "glm/gtx/string_cast.hpp"
+#include "imgui.h"
 #include <cmath>
 #include <iostream>
 
 namespace Saga::Systems {
 
 namespace {
+const int SHADOW_WIDTH = 1024;
+const int SHADOW_HEIGHT = 1024;
+
+float near_plane = 1.0f, far_plane = 7.5f;
+float mappedArea = 10.0f;
+
 void shadowMapSetup(std::shared_ptr<GameWorld> world) {
     using namespace GraphicsEngine::Global;
 
     SINFO("Attempt to create framebuffer");
-    graphics.addFramebuffer("shadowMap", 512, 512);
+    graphics.addFramebuffer("shadowMap", SHADOW_WIDTH, SHADOW_HEIGHT);
 
     auto drawSystemData = world->emplace<DrawSystemData>(world->getMasterEntity());
 
     SINFO("Created frame buffer for shadow mapping");
     auto shadowMapFBO = graphics.getFramebuffer("shadowMap");
-    drawSystemData->shadowMap = shadowMapFBO->createAndAttachDepthTexture(GL_TEXTURE2, GL_NEAREST, GL_REPEAT);
+    drawSystemData->shadowMap = shadowMapFBO->createAndAttachDepthTexture(GL_TEXTURE2, GL_NEAREST, GL_CLAMP_TO_BORDER);
+    drawSystemData->shadowMap->setBorderColor(glm::vec4(1.0f,1.0f,1.0f,1.0f));
     SINFO("Created depth texture for shadow mapping");
     shadowMapFBO->disableColorDraw();
     shadowMapFBO->verifyStatus();
     SINFO("Shadow map framebuffer setup successful");
 
 
-    graphics.addShader("shadowMapShader", { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, 
-            {"Resources/Shaders/shadow/shadowMap.vert", "Resources/Shaders/shadow/shadowMap.frag"});
+    graphics.addShader("shadowMapShader", { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER},
+    {"Resources/Shaders/shadow/shadowMap.vert", "Resources/Shaders/shadow/shadowMap.frag"});
 
     SINFO("Shadow map shader setup successful");
 
     graphics.addShader("shadowTestShader", {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER},
-            {"Resources/Shaders/shadow/shadowMapTest.vert", "Resources/Shaders/shadow/shadowMapTest.frag"});
+    {"Resources/Shaders/shadow/shadowMapTest.vert", "Resources/Shaders/shadow/shadowMapTest.frag"});
 
     SINFO("Shadow test shader setup successful");
 }
@@ -68,6 +76,12 @@ void drawSystem_OnSetup(std::shared_ptr<GameWorld> world) {
 }
 
 void drawSystem(std::shared_ptr<Saga::GameWorld> world) {
+    ImGui::Begin("Shadow Map");
+        ImGui::SliderFloat("near_plane", &near_plane, 0.01f, 1.0f);
+        ImGui::SliderFloat("far_plane", &far_plane, 5.0f, 50.0f);
+        ImGui::SliderFloat("mappedArea", &mappedArea, 1.0f, 20.0f);
+    ImGui::End();
+
     for (Saga::Camera& camera : *world->viewAll<Camera>()) {
         // shadow pass for shadow mappping
         glm::mat4 lightSpaceMatrix;
@@ -78,14 +92,15 @@ shadowPass: {
                 glViewport(0, 0, camera.camera->getWidth(), camera.camera->getHeight());
                 SASSERT_MESSAGE(mainLight.value()->light->getType() == GraphicsEngine::LightType::DIRECTIONAL, "Currently, we only support shadowmapping for directional light. Ensure that the first light added to the scene is directional.");
 
-                glViewport(0, 0, 512, 512);
+                glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
                 graphics.getFramebuffer("shadowMap")->bind();
                 graphics.clearScreen(GL_DEPTH_BUFFER_BIT);
 
-                float near_plane = 1.0f, far_plane = 7.5f;
-                glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+                glm::mat4 lightProjection = glm::ortho(
+                                                -mappedArea, mappedArea,
+                                                -mappedArea, mappedArea, near_plane, far_plane);
 
-                glm::vec3 cameraFocusPoition = glm::vec3(0,0,0);
+                glm::vec3 cameraFocusPoition = camera.camera->getPos() + camera.camera->getLook() * 2.0f;
 
                 glm::vec3 focusPosition = cameraFocusPoition;
                 glm::vec3 lightDir = glm::normalize(mainLight.value()->light->getDir());
@@ -98,6 +113,7 @@ shadowPass: {
 
                 glm::mat4 lightView = glm::lookAt(lightPos, focusPosition, up);
                 lightSpaceMatrix = lightProjection * lightView;
+
 
                 graphics.bindShader("shadowMapShader");
                 graphics.getActiveShader()->setMat4("lightSpaceMatrix", lightSpaceMatrix);
