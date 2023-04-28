@@ -39,26 +39,40 @@ float shadow() {
     vec3 projCoords = lightSpace_pos.xyz / lightSpace_pos.w; // homogenize this position. Now the coordinates are in the range (-1, 1)
     projCoords = projCoords * 0.5 + 0.5;
 
-    // depth of object closest to the light
-    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+
+    float surfaceAlignment = dot(worldSpace_norm, -worldSpace_lightDir[0]);
+    float biasParam = 1.0 - max(surfaceAlignment, 0);
+    float maxBias = 0.05, minBias = 0.005;
+    float bias = mix(maxBias, minBias, biasParam);
+
+
     // depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
 
-    float maxBias = 0.05, minBias = 0.005;
-    
-    float surfaceAlignment = dot(worldSpace_norm, -worldSpace_lightDir[0]);
+    const int dist = 4;
+    const int totalSamples = (2*dist+1) / (2*dist+1);
 
-    float biasParam = 1.0 - max(surfaceAlignment, 0);
+#pragma optionNV (unroll all)
+    for (int x = -dist; x <= dist; x++) {
+#pragma optionNV (unroll all)
+        for (int y = -dist; y <= dist; y++) {
+            // depth of object closest to the light
+            float closestDepth = texture(shadowMap, projCoords.xy + vec2(x,y) * texelSize).r;
 
-    float bias = mix(minBias, maxBias, biasParam);
+            shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
+        }
+    }
 
-    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+    shadow = shadow / totalSamples;
+
     if (projCoords.z > 1.0)
         shadow = 0.0;
 
-    // if surface is vertical
-    if (abs(surfaceAlignment) < 0.0001)
-        shadow = 1.0;
+    /* // if surface is vertical */
+    /* if (abs(surfaceAlignment) < 0.0001) */
+    /*     shadow = 1.0; */
 
     return shadow;
 }

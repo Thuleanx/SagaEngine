@@ -82,7 +82,7 @@ namespace Platformer {
 			Saga::Entity lightEnt = mainWorld->createEntity();
 			Saga::Light& light = *mainWorld->emplace<Saga::Light>(
                 lightEnt, // entity
-                glm::vec3(0,-1,0), // light direction
+                glm::vec3(-1,-1,0), // light direction
                 glm::vec3(0.5, 0.5, 1) // light color
             );
 			Saga::Transform& transform = *mainWorld->emplace<Saga::Transform>(lightEnt);
@@ -152,7 +152,7 @@ namespace Platformer {
 		Saga::Entity light = setupLights();
 		Saga::Entity player = setupPlayer();
 		Saga::Entity camera = setupCamera(player);
-		Saga::Entity backingTrack = setupBackingTrack();
+		/* Saga::Entity backingTrack = setupBackingTrack(); */
 
         int friendCnt = 0;
         while (friendCnt --> 0) 

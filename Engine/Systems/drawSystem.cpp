@@ -27,6 +27,7 @@ const int SHADOW_HEIGHT = 1024;
 
 float near_plane = 1.0f, far_plane = 7.5f;
 float mappedArea = 10.0f;
+float distance_to_camera = 5.0f;
 
 void shadowMapSetup(std::shared_ptr<GameWorld> world) {
     using namespace GraphicsEngine::Global;
@@ -80,12 +81,15 @@ void drawSystem(std::shared_ptr<Saga::GameWorld> world) {
         ImGui::SliderFloat("near_plane", &near_plane, 0.01f, 1.0f);
         ImGui::SliderFloat("far_plane", &far_plane, 5.0f, 50.0f);
         ImGui::SliderFloat("mappedArea", &mappedArea, 1.0f, 20.0f);
+        ImGui::SliderFloat("distance_to_camera", &distance_to_camera, 1.0f, 20.0f);
     ImGui::End();
 
     for (Saga::Camera& camera : *world->viewAll<Camera>()) {
         // shadow pass for shadow mappping
         glm::mat4 lightSpaceMatrix;
 shadowPass: {
+            glDisable(GL_CULL_FACE);
+
             using namespace GraphicsEngine::Global;
             std::optional<Light*> mainLight = world->viewAll<Light>()->any();
             if (mainLight) {
@@ -100,11 +104,11 @@ shadowPass: {
                                                 -mappedArea, mappedArea,
                                                 -mappedArea, mappedArea, near_plane, far_plane);
 
-                glm::vec3 cameraFocusPoition = camera.camera->getPos() + camera.camera->getLook() * 2.0f;
+                glm::vec3 cameraFocusPosition = camera.camera->getPos() + camera.camera->getLook();
 
-                glm::vec3 focusPosition = cameraFocusPoition;
+                glm::vec3 focusPosition = cameraFocusPosition;
                 glm::vec3 lightDir = glm::normalize(mainLight.value()->light->getDir());
-                glm::vec3 lightPos = focusPosition - lightDir * 5.0f;
+                glm::vec3 lightPos = focusPosition - lightDir * distance_to_camera;
 
                 glm::vec3 up = glm::vec3(0,1,0);
                 // might cause discontinueties
@@ -124,6 +128,7 @@ shadowPass: {
                     mesh->mesh->draw();
                 }
             }
+            glEnable(GL_CULL_FACE);
         }
 
 renderingPass: {
