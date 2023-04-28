@@ -13,7 +13,9 @@
 #include "Graphics/light.h"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/quaternion_geometric.hpp"
 #include "glm/gtx/string_cast.hpp"
+#include <cmath>
 #include <iostream>
 
 namespace Saga::Systems {
@@ -68,10 +70,12 @@ void drawSystem_OnSetup(std::shared_ptr<GameWorld> world) {
 void drawSystem(std::shared_ptr<Saga::GameWorld> world) {
     for (Saga::Camera& camera : *world->viewAll<Camera>()) {
         // shadow pass for shadow mappping
+        glm::mat4 lightSpaceMatrix;
 shadowPass: {
             using namespace GraphicsEngine::Global;
             std::optional<Light*> mainLight = world->viewAll<Light>()->any();
             if (mainLight) {
+                glViewport(0, 0, camera.camera->getWidth(), camera.camera->getHeight());
                 SASSERT_MESSAGE(mainLight.value()->light->getType() == GraphicsEngine::LightType::DIRECTIONAL, "Currently, we only support shadowmapping for directional light. Ensure that the first light added to the scene is directional.");
 
                 glViewport(0, 0, 512, 512);
@@ -81,25 +85,28 @@ shadowPass: {
                 float near_plane = 1.0f, far_plane = 7.5f;
                 glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 
-                /* glm::vec3 cameraFulstrumCenter = camera.camera->getPos() + camera.camera->getLook() * 2.0f; */
-                glm::vec3 cameraFulstrumCenter = glm::vec3(0,0,0);
+                glm::vec3 cameraFocusPoition = glm::vec3(0,0,0);
 
-                glm::vec3 lightViewPos = cameraFulstrumCenter - mainLight.value()->light->getDir() * 6.0f;
+                glm::vec3 focusPosition = cameraFocusPoition;
+                glm::vec3 lightDir = glm::normalize(mainLight.value()->light->getDir());
+                glm::vec3 lightPos = focusPosition - lightDir * 5.0f;
 
-                SDEBUG("Light at: %s, %s", 
-                    glm::to_string(cameraFulstrumCenter).c_str(), 
-                    glm::to_string(lightViewPos).c_str());
+                glm::vec3 up = glm::vec3(0,1,0);
+                // might cause discontinueties
+                if (std::abs(glm::dot(up, lightDir) - 1))
+                    up = glm::normalize(glm::vec3(.1,0.9,.1));
 
-                glm::mat4 lightView = glm::lookAt(lightViewPos, cameraFulstrumCenter, glm::vec3(0, 1, 0));
-
-                glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-
-                auto shader = graphics.getShader("shadowMapShader");
+                glm::mat4 lightView = glm::lookAt(lightPos, focusPosition, up);
+                lightSpaceMatrix = lightProjection * lightView;
 
                 graphics.bindShader("shadowMapShader");
-                graphics.getShader("shadowMapShader")->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+                graphics.getActiveShader()->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
-                renderScene(world);
+                for (auto &[entity, material, mesh, transform] : *world->viewGroup<Material, Mesh, Transform>()) {
+                    // we need only load the model matrix
+                    graphics.getActiveShader()->setModelTransform(transform->transform->getModelMatrix());
+                    mesh->mesh->draw();
+                }
             }
         }
 
@@ -118,15 +125,13 @@ renderingPass: {
 
             // set shader
             SASSERT_MESSAGE(camera.shader != "", "Camera cannot have an empty shader");
-            graphics.bindShader("shadowTestShader");
-            /* graphics.bindShader(camera.shader); */
-
+            graphics.bindShader(camera.shader);
             graphics.getActiveShader()->setSampler("shadowMap", 2);
-            
+            graphics.getActiveShader()->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
             auto drawData = world->getComponent<DrawSystemData>(world->getMasterEntity());
-            if (drawData && drawData->shadowMap) {
+            if (drawData && drawData->shadowMap)
                 drawData->shadowMap->bind();
-            }
 
             std::vector<std::shared_ptr<GraphicsEngine::Light>> lights;
             for (auto &[entity, light, transform] : *world->viewGroup<Light, Transform>()) {
@@ -142,9 +147,8 @@ renderingPass: {
 
             renderScene(world);
 
-            if (drawData && drawData->shadowMap) {
+            if (drawData && drawData->shadowMap)
                 drawData->shadowMap->unbind();
-            }
         }
     }
 }

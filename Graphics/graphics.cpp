@@ -109,6 +109,10 @@ std::shared_ptr<Shader> Graphics::getShader(std::string shaderName) {
 }
 
 void Graphics::bindShader(std::string shaderName){
+    if (!m_shaders.count(shaderName)) {
+        SERROR("Shader of name %s not found", shaderName.c_str());
+        return;
+    }
     m_shaders.at(shaderName)->bind();
     m_active_shader = m_shaders.at(shaderName);
 }

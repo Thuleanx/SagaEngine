@@ -13,7 +13,6 @@ out vec3 worldSpace_pos;
 out vec3 worldSpace_norm;
 out vec2 tex_coord;
 out vec3 vertColor;
-
 out vec4 lightSpace_pos;
 
 void main() {

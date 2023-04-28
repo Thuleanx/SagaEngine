@@ -35,7 +35,6 @@ uniform int numLights; // Max number of lights = 8
 out vec4 fragColor;
 
 float shadow() {
-    return 0;
     // we use lightSpace_pos to calculate this
     vec3 projCoords = lightSpace_pos.xyz / lightSpace_pos.w; // homogenize this position. Now the coordinates are in the range (-1, 1)
     projCoords = projCoords * 0.5 + 0.5;
