@@ -13,8 +13,8 @@ namespace Saga {
 namespace Saga::Systems {
     /**
      * @brief Retrieve the world's CollisionSystemData. This should live as
-     * a component on an entity. If none exists, an entity with the component
-     * will be created.
+     * a component on an entity. If none exists, the component will be created
+     * automatically on the master object of the world.
      *
      * @param world the world that the data exists on.
      *

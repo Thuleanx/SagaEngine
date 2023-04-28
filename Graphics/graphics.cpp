@@ -61,6 +61,34 @@ void Graphics::setCameraData(std::shared_ptr<Camera> camera){
     m_active_shader->setCamera(camera);
 }
 
+void Graphics::addFramebuffer(std::string framebufferName, int width, int height) {
+    m_framebuffers.insert({framebufferName, std::make_shared<Framebuffer>(width, height)});
+}
+
+void Graphics::removeFramebuffer(std::string framebufferName){
+    m_framebuffers.erase(framebufferName);
+}
+
+std::shared_ptr<Framebuffer> Graphics::getFramebuffer(std::string framebufferName) {
+    if (m_framebuffers.count(framebufferName))
+        return m_framebuffers.at(framebufferName);
+    return nullptr;
+}
+
+void Graphics::bindFramebuffer(std::string framebufferName) {
+    if (m_framebuffers.count(framebufferName)) {
+        m_framebuffers.at(framebufferName)->bind();
+        m_active_framebuffer = m_framebuffers.at(framebufferName);
+    } else
+        SERROR("Cannot find Framebuffer with Name: %s", framebufferName.c_str());
+}
+
+void Graphics::bindDefaultFramebuffer() {
+    m_active_framebuffer->unbind();
+    m_active_framebuffer = nullptr;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Graphics::addShader(std::string shaderName, std::vector<GLenum> shaderTypes, std::vector<const char*> filepaths){
     m_shaders.insert({shaderName, std::make_shared<Shader>(shaderTypes, filepaths)});
 }
@@ -69,6 +97,10 @@ void Graphics::removeShader(std::string shaderName){
     if(shaderName != "phong" && shaderName != "text"){
         m_shaders.erase(shaderName);
     }
+}
+
+std::shared_ptr<GraphicsEngine::Shader> Graphics::getActiveShader() {
+    return m_active_shader;
 }
 
 std::shared_ptr<Shader> Graphics::getShader(std::string shaderName) {

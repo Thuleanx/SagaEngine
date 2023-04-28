@@ -27,6 +27,9 @@ namespace GraphicsEngine {
 		void setUp(glm::vec3 newUp);
 		glm::vec3 getUp();
 
+        int getWidth();
+        int getHeight();
+
 	private:
 		// Internal functions to update projection and view matrices
 		void calculateProjection();

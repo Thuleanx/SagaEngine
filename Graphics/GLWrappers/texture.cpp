@@ -12,18 +12,20 @@ using namespace GraphicsEngine;
 
 Texture::Texture(int width, int height, GLenum texUnit,
                  GLint format, GLint internalFormat, GLint dataType,
-                 GLenum texTarget,
-                 GLenum interpolationMode, GLenum wrapMode):
+                 GLenum interpolationMode, GLenum wrapMode, GLenum texTarget):
     m_texTarget(texTarget),
     m_texUnit(texUnit)
 {
     glGenTextures(1, &m_handle);
     bind();
+    glTexImage2D(m_texTarget, 0,format , width, height, 0,internalFormat, dataType, NULL);
+    Debug::checkGLError();
     glTexParameteri(m_texTarget, GL_TEXTURE_WRAP_S, wrapMode);
     glTexParameteri(m_texTarget, GL_TEXTURE_WRAP_T, wrapMode);
+    Debug::checkGLError();
     glTexParameteri(m_texTarget, GL_TEXTURE_MIN_FILTER, interpolationMode);
     glTexParameteri(m_texTarget, GL_TEXTURE_MAG_FILTER, interpolationMode);
-    glTexImage2D(m_texTarget, 0, internalFormat, width, height, 0, format, dataType, NULL);
+    Debug::checkGLError();
     unbind();
 }
 
@@ -46,7 +48,7 @@ Texture::Texture(std::string filepath, GLenum texUnit,
     if (stbi_failure_reason()) {
         SERROR(stbi_failure_reason());
     }
-    glTexImage2D(m_texTarget, 0, internalFormat, width, height, 0, format, dataType, data);
+    glTexImage2D(m_texTarget, 0, format, width, height, 0, internalFormat, dataType, data);
     stbi_image_free(data);
     unbind();
 }

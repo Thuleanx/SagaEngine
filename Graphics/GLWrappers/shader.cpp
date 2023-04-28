@@ -151,3 +151,19 @@ void Shader::setTextUniforms(float screenWidth, float screenHeight, glm::vec3 co
 	glUniformMatrix4fv(glGetUniformLocation(m_handle, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniform3f(glGetUniformLocation(m_handle, "textColor"), color.r, color.g, color.b);
 }
+
+void Shader::setMat4(const std::string &name, glm::mat4 value) {
+	glUniformMatrix4fv(glGetUniformLocation(m_handle, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+}
+
+void Shader::setVec3(const std::string &name, glm::vec3 value) {
+	glUniform3f(glGetUniformLocation(m_handle, name.c_str()), value.r, value.g, value.b);
+}
+
+void Shader::setFloat(const std::string &name, float value) {
+	glUniform1f(glGetUniformLocation(m_handle, name.c_str()), value);
+}
+
+void Shader::setSampler(const std::string &name, int value) {
+	glUniform1i(glGetUniformLocation(m_handle, name.c_str()), value);
+}

@@ -27,6 +27,9 @@ glm::mat4 Camera::getProjection(){
     return m_proj;
 }
 
+int Camera::getWidth() { return m_width; }
+int Camera::getHeight() { return m_height; }
+
 glm::mat4 Camera::getView(){
     return m_view;
 }

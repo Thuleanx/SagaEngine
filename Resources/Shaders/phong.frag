@@ -1,16 +1,21 @@
 #version 330 core
+
+// Shadow data
+uniform sampler2D shadowMap;
+
 // Uniforms for shape information
 in vec3 worldSpace_pos;
 in vec3 worldSpace_norm;
 in vec2 tex_coord;
+in vec4 lightSpace_pos;
 
 // Object Material Data
 uniform int colorSource; // 0 = solid color (objColor), 1 = texture color (objTexture), 2 = per-vertex color (vertColor)
 uniform vec3 objColor;
 uniform sampler2D objTexture;
 uniform vec2 objTexture_tiling;
-in vec3 vertColor;
 uniform float shininess;
+in vec3 vertColor;
 
 // Camera uniform
 uniform vec3 worldSpace_camPos;
@@ -28,6 +33,22 @@ uniform vec3 worldSpace_lightDir[16]; //Light Directions
 uniform int numLights; // Max number of lights = 8
 
 out vec4 fragColor;
+
+float shadow() {
+    return 0;
+    // we use lightSpace_pos to calculate this
+    vec3 projCoords = lightSpace_pos.xyz / lightSpace_pos.w; // homogenize this position. Now the coordinates are in the range (-1, 1)
+    projCoords = projCoords * 0.5 + 0.5;
+
+    // depth of object closest to the light
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    // depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+
+    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+
+    return shadow;
+}
 
 vec3 getToLight(int lightIndex) {
     int LIGHT_POINT = 0;
@@ -143,7 +164,7 @@ void main() {
     spec = spec * vec3(coeffs.z);
 
     // Color generated only from light intensities and colors
-    vec3 tempColor = clamp(ambi + diff + spec, 0, 1);
+    vec3 tempColor = clamp(ambi + (diff + spec) * (1 - shadow()), 0, 1);
 
     // Apply correct object color
     if (colorSource == 0 ) {

@@ -2,6 +2,7 @@
 
 #include "GLWrappers/shader.h"
 #include "GLWrappers/vao.h"
+#include "GLWrappers/framebuffer.h"
 #include "camera.h"
 #include "light.h"
 #include "material.h"
@@ -25,9 +26,16 @@ public:
 
 	void setCameraData(std::shared_ptr<Camera> camera);
 
+    void addFramebuffer(std::string framebufferName, int width, int height);
+    std::shared_ptr<Framebuffer> getFramebuffer(std::string framebufferName);
+    void removeFramebuffer(std::string framebufferName);
+    void bindFramebuffer(std::string framebufferName);
+    void bindDefaultFramebuffer();
+
 	void addShader(std::string shaderName, std::vector<GLenum> shaderTypes, std::vector<const char *> filepaths);
 	void removeShader(std::string shaderName);
 	void bindShader(std::string shaderName = "phong");
+    std::shared_ptr<Shader> getActiveShader();
 	std::shared_ptr<Shader> getShader(std::string shaderName);
 
 	// Shape-related methods
@@ -71,16 +79,20 @@ public:
 	glm::ivec2 getFramebufferSize();
 
 private:
+    GLuint defaultFramebuffer = 0;
+
 	glm::ivec2 m_windowSize;
 	glm::ivec2 m_framebufferSize;
 
 	std::shared_ptr<TextRenderer> m_textRenderer;
 
 	std::map<std::string, std::shared_ptr<Shader>> m_shaders;
+	std::map<std::string, std::shared_ptr<Framebuffer>> m_framebuffers;
 	std::map<std::string, std::shared_ptr<Shape>> m_shapes;
 	std::map<std::string, std::shared_ptr<Material>> m_materials;
 	std::map<std::string, std::shared_ptr<Font>> m_fonts;
 
 	std::shared_ptr<Shader> m_active_shader;
+	std::shared_ptr<Framebuffer> m_active_framebuffer;
 };
 } // namespace GraphicsEngine

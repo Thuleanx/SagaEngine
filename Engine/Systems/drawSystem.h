@@ -6,6 +6,13 @@ namespace Saga {
 }
 
 namespace Saga::Systems {
+
+    /**
+     * @brief System that sets up the Framebuffer objects for shadow mapping and various
+     * post processing shaders.
+     */
+	void drawSystem_OnSetup(std::shared_ptr<GameWorld> world);
+
 	/**
 	 * @brief System that searches for cameras in the screen, and draw all shapes relative to those cameras on screen.
 	 * 

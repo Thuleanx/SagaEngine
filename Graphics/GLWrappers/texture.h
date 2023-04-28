@@ -10,8 +10,8 @@ class Texture {
 public:
     Texture(int width, int height, GLenum texUnit = GL_TEXTURE0,
             GLint format = GL_RGBA, GLint internalFormat = GL_RGB, GLint dataType = GL_UNSIGNED_BYTE,
-            GLenum texTarget = GL_TEXTURE_2D,
-            GLenum interpolationMode = GL_LINEAR_MIPMAP_LINEAR, GLenum wrapMode = GL_REPEAT);
+            GLenum interpolationMode = GL_LINEAR_MIPMAP_LINEAR, GLenum wrapMode = GL_REPEAT,
+            GLenum texTarget = GL_TEXTURE_2D);
 
     Texture(std::string filePath, GLenum texUnit = GL_TEXTURE0,
             GLint format = GL_RGBA, GLint internalFormat = GL_RGB, GLint dataType = GL_UNSIGNED_BYTE,

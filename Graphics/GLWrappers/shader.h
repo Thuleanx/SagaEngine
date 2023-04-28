@@ -24,6 +24,12 @@ public:
 	void clearLights();
 	void setTextUniforms(float screenWidth, float screenHeight, glm::vec3 color);
 
+    // generic setters
+    void setMat4(const std::string &name, glm::mat4 value);
+    void setVec3(const std::string &name, glm::vec3 value);
+    void setFloat(const std::string &name, float value);
+    void setSampler(const std::string &name, int value);
+
 private:
 	GLuint m_handle;
 };

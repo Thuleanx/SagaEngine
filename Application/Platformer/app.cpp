@@ -82,11 +82,8 @@ namespace Platformer {
 			Saga::Entity lightEnt = mainWorld->createEntity();
 			Saga::Light& light = *mainWorld->emplace<Saga::Light>(
                 lightEnt, // entity
-                glm::vec3(0,3,0), // light position
                 glm::vec3(0,-1,0), // light direction
-                glm::vec3(1,0,0), // attentuation function
-                0.2, 1, // angles
-                glm::vec3(1,0,0) // light color
+                glm::vec3(0.5, 0.5, 1) // light color
             );
 			Saga::Transform& transform = *mainWorld->emplace<Saga::Transform>(lightEnt);
             transform.transform->setPos(glm::vec3(0,3,0));
@@ -144,8 +141,7 @@ namespace Platformer {
 		};
 
         auto setupNavMesh = [this]() {
-            Saga::Entity navMeshContainer = mainWorld->createEntity();
-            auto navmesh = mainWorld->emplace<Saga::NavMeshData>(navMeshContainer);
+            auto navmesh = mainWorld->emplace<Saga::NavMeshData>(mainWorld->getMasterEntity());
             navmesh->buildFromFile("Resources/Meshes/environment3nav.obj");
             /* mainWorld->emplace<Saga::Transform>(navMeshContainer)->transform->setPos(glm::vec3(0,0.1,0)); */
             /* mainWorld->emplace<Saga::Mesh>(navMeshContainer, "Resources/Meshes/environment3nav.obj"); */
@@ -177,11 +173,6 @@ namespace Platformer {
 		Saga::Systems::setupAudioSystem(mainWorld);
 
 		auto& systems = mainWorld->getSystems();
-
-		// draw system
-		systems.addStagedSystem(Saga::System<>(Saga::Systems::drawSystem), Saga::SystemManager::Stage::Draw);
-		// draw on resize
-		systems.addWindowResizeSystem(Saga::Systems::drawSystem_OnResize);
 
 		// input reading
 		systems.addKeyboardEventSystem(GLFW_KEY_W, Application::Systems::playerInputSystem_OnUpButton);

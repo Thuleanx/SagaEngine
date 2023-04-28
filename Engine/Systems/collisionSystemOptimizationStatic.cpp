@@ -6,8 +6,7 @@ namespace Saga::Systems {
         auto allCollisionSystemData = world->viewAll<CollisionSystemData>();
         if (allCollisionSystemData->begin() == allCollisionSystemData->end()) {
             // if no collision data object exists we create one
-            Entity containerEntity = world->createEntity();
-            return *world->emplace<CollisionSystemData>(containerEntity);
+            return *world->emplace<CollisionSystemData>(world->getMasterEntity());
         }
         return *allCollisionSystemData->begin();
     }

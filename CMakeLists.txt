@@ -102,6 +102,8 @@ add_executable(${PROJECT_NAME}
     Graphics/font.cpp
     Graphics/textrenderer.h
     Graphics/textrenderer.cpp
+    Graphics/GLWrappers/framebuffer.h
+    Graphics/GLWrappers/framebuffer.cpp
     Graphics/GLWrappers/shader.h
     Graphics/GLWrappers/shader.cpp
     Graphics/GLWrappers/texture.h

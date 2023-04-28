@@ -56,6 +56,7 @@ private:
 
         if (!fileStream.is_open()) {
             std::string log = "Could not read file " + std::string(filePath) + ". File does not exist.";
+            SERROR(log.c_str());
             throw std::runtime_error(log);
             return "";
         }
@@ -76,13 +77,16 @@ private:
 
         // Read shader file
         std::string shaderStr = readFile(filepath);
+        STRACE("Successfully read file %s", filepath);
         const char *shaderSrc = shaderStr.c_str();
 
         SINFO("GL SHADER SOURCE");
         glShaderSource(shaderID, 1, &shaderSrc, NULL);
+        STRACE("Successfully sourced file %s", filepath);
 
         SINFO("GL COMPILE SHADER: %d", shaderID);
         glCompileShader(shaderID);
+
 
         // Print info log if shader fails to compile
         GLint status;
@@ -93,8 +97,11 @@ private:
             std::string log(length, '\0');
             glGetShaderInfoLog(shaderID, length, nullptr, &log[0]);
             glDeleteShader(shaderID);
+            SERROR("Shader failed to compile: %s", log.c_str());
             throw std::runtime_error(log);
         }
+
+        STRACE("Successfully compiled file %s", filepath);
 
         return shaderID;
     }

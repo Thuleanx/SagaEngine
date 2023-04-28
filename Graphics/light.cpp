@@ -25,10 +25,10 @@ Light::Light(glm::vec3 position, glm::vec3 direction, glm::vec3 attenuationFunct
     m_lightAngle(innerAngle, outerAngle),
     m_lightColor(lightColor) {
 
-    SDEBUG(glm::to_string(m_lightPos).c_str());
-    SDEBUG(glm::to_string(m_lightDir).c_str());
-    SDEBUG(glm::to_string(m_lightFunction).c_str());
-    SDEBUG(glm::to_string(m_lightAngle).c_str());
+    /* SDEBUG(glm::to_string(m_lightPos).c_str()); */
+    /* SDEBUG(glm::to_string(m_lightDir).c_str()); */
+    /* SDEBUG(glm::to_string(m_lightFunction).c_str()); */
+    /* SDEBUG(glm::to_string(m_lightAngle).c_str()); */
 }
 
 Light::~Light(){

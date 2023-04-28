@@ -17,12 +17,12 @@ bool initializeLogger() {
     static plog::ColorConsoleAppender<plog::TxtFormatter> appender;
     plog::init(plog::Severity::verbose, "sagaruntime.log").addAppender(&appender);
 
-    PLOG_VERBOSE << "This is a VERBOSE message";
-    PLOG_DEBUG << "This is a DEBUG message";
-    PLOG_INFO << "This is an INFO message";
-    PLOG_WARNING << "This is a WARNING message";
-    PLOG_ERROR << "This is an ERROR message";
-    PLOG_FATAL << "This is a FATAL message";
+    /* PLOG_VERBOSE << "This is a VERBOSE message"; */
+    /* PLOG_DEBUG << "This is a DEBUG message"; */
+    /* PLOG_INFO << "This is an INFO message"; */
+    /* PLOG_WARNING << "This is a WARNING message"; */
+    /* PLOG_ERROR << "This is an ERROR message"; */
+    /* PLOG_FATAL << "This is a FATAL message"; */
 
 	SINFO("Logger initialized.");
 	return true;

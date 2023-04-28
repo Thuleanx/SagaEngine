@@ -42,6 +42,15 @@ public:
 	 * @return Entity 
 	 */
 	Entity createEntity();
+
+    /**
+     * @brief Get the master entity. Use this entity only for placing global data, such as 
+     * baked navmeshes, lightning information, etc. Do not use it as a gameobject.
+     *
+     * @return Enity the master entity. Every gameworld will have one created at the start.
+     */
+    Entity getMasterEntity();
+
 	/**
 	 * @brief Destoy an Entity object.
 	 * 
@@ -169,7 +178,7 @@ public:
 	void deliverEvent(Event event, Entity entity, DataType... args);
 
 protected:
-	entity_type entity_cnt; //!< number of entities in the world. Useful for assigning new entities.
+	entity_type entity_cnt = 1; //!< number of entities in the world. Useful for assigning new entities. We start at 1, because we assume an entity 0 where the engine can place game information on.
 
 	/**
 	 * @brief Create a signature from a list of component types.

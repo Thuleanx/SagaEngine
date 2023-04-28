@@ -12,6 +12,9 @@ GameWorld::~GameWorld() {
 
 }
 
+// we can do this since we start entity_cnt at 1
+Entity GameWorld::getMasterEntity() { return (Entity) 0; }
+
 Entity GameWorld::createEntity() {
 	if (entity_cnt < 0)
 		SWARN("entity_cnt of a game world is %d < 0. This should not happen since entity_cnt starts at 0 and only increments. Check if an inherited object has changed this value.", entity_cnt);
