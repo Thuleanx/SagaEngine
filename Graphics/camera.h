@@ -31,11 +31,11 @@ namespace GraphicsEngine {
         int getHeight();
 
         float getNearFarDistance() { return m_far - m_near; }
-
 	private:
 		// Internal functions to update projection and view matrices
 		void calculateProjection();
 		void calculateView();
+        void calculateFrustumCorners();
 
 		int m_width;
 		int m_height;
@@ -46,6 +46,8 @@ namespace GraphicsEngine {
 		float m_aspect;
 		float m_near;
 		float m_far;
+
+        glm::vec3 frustumCorners[8];
 
 		glm::mat4 m_proj = glm::mat4(1);
 		glm::mat4 m_view = glm::mat4(1);

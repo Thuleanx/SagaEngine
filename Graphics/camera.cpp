@@ -1,5 +1,7 @@
 #include "camera.h"
 #include "Engine/_Core/logger.h"
+#include "glm/fwd.hpp"
+#include "glm/matrix.hpp"
 #include <iostream>
 using namespace GraphicsEngine;
 
@@ -101,4 +103,16 @@ void Camera::calculateProjection(){
 
 void Camera::calculateView(){
     m_view = glm::lookAt(m_pos, m_pos+m_look, m_up);
+}
+
+void Camera::calculateFrustumCorners() {
+    int p = 0;
+    // takes from projected to view space.
+    glm::mat4 inverseProj = glm::inverse(m_proj);
+
+    for (float x = -1; x <= 1; x++)
+    for (float y = -1; y <= 1; y++)
+    for (float z = 0; z <= 1; z++, p++) {
+        frustumCorners[p] = inverseProj * glm::vec4(x,y,z,1);
+    }
 }

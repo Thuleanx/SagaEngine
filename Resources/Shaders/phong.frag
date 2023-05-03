@@ -43,6 +43,10 @@ float goldNoise(in vec2 xy, in float seed){
     return fract(tan(distance(xy*PHI, xy)*seed)*xy.x);
 }
 
+float rand(vec2 co){
+    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
 float shadow() {
     // we use lightSpace_pos to calculate this
     vec3 projCoords = lightSpace_pos.xyz / lightSpace_pos.w; // homogenize this position. Now the coordinates are in the range (-1, 1)
@@ -56,7 +60,7 @@ float shadow() {
     float shadow = 0.0;
 
     // random rotation for the kernel
-    float cosRot = goldNoise(gl_FragCoord.xy * 10, gl_FragCoord.z) * 2 - 1;
+    float cosRot = rand(projCoords.xy) * 2 - 1;
     float sinRot = sqrt(1 - cosRot*cosRot);
 
     mat2 kernelRotation;
