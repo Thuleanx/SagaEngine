@@ -1,5 +1,6 @@
 #include "drawSystem.h"
 #include "Engine/Components/drawSystemData.h"
+#include "Engine/Systems/helpers/postProcessing.h"
 #include "Engine/Systems/helpers/shadowMap.h"
 #include "Engine/_Core/logger.h"
 #include "Graphics/GLWrappers/texture.h"
@@ -23,6 +24,7 @@
 namespace Saga::Systems {
 
 namespace {
+
 inline void renderAllShapes(std::shared_ptr<GameWorld> world) {
     using namespace GraphicsEngine::Global;
 
@@ -38,10 +40,10 @@ inline void renderAllShapes(std::shared_ptr<GameWorld> world) {
 
 inline void renderScene(std::shared_ptr<GameWorld> world, Saga::Camera& camera, std::optional<glm::mat4> shadowMapLightSpaceMatrix) {
     using namespace GraphicsEngine::Global;
+
+    Graphics::usePostProcessingFBO();
     // graphics setup
     glViewport(0, 0, camera.camera->getWidth(), camera.camera->getHeight());
-
-    graphics.bindDefaultFramebuffer();
 
     // clear color buffer
     if (camera.clearColorBufferOnDraw) {
@@ -79,16 +81,21 @@ inline void renderScene(std::shared_ptr<GameWorld> world, Saga::Camera& camera, 
         // no shadow map supplied
         renderAllShapes(world);
     }
+
+    Graphics::performPostProcessing(world, camera);
 }
 
 }
 
 void drawSystem_OnSetup(std::shared_ptr<GameWorld> world) {
     Graphics::shadowMapSetup(world);
+    for (Saga::Camera& camera : *world->viewAll<Camera>())
+        Graphics::postProcessingSetup(world, camera);
 }
 
 void drawSystem(std::shared_ptr<Saga::GameWorld> world) {
     Graphics::drawShadowMapGizmos();
+    Graphics::drawPostProcessingGizmos();
     for (Saga::Camera& camera : *world->viewAll<Camera>()) {
         std::optional<glm::mat4> lightSpaceMatrix = Graphics::renderShadowMap(world, camera);
         renderScene(world, camera, lightSpaceMatrix);
@@ -96,8 +103,10 @@ void drawSystem(std::shared_ptr<Saga::GameWorld> world) {
 }
 
 void drawSystem_OnResize(std::shared_ptr<GameWorld> world, int width, int height) {
-    for (Saga::Camera& camera : *world->viewAll<Camera>())
+    for (Saga::Camera& camera : *world->viewAll<Camera>()) {
         camera.camera->resize(width, height);
+        Graphics::postProcessingSetup(world, camera);
+    }
 }
 
 void registerDrawSystem(std::shared_ptr<GameWorld> world) {

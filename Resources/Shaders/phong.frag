@@ -35,7 +35,7 @@ uniform vec3 worldSpace_lightPos[16]; //Light Positions
 uniform vec3 worldSpace_lightDir[16]; //Light Directions
 uniform int numLights; // Max number of lights = 8
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
 
 float PHI = 1.61803398874989484820459;  // Φ = Golden Ratio   
 

@@ -102,6 +102,8 @@ add_executable(${PROJECT_NAME}
     Graphics/font.cpp
     Graphics/textrenderer.h
     Graphics/textrenderer.cpp
+    Graphics/fullscreenquad.h
+    Graphics/fullscreenquad.cpp
     Graphics/GLWrappers/framebuffer.h
     Graphics/GLWrappers/framebuffer.cpp
     Graphics/GLWrappers/shader.h
@@ -112,6 +114,7 @@ add_executable(${PROJECT_NAME}
     Graphics/GLWrappers/vbo.cpp
     Graphics/GLWrappers/vao.h
     Graphics/GLWrappers/vao.cpp
+
 
     # IMGUI files
     External/imgui/imconfig.h

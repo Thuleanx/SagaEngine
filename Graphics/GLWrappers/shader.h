@@ -30,6 +30,7 @@ public:
     void setVec2(const std::string &name, glm::vec2 value);
     void setFloat(const std::string &name, float value);
     void setSampler(const std::string &name, int value);
+    void setInt(const std::string &name, int value);
 
 private:
 	GLuint m_handle;

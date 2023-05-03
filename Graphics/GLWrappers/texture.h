@@ -2,23 +2,28 @@
 
 #include "GL/glew.h"
 #include <string>
-
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 
 namespace GraphicsEngine {
 class Texture {
 public:
-    Texture(int width, int height, GLenum texUnit = GL_TEXTURE0,
-            GLint format = GL_RGBA, GLint internalFormat = GL_RGB, GLint dataType = GL_UNSIGNED_BYTE,
-            GLenum interpolationMode = GL_LINEAR_MIPMAP_LINEAR, GLenum wrapMode = GL_REPEAT,
-            GLenum texTarget = GL_TEXTURE_2D);
+    Texture(GLenum texUnit = GL_TEXTURE0, GLenum texTarget = GL_TEXTURE_2D);
 
+    // load 2D texture from filepath, relative to project's root I believe
     Texture(std::string filePath, GLenum texUnit = GL_TEXTURE0,
-            GLint format = GL_RGBA, GLint internalFormat = GL_RGB, GLint dataType = GL_UNSIGNED_BYTE,
+            GLint internalFormat = GL_RGBA, GLint format = GL_RGB, GLint dataType = GL_UNSIGNED_BYTE,
             GLenum texTarget = GL_TEXTURE_2D,
             GLenum interpolationMode = GL_LINEAR, GLenum wrapMode = GL_REPEAT);
 
     ~Texture();
+
+    void initialize3D(int width, int height, int depth,
+                      GLint internalFormat = GL_RGBA, GLint format = GL_RGBA, GLint dataType = GL_UNSIGNED_BYTE);
+    void initialize2D(int width, int height,
+                      GLint internalFormat = GL_RGBA, GLint format = GL_RGBA, GLint dataType = GL_UNSIGNED_BYTE);
+
+    void setInterpolation(GLenum interpolationMode);
+    void setWrapping(GLenum wrapMode);
 
     void bind();
     void bind(GLenum texUnit);

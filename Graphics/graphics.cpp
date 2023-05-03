@@ -62,7 +62,7 @@ void Graphics::setCameraData(std::shared_ptr<Camera> camera){
 }
 
 void Graphics::addFramebuffer(std::string framebufferName, int width, int height) {
-    m_framebuffers.insert({framebufferName, std::make_shared<Framebuffer>(width, height)});
+    m_framebuffers[framebufferName] = std::make_shared<Framebuffer>(width, height);
 }
 
 void Graphics::removeFramebuffer(std::string framebufferName){
@@ -72,6 +72,7 @@ void Graphics::removeFramebuffer(std::string framebufferName){
 std::shared_ptr<Framebuffer> Graphics::getFramebuffer(std::string framebufferName) {
     if (m_framebuffers.count(framebufferName))
         return m_framebuffers.at(framebufferName);
+    SWARN("Framebuffer %s not found", framebufferName.c_str());
     return nullptr;
 }
 
@@ -84,12 +85,16 @@ void Graphics::bindFramebuffer(std::string framebufferName) {
 }
 
 void Graphics::bindDefaultFramebuffer() {
-    m_active_framebuffer->unbind();
+    if (m_active_framebuffer) m_active_framebuffer->unbind();
     m_active_framebuffer = nullptr;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Graphics::addShader(std::string shaderName, std::vector<GLenum> shaderTypes, std::vector<const char*> filepaths){
+    if (m_shaders.count(shaderName)) {
+        // do nothing if shader of the same name already loaded
+        return;
+    }
     m_shaders.insert({shaderName, std::make_shared<Shader>(shaderTypes, filepaths)});
 }
 

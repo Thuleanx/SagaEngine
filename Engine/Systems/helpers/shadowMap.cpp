@@ -41,7 +41,7 @@ namespace Saga::Systems::Graphics {
     void shadowMapSetup(std::shared_ptr<GameWorld> world) {
         using namespace GraphicsEngine::Global;
         if (graphics.getFramebuffer("shadowMap")) {
-            SERROR("Shadow map already set up. Ignore function.");
+            SWARN("Shadow map already set up. Ignore function.");
             return;
         }
 

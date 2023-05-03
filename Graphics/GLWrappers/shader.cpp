@@ -179,3 +179,8 @@ void Shader::setSampler(const std::string &name, int value) {
 	glUniform1i(glGetUniformLocation(m_handle, name.c_str()), value);
 	Debug::checkGLError();
 }
+
+void Shader::setInt(const std::string &name, int value) {
+	glUniform1i(glGetUniformLocation(m_handle, name.c_str()), value);
+	Debug::checkGLError();
+}
