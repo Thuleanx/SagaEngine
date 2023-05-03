@@ -1,7 +1,10 @@
 #version 330 core
 
 // Shadow data
+const int KERNEL_SZ = 64;
 uniform sampler2D shadowMap;
+uniform float cameraNearFarDistance;
+uniform vec2 kernel[KERNEL_SZ];
 
 // Uniforms for shape information
 in vec3 worldSpace_pos;
@@ -34,47 +37,49 @@ uniform int numLights; // Max number of lights = 8
 
 out vec4 fragColor;
 
+float PHI = 1.61803398874989484820459;  // Φ = Golden Ratio   
+
+float goldNoise(in vec2 xy, in float seed){
+    return fract(tan(distance(xy*PHI, xy)*seed)*xy.x);
+}
+
 float shadow() {
     // we use lightSpace_pos to calculate this
     vec3 projCoords = lightSpace_pos.xyz / lightSpace_pos.w; // homogenize this position. Now the coordinates are in the range (-1, 1)
     projCoords = projCoords * 0.5 + 0.5;
 
-    float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-
-    float surfaceAlignment = dot(worldSpace_norm, -worldSpace_lightDir[0]);
-    float biasParam = 1.0 - max(surfaceAlignment, 0);
-    float maxBias = 0.05, minBias = 0.005;
-    float bias = mix(maxBias, minBias, biasParam);
-
 
     // depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
 
-    const int dist = 4;
-    const int totalSamples = (2*dist+1) / (2*dist+1);
+    float shadow = 0.0;
 
-#pragma optionNV (unroll all)
-    for (int x = -dist; x <= dist; x++) {
-#pragma optionNV (unroll all)
-        for (int y = -dist; y <= dist; y++) {
-            // depth of object closest to the light
-            float closestDepth = texture(shadowMap, projCoords.xy + vec2(x,y) * texelSize).r;
+    // random rotation for the kernel
+    float cosRot = goldNoise(gl_FragCoord.xy * 10, gl_FragCoord.z) * 2 - 1;
+    float sinRot = sqrt(1 - cosRot*cosRot);
 
-            shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
-        }
+    mat2 kernelRotation;
+    kernelRotation[0] = vec2(cosRot, -sinRot);
+    kernelRotation[1] = vec2(sinRot, cosRot);
+
+    // loop through kernel
+    for (int i = 0; i < KERNEL_SZ; i++) {
+        // depth of object closest to the light
+        float closestDepth = texture(shadowMap, projCoords.xy + kernelRotation * kernel[i] * texelSize).r;
+        shadow += currentDepth > closestDepth ? 1.0 : 0.0;
     }
 
-    shadow = shadow / totalSamples;
+    shadow = shadow / KERNEL_SZ;
 
+    // if outside of the orthographic projection box, then no shadow is casted onto the area, instead of 
+    // it being all black
     if (projCoords.z > 1.0)
         shadow = 0.0;
 
-    /* // if surface is vertical */
-    /* if (abs(surfaceAlignment) < 0.0001) */
-    /*     shadow = 1.0; */
-
-    return shadow;
+    float surfaceAlignment = dot(normalize(worldSpace_norm), -worldSpace_lightDir[0]);
+    // if surface is parallel then shadow = 1. This is hard to handle otherwise because of numerical accuracy
+    return (abs(surfaceAlignment) < 0.0001) ? 1.0 : shadow;
 }
 
 vec3 getToLight(int lightIndex) {
@@ -146,7 +151,7 @@ float computeSpecularIntensity(vec3 worldSpace_toLight, vec3 worldSpace_toEye) {
         return 0;
     }
 
-    if (dot(worldSpace_toLight, worldSpace_norm) < 0) {
+    if (dot(worldSpace_toLight, normalize(worldSpace_norm)) < 0) {
         return 0;
     }
 

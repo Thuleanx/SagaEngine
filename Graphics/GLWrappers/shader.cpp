@@ -47,6 +47,8 @@ void Shader::setCamera(std::shared_ptr<Camera> camera) {
 	glUniformMatrix4fv(glGetUniformLocation(m_handle, "view"), 1, GL_FALSE, glm::value_ptr(camera->getView()[0]));
 	glUniformMatrix4fv(glGetUniformLocation(m_handle, "projection"), 1, GL_FALSE, glm::value_ptr(camera->getProjection()[0]));
 	glUniform3f(glGetUniformLocation(m_handle, "worldSpace_camPos"), camera->getPos().x, camera->getPos().y, camera->getPos().z);
+
+    setFloat("cameraNearFarDistance", camera->getNearFarDistance());
 }
 
 void Shader::setModelTransform(std::shared_ptr<ModelTransform> modelTransform) {
@@ -160,6 +162,11 @@ void Shader::setMat4(const std::string &name, glm::mat4 value) {
 
 void Shader::setVec3(const std::string &name, glm::vec3 value) {
 	glUniform3f(glGetUniformLocation(m_handle, name.c_str()), value.r, value.g, value.b);
+	Debug::checkGLError();
+}
+
+void Shader::setVec2(const std::string &name, glm::vec2 value) {
+	glUniform2f(glGetUniformLocation(m_handle, name.c_str()), value.r, value.g);
 	Debug::checkGLError();
 }
 

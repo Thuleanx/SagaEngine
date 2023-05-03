@@ -1,8 +1,8 @@
 #include "collisionSystem.h"
 #include "Engine/Components/collider.h"
-#include "collisionSystemOptimizationStatic.h"
-#include "collisionSystemOptimizationDynamic.h"
-#include "collisionSystemHelper.h"
+#include "helpers/collisionSystemOptimizationStatic.h"
+#include "helpers/collisionSystemOptimizationDynamic.h"
+#include "helpers/collisionSystemHelper.h"
 
 #include <glm/common.hpp>
 #include "../Gameworld/gameworld.h"

@@ -30,6 +30,8 @@ namespace GraphicsEngine {
         int getWidth();
         int getHeight();
 
+        float getNearFarDistance() { return m_far - m_near; }
+
 	private:
 		// Internal functions to update projection and view matrices
 		void calculateProjection();
