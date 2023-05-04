@@ -30,6 +30,10 @@ vec3 reinhardExtended(vec3 col) {
     return saturate(lout * col / lum);
 }
 
+vec3 narkowiczACES(vec3 col) {
+    return (col*(2.51f*col+0.03f))/(col*(2.43f*col+0.59f)+0.14f);
+}
+
 vec3 gammaCorrection(vec3 col) {
     return pow(col, vec3(1.0 / gamma));
 }
@@ -47,7 +51,7 @@ void main() {
     // white balancing
 
     // tonemapping
-    hdrColor = reinhardExtended(hdrColor);
+    hdrColor = narkowiczACES(hdrColor);
 
     hdrColor = gammaCorrection(hdrColor);
 
