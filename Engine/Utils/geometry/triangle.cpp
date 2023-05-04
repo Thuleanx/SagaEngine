@@ -36,19 +36,38 @@ namespace Saga::Geometry {
 
     std::optional<float> rayTriangleIntersection(const glm::vec3& origin, const glm::vec3& rayDirection, Triangle triangle) {
         glm::vec3 uDir = triangle.b-triangle.a, vDir = triangle.c-triangle.a;
-
 		glm::vec3 normal = glm::cross(uDir, vDir);
-        // if hitting backside or grazing, ignore
-		if (glm::dot(rayDirection, normal) >= 0)
+
+        // degenerate triangle, we dont accept collisions
+        if (glm::dot(normal, normal) == 0) 
             return {};
-		float t = glm::dot(triangle.a - origin, normal) / glm::dot(rayDirection, normal);  // intersection point with triangle plane
+
+        float displacementAlongNormal = glm::dot(triangle.a - origin, normal);
+        float alignmentNormal = glm::dot(rayDirection, normal);
+
+        // ray direction is parallel to the plane
+        if (abs(alignmentNormal) <= 0.0001) {
+            // ray lies in a different plane
+            if (displacementAlongNormal) return {};
+            else {
+                // ray lies in the same plane. We can ignore this degenerate case for now
+                return {};
+            }
+        }
+        // if hitting backside or grazing, ignore
+		if (alignmentNormal >= 0)
+            return {};
+
+		float t = displacementAlongNormal / alignmentNormal;  // intersection point with triangle plane
 		if (t < 0 || t > 1)
             return {};
 		glm::vec3 p = origin + t * rayDirection;
-        // convert to triangular coordinates to check if in triangle
-		float u = glm::dot(p - triangle.a, uDir), v = glm::dot(p - triangle.a, vDir);
 
-        if (u >= 0 && u <= glm::dot(uDir, uDir) && v >= 0 && v <= glm::dot(vDir, vDir)) return t;
+        // convert to barycentric coordinates to check if in triangle
+        glm::vec3 uvw = triangle.toBarycentric(p);
+        float u = uvw.x, v = uvw.y;
+
+        if (u >= 0 && v >= 0 && u + v <= 1) return t;
         return {};
 	}
 

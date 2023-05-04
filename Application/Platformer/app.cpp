@@ -65,12 +65,13 @@ namespace Platformer {
 			return camera;
 		};
 
-		auto setupPlane = [this]() {
+		auto setupTerrain = [this](glm::vec3 pos) {
 			Saga::Entity plane = mainWorld->createEntity();
 			Saga::Mesh& planeMesh = *mainWorld->emplace<Saga::Mesh>(plane, "Resources/Meshes/environment3.obj");
 			Saga::Material& mat = *mainWorld->emplace<Saga::Material>(plane,
 				Saga::Theme_Nostalgic::colors[1]);
             Saga::Transform* transform = mainWorld->emplace<Saga::Transform>(plane);
+            transform->transform->setPos(pos);
 
 			mainWorld->emplace<Saga::Collider>(plane);
 			mainWorld->emplace<Saga::MeshCollider>(plane);
@@ -148,7 +149,11 @@ namespace Platformer {
             /* mainWorld->emplace<Saga::Material>(navMeshContainer, glm::vec3(0,0,0.5)); */
         };
 
-		Saga::Entity plane = setupPlane();
+		Saga::Entity plane = setupTerrain(glm::vec3(0,0,0));
+        setupTerrain(glm::vec3(20,0,0));
+        setupTerrain(glm::vec3(-20,0,0));
+        setupTerrain(glm::vec3(0,0,20));
+        setupTerrain(glm::vec3(0,0,-20));
 		Saga::Entity light = setupLights();
 		Saga::Entity player = setupPlayer();
 		Saga::Entity camera = setupCamera(player);

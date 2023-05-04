@@ -38,6 +38,7 @@ namespace Saga::Geometry {
          * @return glm::vec3 the normal of this triangle in the direction of cross(b-a, c-a).
          */
         glm::vec3 getNormal();
+
     };
 
     /**
