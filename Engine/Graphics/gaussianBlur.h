@@ -1,9 +1,7 @@
 #pragma once
 
 #include "Graphics/GLWrappers/framebuffer.h"
-#include "Graphics/GLWrappers/shader.h"
 #include "Graphics/GLWrappers/texture.h"
-#include "Graphics/fullscreenquad.h"
 #include <memory>
 
 namespace Saga::Graphics {
@@ -39,17 +37,20 @@ public:
      * @param iterations number of times to run the gaussian blur. This must strictly be non negative.
      * @param quad the full screen quad used to blit the shader onto the textures.
      */
-    void blur(int iterations, std::shared_ptr<GraphicsEngine::FullscreenQuad> quad);
+    void blur(int iterations);
 
 private:
     const std::string blurShaderId = "gaussianBlur"; //!< Id of the blur shader in the graphics engine's eye.
     const int KERNEL_SIZE = 16; //!< size of the gaussian blur kernel. In practice, this should be at least three times the sigma.
 
+    const int uid;
     float sigma;
     int width; //!< width in pixels of the texture to blur.
     int height; //!< height in pixel of the texture to blur.
-    std::shared_ptr<GraphicsEngine::Framebuffer> fbo[2]; //!< fbo objects used in the blurring. One for the horizontal and one vertical pass.
+    std::string fbo[2]; //!< fbo objects used in the blurring. One for the horizontal and one vertical pass.
     std::shared_ptr<GraphicsEngine::Texture> textures[2]; //!< textures used in the gaussian blur.
+
+    static int newUID;
 
     /**
      * @brief Load the blur shader with neccessary parameters, such as the values of the kernel.

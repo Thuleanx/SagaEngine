@@ -181,7 +181,6 @@ void main() {
 
     // Compute per-light diffuse and specular contribution
     for(int i = 0; i<numLights; i+= 1){
-
         // get direction vector to light based on light type
         vec3 worldSpace_toLight = getToLight(i);
 

@@ -1,5 +1,6 @@
 #include "logger.h"
 
+#include <fstream>
 #include <stdio.h>
 #include <iostream>
 #include <string.h>
@@ -13,7 +14,12 @@
 namespace Saga {
 
 bool initializeLogger() {
-	// TODO: create log file
+    // clear the log file
+    std::ofstream ofs;
+    ofs.open("sagaruntime.log", std::ofstream::out | std::ofstream::trunc);
+    ofs.close();
+
+    // open the log file again for output
     static plog::ColorConsoleAppender<plog::TxtFormatter> appender;
     plog::init(plog::Severity::verbose, "sagaruntime.log").addAppender(&appender);
 

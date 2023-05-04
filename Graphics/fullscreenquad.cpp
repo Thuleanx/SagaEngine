@@ -1,6 +1,7 @@
 
 
 #include "fullscreenquad.h"
+#include "Engine/_Core/logger.h"
 #include "Graphics/GLWrappers/vao.h"
 #include <vector>
 
@@ -18,20 +19,23 @@ FullscreenQuad::FullscreenQuad(){
     vao = std::make_shared<VAO>(vbo, VAOAttrib::POS);
 }
 
-FullscreenQuad::~FullscreenQuad(){}
+FullscreenQuad::~FullscreenQuad(){ }
 
-void FullscreenQuad::bind(){
+FullscreenQuad* FullscreenQuad::bind(){
     vao->bind();
+    return this;
 }
 
-void FullscreenQuad::unbind(){
+FullscreenQuad* FullscreenQuad::unbind(){
     vao->unbind();
+    return this;
 }
 
-void FullscreenQuad::draw() {
+FullscreenQuad* FullscreenQuad::draw() {
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    return this;
 }
 }
 

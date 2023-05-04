@@ -2,6 +2,7 @@
 
 #include "Graphics/GLWrappers/vao.h"
 #include "Graphics/GLWrappers/vbo.h"
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -12,9 +13,9 @@ public:
     FullscreenQuad();
     ~FullscreenQuad();
 
-    void bind();
-    void unbind();
-    void draw();
+    FullscreenQuad* bind();
+    FullscreenQuad* unbind();
+    FullscreenQuad* draw();
 
 private:
     std::shared_ptr<GraphicsEngine::VAO> vao;

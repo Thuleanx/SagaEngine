@@ -1,6 +1,8 @@
 #include "window.h"
 #include "logger.h"
+#include <exception>
 #include <iostream>
+#include <memory>
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_glfw.h"
@@ -128,7 +130,12 @@ void Window::loop(){
 
             glfwSwapBuffers(m_GLFWwindow);
             previous = currentTime;
+        } catch (const std::exception &e) {
+            std::cerr << e.what() << std::endl;
+            fflush(stderr);
+            break;
         } catch (...) {
+
             break;
         }
     }

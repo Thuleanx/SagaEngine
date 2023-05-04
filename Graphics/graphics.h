@@ -3,6 +3,7 @@
 #include "GLWrappers/shader.h"
 #include "GLWrappers/vao.h"
 #include "GLWrappers/framebuffer.h"
+#include "Graphics/fullscreenquad.h"
 #include "camera.h"
 #include "light.h"
 #include "material.h"
@@ -78,12 +79,15 @@ public:
 	void setFramebufferSize(glm::ivec2 framebufferSize);
 	glm::ivec2 getFramebufferSize();
 
+    std::shared_ptr<FullscreenQuad> getFullScreenQuad();
+
 private:
     GLuint defaultFramebuffer = 0;
 
 	glm::ivec2 m_windowSize;
 	glm::ivec2 m_framebufferSize;
 
+    std::shared_ptr<FullscreenQuad> m_fullscreenQuad;
 	std::shared_ptr<TextRenderer> m_textRenderer;
 
 	std::map<std::string, std::shared_ptr<Shader>> m_shaders;

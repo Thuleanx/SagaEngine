@@ -1,5 +1,7 @@
 #include "graphics.h"
+#include "Engine/_Core/asserts.h"
 #include "Engine/_Core/logger.h"
+#include "Graphics/fullscreenquad.h"
 #include "shapedata.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -47,6 +49,9 @@ void Graphics::initialize(){
     SINFO("adding font: %s", "opensans");
     addFont("opensans", "Resources/Fonts/OpenSans.ttf");
     getFont("opensans");
+
+    SINFO("created full screen quad");
+    m_fullscreenQuad = std::make_shared<FullscreenQuad>();
 }
 
 void Graphics::clearScreen(GLbitfield mask){
@@ -379,6 +384,11 @@ void Graphics::setFramebufferSize(glm::ivec2 framebufferSize){
 
 glm::ivec2 Graphics::getFramebufferSize(){
     return m_framebufferSize;
+}
+
+std::shared_ptr<FullscreenQuad> Graphics::getFullScreenQuad() {
+    SASSERT_MESSAGE(m_fullscreenQuad, "Full screen quad is not supposed to be null");
+    return m_fullscreenQuad;
 }
 
 }

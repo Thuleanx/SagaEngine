@@ -7,7 +7,7 @@ namespace Saga::BehaviourTreeNodes {
     int Wait::newUID = 0;
 
     Wait::Wait(const float durationSeconds) 
-        : durationSeconds(durationSeconds), uid(newUID++), timeleftBlackboardKey("@wait::" + std::to_string(newUID)) {}
+        : durationSeconds(durationSeconds), uid(newUID++), timeleftBlackboardKey("@wait::" + std::to_string(uid)) {}
     Wait::Wait(const Wait& other) : Wait(other.durationSeconds) {}
 
     BehaviourTree::Status
