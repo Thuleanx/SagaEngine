@@ -43,8 +43,8 @@ private:
     const std::string blurShaderId = "gaussianBlur"; //!< Id of the blur shader in the graphics engine's eye.
     const int KERNEL_SIZE = 16; //!< size of the gaussian blur kernel. In practice, this should be at least three times the sigma.
 
-    const int uid;
-    float sigma;
+    const int uid; //!< id used to create new fbos
+    float sigma; //!< standard deviation of the blur.
     int width; //!< width in pixels of the texture to blur.
     int height; //!< height in pixel of the texture to blur.
     std::string fbo[2]; //!< fbo objects used in the blurring. One for the horizontal and one vertical pass.

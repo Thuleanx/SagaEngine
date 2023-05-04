@@ -126,12 +126,12 @@ namespace Saga::Systems::Graphics {
     }
 
     void drawShadowMapGizmos() {
-        ImGui::Begin("Shadow Map");
+        if (ImGui::CollapsingHeader("Shadow Map")) {
             ImGui::SliderFloat("near_plane", &near_plane, 0.01f, 20.0f);
             ImGui::SliderFloat("far_plane", &far_plane, 5.0f, 100.0f);
             ImGui::SliderFloat("mapped_area", &mapped_area, 1.0f, 20.0f);
             ImGui::SliderFloat("distance_to_camera", &distance_to_camera, 1.0f, 50.0f);
-        ImGui::End();
+        }
     }
 
     namespace {

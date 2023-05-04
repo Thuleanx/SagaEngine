@@ -3,12 +3,14 @@
 #include "Engine/Components/drawSystemData.h"
 #include "Engine/Gameworld/gameworld.h"
 #include "Engine/Graphics/blit.h"
+#include "Engine/Graphics/fog.h"
 #include "Engine/Graphics/gaussianBlur.h"
 #include "Graphics/GLWrappers/texture.h"
 #include "Graphics/debug.h"
 #include "Graphics/global.h"
 #include "glm/fwd.hpp"
 #include "imgui.h"
+#include <memory>
 
 namespace Saga::Systems::Graphics {
 
@@ -33,33 +35,37 @@ screenFramebuffer: {
                 camera.camera->getWidth(), camera.camera->getHeight());
         auto screenFBO = graphics.getFramebuffer(drawSystemData->postProcessingSettings.screenFramebuffer);
 
+        drawSystemData->screenFragmentColorAfterFog = screenFBO->createAndAttachColorTexture(GL_COLOR_ATTACHMENT0, GL_TEXTURE0,
+            GL_RGBA16F, GL_RGBA, GL_FLOAT);
         drawSystemData->screenFragmentColor = screenFBO->createAndAttachColorTexture(GL_COLOR_ATTACHMENT0, GL_TEXTURE0,
             GL_RGBA16F, GL_RGBA, GL_FLOAT);
-        screenFBO->createAndAttachDepthStencilRenderBuffer();
+        drawSystemData->depthStencil = screenFBO->createAndAttachDepthStencilTexture();
 
         screenFBO->verifyStatus();
     }
 
     SINFO("Created screen framebuffer.");
 
-    drawSystemData->extractedBrightColor = std::make_shared<GraphicsEngine::Texture>();
-    drawSystemData->extractedBrightColor->initialize2D(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
-    drawSystemData->extractedBrightColor->setInterpolation(GL_LINEAR);
-    drawSystemData->extractedBrightColor->setWrapping(GL_CLAMP_TO_EDGE);
+    drawSystemData->bloomColor0 = std::make_shared<GraphicsEngine::Texture>();
+    drawSystemData->bloomColor0->initialize2D(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+    drawSystemData->bloomColor0->setInterpolation(GL_LINEAR);
+    drawSystemData->bloomColor0->setWrapping(GL_CLAMP_TO_EDGE);
 
-    drawSystemData->extractedBrightColor2 = std::make_shared<GraphicsEngine::Texture>();
-    drawSystemData->extractedBrightColor2->initialize2D(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
-    drawSystemData->extractedBrightColor2->setInterpolation(GL_LINEAR);
-    drawSystemData->extractedBrightColor2->setWrapping(GL_CLAMP_TO_EDGE);
+    drawSystemData->bloomColor1 = std::make_shared<GraphicsEngine::Texture>();
+    drawSystemData->bloomColor1->initialize2D(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+    drawSystemData->bloomColor1->setInterpolation(GL_LINEAR);
+    drawSystemData->bloomColor1->setWrapping(GL_CLAMP_TO_EDGE);
+
+    drawSystemData->fog = std::make_shared<Saga::Graphics::Fog>(width, height, drawSystemData->screenFragmentColorAfterFog);
 
 extractionFramebuffer: {
         graphics.addFramebuffer(drawSystemData->postProcessingSettings.bloomExtractionFramebuffer, camera.camera->getWidth(), camera.camera->getHeight());
         auto extraction = graphics.getFramebuffer(drawSystemData->postProcessingSettings.bloomExtractionFramebuffer);
-        extraction->attachTexture(drawSystemData->extractedBrightColor, GL_COLOR_ATTACHMENT0);
+        extraction->attachTexture(drawSystemData->bloomColor0, GL_COLOR_ATTACHMENT0);
         extraction->verifyStatus();
     }
 
-    drawSystemData->bloomBlur = std::make_shared<Saga::Graphics::GaussianBlur>(width, height, drawSystemData->extractedBrightColor, drawSystemData->extractedBrightColor2);
+    drawSystemData->bloomBlur = std::make_shared<Saga::Graphics::GaussianBlur>(width, height, drawSystemData->bloomColor0, drawSystemData->bloomColor1);
 
     SINFO("Created framebuffers for post processing");
 
@@ -96,8 +102,8 @@ void performPostProcessing(std::shared_ptr<Saga::GameWorld> world, Camera& camer
         world->emplace<DrawSystemData>(world->getMasterEntity());
 
     if (!drawSystemData->screenFragmentColor ||
-        !drawSystemData->extractedBrightColor ||
-        !drawSystemData->extractedBrightColor2) {
+        !drawSystemData->bloomColor0 ||
+        !drawSystemData->bloomColor1) {
 
         SERROR("It seems like post processing stack has not been properly set up");
         return;
@@ -105,21 +111,31 @@ void performPostProcessing(std::shared_ptr<Saga::GameWorld> world, Camera& camer
 
     glDisable(GL_DEPTH_TEST);
 
+    // fog -> screenFragmentColorAfterFog
+    drawSystemData->fog->applyFog(camera, 
+        drawSystemData->screenFragmentColor, 
+        drawSystemData->depthStencil, 
+        drawSystemData->postProcessingSettings.fogColor, 
+        drawSystemData->postProcessingSettings.fogDensity);
+
+    // bloom: extract hdr colors -> tempScreenFragmentColor
     graphics.bindShader(drawSystemData->postProcessingSettings.bloomExtractionShader);
     graphics.getActiveShader()->setFloat("threshold", drawSystemData->postProcessingSettings.bloomThreshold);
     Saga::Graphics::blit(drawSystemData->postProcessingSettings.bloomExtractionFramebuffer, 
-        drawSystemData->postProcessingSettings.bloomExtractionShader, drawSystemData->screenFragmentColor);
+        drawSystemData->postProcessingSettings.bloomExtractionShader, drawSystemData->screenFragmentColorAfterFog);
     Debug::checkGLError();
 
+    // bloom: blur -> tempScreenFragmentColor
     drawSystemData->bloomBlur->blur(drawSystemData->postProcessingSettings.bloomBlurIterations);
     Debug::checkGLError();
 
+    // post processing steps + combine bloom with original colors
     graphics.bindShader(drawSystemData->postProcessingSettings.postProcessingColors);
     graphics.getActiveShader()->setSampler("bloom", 1);
     loadPostProcessingValues(drawSystemData);
-    drawSystemData->extractedBrightColor->bind(GL_TEXTURE1);
-    Saga::Graphics::blit("", drawSystemData->postProcessingSettings.postProcessingColors, drawSystemData->screenFragmentColor);
-    drawSystemData->extractedBrightColor->unbind(GL_TEXTURE1);
+    drawSystemData->bloomColor0->bind(GL_TEXTURE1);
+    Saga::Graphics::blit("", drawSystemData->postProcessingSettings.postProcessingColors, drawSystemData->screenFragmentColorAfterFog);
+    drawSystemData->bloomColor0->unbind(GL_TEXTURE1);
     Debug::checkGLError();
 
     glEnable(GL_DEPTH_TEST);
@@ -132,7 +148,11 @@ void drawPostProcessingGizmos(std::shared_ptr<Saga::GameWorld> world) {
         world->getComponent<DrawSystemData>(world->getMasterEntity()) :
         world->emplace<DrawSystemData>(world->getMasterEntity());
 
-    ImGui::Begin("Post Processing");
+    if (ImGui::CollapsingHeader("Fog")) {
+        ImGui::SliderFloat("fog density", &drawSystemData->postProcessingSettings.fogDensity, 0, 1);
+        ImGui::ColorPicker3("fog color", glm::value_ptr(drawSystemData->postProcessingSettings.fogColor));
+    }
+
     if (ImGui::CollapsingHeader("Bloom")) {
         ImGui::SliderInt("bloom iterations", &drawSystemData->postProcessingSettings.bloomBlurIterations, 0, 20);
         ImGui::SliderFloat("bloom radius", &drawSystemData->postProcessingSettings.bloomRadius, 1.f, 10.f);
@@ -148,7 +168,6 @@ void drawPostProcessingGizmos(std::shared_ptr<Saga::GameWorld> world) {
         ImGui::SliderFloat("gamma", &drawSystemData->postProcessingSettings.gamma, 1, 3);
         ImGui::EndMenu();
     }
-    ImGui::End();
 }
 
 namespace {

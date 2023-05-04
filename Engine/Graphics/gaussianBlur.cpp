@@ -37,6 +37,8 @@ GaussianBlur::GaussianBlur(int width, int height, std::shared_ptr<GraphicsEngine
 
 GaussianBlur::~GaussianBlur() { 
     using namespace GraphicsEngine::Global;
+    graphics.removeFramebuffer(fbo[0]);
+    graphics.removeFramebuffer(fbo[1]);
 }
 
 void GaussianBlur::loadShaderWithParam() {

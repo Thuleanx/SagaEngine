@@ -150,10 +150,10 @@ namespace Platformer {
         };
 
 		Saga::Entity plane = setupTerrain(glm::vec3(0,0,0));
-        setupTerrain(glm::vec3(20,0,0));
-        setupTerrain(glm::vec3(-20,0,0));
-        setupTerrain(glm::vec3(0,0,20));
-        setupTerrain(glm::vec3(0,0,-20));
+        setupTerrain(glm::vec3(40,0,0));
+        setupTerrain(glm::vec3(-40,0,0));
+        setupTerrain(glm::vec3(0,0,40));
+        setupTerrain(glm::vec3(0,0,-40));
 		Saga::Entity light = setupLights();
 		Saga::Entity player = setupPlayer();
 		Saga::Entity camera = setupCamera(player);

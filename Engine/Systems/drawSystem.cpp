@@ -94,8 +94,10 @@ void drawSystem_OnSetup(std::shared_ptr<GameWorld> world) {
 }
 
 void drawSystem(std::shared_ptr<Saga::GameWorld> world) {
+    ImGui::Begin("Draw System");
     Graphics::drawShadowMapGizmos();
     Graphics::drawPostProcessingGizmos(world);
+    ImGui::End();
     for (Saga::Camera& camera : *world->viewAll<Camera>()) {
         std::optional<glm::mat4> lightSpaceMatrix = Graphics::renderShadowMap(world, camera);
         renderScene(world, camera, lightSpaceMatrix);

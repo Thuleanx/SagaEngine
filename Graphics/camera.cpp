@@ -116,3 +116,7 @@ void Camera::calculateFrustumCorners() {
         frustumCorners[p] = inverseProj * glm::vec4(x,y,z,1);
     }
 }
+
+float Camera::getNearFarDistance() { return m_far - m_near; }
+float Camera::getNear() { return m_near; }
+float Camera::getFar() { return m_far; }
