@@ -53,7 +53,7 @@ void GaussianBlur::loadShaderWithParam() {
         blurShader->setFloat(prop, value);
     }
     // beyond 3*sigma, the value is effectively 0
-    blurShader->setInt("kernelSz", std::min(KERNEL_SIZE, (int) std::ceil(3 * sigma)));
+    blurShader->setInt("kernelSz", std::min(KERNEL_SIZE, (int) std::floor(3 * sigma + 1)));
 
     graphics.getActiveShader()->setSampler("MainTex", 0);
 }

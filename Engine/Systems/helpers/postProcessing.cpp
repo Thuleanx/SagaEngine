@@ -12,17 +12,6 @@
 
 namespace Saga::Systems::Graphics {
 
-const std::string screenFramebuffer = "screenFramebuffer";
-const std::string bloomExtractionFramebuffer = "bloomExtraction";
-const std::string bloomExtractionShader = "bloomExtraction";
-const std::string blurShader = "gaussianBlur";
-const std::string bloomShader = "bloom";
-
-int bloomBlurIterations = 5;
-float bloomRadius = 3;
-float bloomThreshold = 0.7;
-float bloomExposure = 0.3;
-float toneMappingGamma = 2.2;
 
 void postProcessingSetup(std::shared_ptr<Saga::GameWorld> world, Camera& camera) {
     using namespace GraphicsEngine::Global;
@@ -37,8 +26,9 @@ void postProcessingSetup(std::shared_ptr<Saga::GameWorld> world, Camera& camera)
     SINFO("Attempt to createframebuffers for post processing");
 
 screenFramebuffer: {
-        graphics.addFramebuffer(screenFramebuffer, camera.camera->getWidth(), camera.camera->getHeight());
-        auto screenFBO = graphics.getFramebuffer(screenFramebuffer);
+        graphics.addFramebuffer(drawSystemData->postProcessingSettings.screenFramebuffer, 
+                camera.camera->getWidth(), camera.camera->getHeight());
+        auto screenFBO = graphics.getFramebuffer(drawSystemData->postProcessingSettings.screenFramebuffer);
 
         drawSystemData->screenFragmentColor = screenFBO->createAndAttachColorTexture(GL_COLOR_ATTACHMENT0, GL_TEXTURE0,
             GL_RGBA16F, GL_RGBA, GL_FLOAT);
@@ -60,8 +50,8 @@ screenFramebuffer: {
     drawSystemData->extractedBrightColor2->setWrapping(GL_CLAMP_TO_EDGE);
 
 extractionFramebuffer: {
-        graphics.addFramebuffer(bloomExtractionFramebuffer, camera.camera->getWidth(), camera.camera->getHeight());
-        auto extraction = graphics.getFramebuffer(bloomExtractionFramebuffer);
+        graphics.addFramebuffer(drawSystemData->postProcessingSettings.bloomExtractionFramebuffer, camera.camera->getWidth(), camera.camera->getHeight());
+        auto extraction = graphics.getFramebuffer(drawSystemData->postProcessingSettings.bloomExtractionFramebuffer);
         extraction->attachTexture(drawSystemData->extractedBrightColor, GL_COLOR_ATTACHMENT0);
         extraction->verifyStatus();
     }
@@ -70,11 +60,11 @@ extractionFramebuffer: {
 
     SINFO("Created framebuffers for post processing");
 
-    graphics.addShader(bloomExtractionShader,
+    graphics.addShader(drawSystemData->postProcessingSettings.bloomExtractionShader,
     {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER},
     {"Resources/Shaders/postprocessing.vert", "Resources/Shaders/bloom/brightExtractor.frag"});
 
-    graphics.addShader(bloomShader,
+    graphics.addShader(drawSystemData->postProcessingSettings.postProcessingColors,
     {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER},
     {"Resources/Shaders/postprocessing.vert", "Resources/Shaders/bloom/blend.frag"});
 
@@ -82,9 +72,15 @@ extractionFramebuffer: {
     Debug::checkGLError();
 }
 
-void usePostProcessingFBO() {
+void usePostProcessingFBO(std::shared_ptr<GameWorld> world) {
     using namespace GraphicsEngine::Global;
-    graphics.getFramebuffer(screenFramebuffer)->bind();
+
+    DrawSystemData* drawSystemData =
+        world->hasComponent<DrawSystemData>(world->getMasterEntity()) ?
+        world->getComponent<DrawSystemData>(world->getMasterEntity()) :
+        world->emplace<DrawSystemData>(world->getMasterEntity());
+
+    graphics.getFramebuffer(drawSystemData->postProcessingSettings.screenFramebuffer)->bind();
     /* graphics.bindDefaultFramebuffer(); */
 }
 
@@ -106,34 +102,39 @@ void performPostProcessing(std::shared_ptr<Saga::GameWorld> world, Camera& camer
 
     glDisable(GL_DEPTH_TEST);
 
-    graphics.bindShader(bloomExtractionShader);
-    graphics.getActiveShader()->setFloat("threshold", bloomThreshold);
-    Saga::Graphics::blit(bloomExtractionFramebuffer, 
-        bloomExtractionShader, drawSystemData->screenFragmentColor);
+    graphics.bindShader(drawSystemData->postProcessingSettings.bloomExtractionShader);
+    graphics.getActiveShader()->setFloat("threshold", drawSystemData->postProcessingSettings.bloomThreshold);
+    Saga::Graphics::blit(drawSystemData->postProcessingSettings.bloomExtractionFramebuffer, 
+        drawSystemData->postProcessingSettings.bloomExtractionShader, drawSystemData->screenFragmentColor);
     Debug::checkGLError();
 
-    drawSystemData->bloomBlur->blur(bloomBlurIterations);
+    drawSystemData->bloomBlur->blur(drawSystemData->postProcessingSettings.bloomBlurIterations);
     Debug::checkGLError();
 
-    graphics.bindShader(bloomShader);
-    graphics.getShader(bloomShader)->setSampler("bloom", 1);
-    graphics.getShader(bloomShader)->setFloat("exposure", bloomExposure);
-    graphics.getShader(bloomShader)->setFloat("gamma", toneMappingGamma);
+    graphics.bindShader(drawSystemData->postProcessingSettings.postProcessingColors);
+    graphics.getActiveShader()->setSampler("bloom", 1);
+    graphics.getActiveShader()->setFloat("exposure", drawSystemData->postProcessingSettings.bloomExposure);
+    graphics.getActiveShader()->setFloat("gamma", drawSystemData->postProcessingSettings.toneMappingGamma);
     drawSystemData->extractedBrightColor->bind(GL_TEXTURE1);
-    Saga::Graphics::blit("", bloomShader, drawSystemData->screenFragmentColor);
+    Saga::Graphics::blit("", drawSystemData->postProcessingSettings.postProcessingColors, drawSystemData->screenFragmentColor);
     drawSystemData->extractedBrightColor->unbind(GL_TEXTURE1);
     Debug::checkGLError();
 
     glEnable(GL_DEPTH_TEST);
 }
 
-void drawPostProcessingGizmos() {
+void drawPostProcessingGizmos(std::shared_ptr<Saga::GameWorld> world) {
+    DrawSystemData* drawSystemData =
+        world->hasComponent<DrawSystemData>(world->getMasterEntity()) ?
+        world->getComponent<DrawSystemData>(world->getMasterEntity()) :
+        world->emplace<DrawSystemData>(world->getMasterEntity());
+
     ImGui::Begin("Post Processing");
-        ImGui::SliderInt("bloom iterations", &bloomBlurIterations, 0, 20);
-        ImGui::SliderFloat("bloom radius", &bloomRadius, 1.f, 10.f);
-        ImGui::SliderFloat("bloom threshold", &bloomThreshold, 0.f, 1.f);
-        ImGui::SliderFloat("bloom exposure", &bloomExposure, 0, 20);
-        ImGui::SliderFloat("tone mapping gamma", &toneMappingGamma, 1, 3);
+        ImGui::SliderInt("bloom iterations", &drawSystemData->postProcessingSettings.bloomBlurIterations, 0, 20);
+        ImGui::SliderFloat("bloom radius", &drawSystemData->postProcessingSettings.bloomRadius, 1.f, 10.f);
+        ImGui::SliderFloat("bloom threshold", &drawSystemData->postProcessingSettings.bloomThreshold, 0.f, 1.f);
+        ImGui::SliderFloat("bloom exposure", &drawSystemData->postProcessingSettings.bloomExposure, 0, 20);
+        ImGui::SliderFloat("tone mapping gamma", &drawSystemData->postProcessingSettings.toneMappingGamma, 1, 3);
     ImGui::End();
 }
 

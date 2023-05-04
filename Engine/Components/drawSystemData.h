@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Graphics/gaussianBlur.h"
+#include "Engine/Systems/helpers/postProcessing.h"
 #include "Graphics/GLWrappers/texture.h"
 #include "Graphics/fullscreenquad.h"
 #include <memory>
@@ -17,6 +18,8 @@ struct DrawSystemData {
     std::shared_ptr<GraphicsEngine::Texture> extractedBrightColor2;
 
     std::shared_ptr<Graphics::GaussianBlur> bloomBlur;
+
+    Systems::Graphics::PostProcessingSettings postProcessingSettings;
 };
 
 }

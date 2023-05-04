@@ -41,7 +41,7 @@ inline void renderAllShapes(std::shared_ptr<GameWorld> world) {
 inline void renderScene(std::shared_ptr<GameWorld> world, Saga::Camera& camera, std::optional<glm::mat4> shadowMapLightSpaceMatrix) {
     using namespace GraphicsEngine::Global;
 
-    Graphics::usePostProcessingFBO();
+    Graphics::usePostProcessingFBO(world);
     // graphics setup
     glViewport(0, 0, camera.camera->getWidth(), camera.camera->getHeight());
 
@@ -95,7 +95,7 @@ void drawSystem_OnSetup(std::shared_ptr<GameWorld> world) {
 
 void drawSystem(std::shared_ptr<Saga::GameWorld> world) {
     Graphics::drawShadowMapGizmos();
-    Graphics::drawPostProcessingGizmos();
+    Graphics::drawPostProcessingGizmos(world);
     for (Saga::Camera& camera : *world->viewAll<Camera>()) {
         std::optional<glm::mat4> lightSpaceMatrix = Graphics::renderShadowMap(world, camera);
         renderScene(world, camera, lightSpaceMatrix);
