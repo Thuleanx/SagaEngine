@@ -12,6 +12,9 @@
 
 namespace Saga::Systems::Graphics {
 
+namespace {
+void loadPostProcessingValues(DrawSystemData* drawSystemData);
+}
 
 void postProcessingSetup(std::shared_ptr<Saga::GameWorld> world, Camera& camera) {
     using namespace GraphicsEngine::Global;
@@ -113,8 +116,7 @@ void performPostProcessing(std::shared_ptr<Saga::GameWorld> world, Camera& camer
 
     graphics.bindShader(drawSystemData->postProcessingSettings.postProcessingColors);
     graphics.getActiveShader()->setSampler("bloom", 1);
-    graphics.getActiveShader()->setFloat("exposure", drawSystemData->postProcessingSettings.bloomExposure);
-    graphics.getActiveShader()->setFloat("gamma", drawSystemData->postProcessingSettings.toneMappingGamma);
+    loadPostProcessingValues(drawSystemData);
     drawSystemData->extractedBrightColor->bind(GL_TEXTURE1);
     Saga::Graphics::blit("", drawSystemData->postProcessingSettings.postProcessingColors, drawSystemData->screenFragmentColor);
     drawSystemData->extractedBrightColor->unbind(GL_TEXTURE1);
@@ -123,6 +125,7 @@ void performPostProcessing(std::shared_ptr<Saga::GameWorld> world, Camera& camer
     glEnable(GL_DEPTH_TEST);
 }
 
+
 void drawPostProcessingGizmos(std::shared_ptr<Saga::GameWorld> world) {
     DrawSystemData* drawSystemData =
         world->hasComponent<DrawSystemData>(world->getMasterEntity()) ?
@@ -130,12 +133,35 @@ void drawPostProcessingGizmos(std::shared_ptr<Saga::GameWorld> world) {
         world->emplace<DrawSystemData>(world->getMasterEntity());
 
     ImGui::Begin("Post Processing");
+    if (ImGui::CollapsingHeader("Bloom")) {
         ImGui::SliderInt("bloom iterations", &drawSystemData->postProcessingSettings.bloomBlurIterations, 0, 20);
         ImGui::SliderFloat("bloom radius", &drawSystemData->postProcessingSettings.bloomRadius, 1.f, 10.f);
         ImGui::SliderFloat("bloom threshold", &drawSystemData->postProcessingSettings.bloomThreshold, 0.f, 1.f);
-        ImGui::SliderFloat("bloom exposure", &drawSystemData->postProcessingSettings.bloomExposure, 0, 20);
-        ImGui::SliderFloat("tone mapping gamma", &drawSystemData->postProcessingSettings.toneMappingGamma, 1, 3);
+    }
+    if (ImGui::CollapsingHeader("Color correction")) {
+        ImGui::SliderFloat("exposure", &drawSystemData->postProcessingSettings.exposure, 0, 20);
+        ImGui::SliderFloat("temperature", &drawSystemData->postProcessingSettings.temperature, -1.66, 1.66);
+        ImGui::SliderFloat("tint", &drawSystemData->postProcessingSettings.tint, -1.66, 1.66);
+        ImGui::SliderFloat("contrast", &drawSystemData->postProcessingSettings.contrast, 0, 2);
+        ImGui::SliderFloat("brightness", &drawSystemData->postProcessingSettings.brightness, -1, 1);
+        ImGui::SliderFloat("saturation", &drawSystemData->postProcessingSettings.saturation, 0, 2);
+        ImGui::SliderFloat("gamma", &drawSystemData->postProcessingSettings.gamma, 1, 3);
+        ImGui::EndMenu();
+    }
     ImGui::End();
+}
+
+namespace {
+void loadPostProcessingValues(DrawSystemData* drawSystemData) {
+    using namespace GraphicsEngine::Global;
+    graphics.getActiveShader()->setFloat("exposure", drawSystemData->postProcessingSettings.exposure);
+    graphics.getActiveShader()->setFloat("temperature", drawSystemData->postProcessingSettings.temperature);
+    graphics.getActiveShader()->setFloat("tint", drawSystemData->postProcessingSettings.tint);
+    graphics.getActiveShader()->setFloat("contrast", drawSystemData->postProcessingSettings.contrast);
+    graphics.getActiveShader()->setFloat("brightness", drawSystemData->postProcessingSettings.brightness);
+    graphics.getActiveShader()->setFloat("saturation", drawSystemData->postProcessingSettings.saturation);
+    graphics.getActiveShader()->setFloat("gamma", drawSystemData->postProcessingSettings.gamma);
+}
 }
 
 }

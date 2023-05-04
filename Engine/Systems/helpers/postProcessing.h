@@ -18,8 +18,16 @@ namespace Saga::Systems::Graphics {
         int bloomBlurIterations = 5;
         float bloomRadius = 3;
         float bloomThreshold = 0.7;
-        float bloomExposure = 0.3;
-        float toneMappingGamma = 2.2;
+
+        float exposure = 0.3;
+        float temperature = 0;
+        float tint = 0;
+        float contrast = 1;
+        float brightness = 0;
+        float saturation = 1;
+
+        // for tonemapping
+        float gamma = 2.2;
     };
 
     void drawPostProcessingGizmos(std::shared_ptr<Saga::GameWorld> world);
