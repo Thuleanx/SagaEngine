@@ -13,7 +13,7 @@ void main() {
     vec3 hdrColor = texture(MainTex, uv).rgb;
     vec3 bloomColor = texture(bloom, uv).rgb;
 
-    hdrColor += bloomColor;
+    hdrColor += bloomColor * exposure;
 
     /* vec3 result = vec3(1.0) - exp(-hdrColor * exposure); */
     vec3 result = hdrColor / (hdrColor + 1);

@@ -30,6 +30,8 @@ float toneMappingGamma = 2.2;
 void postProcessingSetup(std::shared_ptr<Saga::GameWorld> world, Camera& camera) {
     using namespace GraphicsEngine::Global;
 
+    int width = camera.camera->getWidth(), height = camera.camera->getHeight();
+
     DrawSystemData* drawSystemData =
         world->hasComponent<DrawSystemData>(world->getMasterEntity()) ?
         world->getComponent<DrawSystemData>(world->getMasterEntity()) :
@@ -44,7 +46,8 @@ screenFramebuffer: {
         graphics.addFramebuffer(screenFramebuffer, camera.camera->getWidth(), camera.camera->getHeight());
         auto screenFBO = graphics.getFramebuffer(screenFramebuffer);
 
-        drawSystemData->screenFragmentColor = screenFBO->createAndAttachColorTexture(GL_COLOR_ATTACHMENT0, GL_TEXTURE0);
+        drawSystemData->screenFragmentColor = screenFBO->createAndAttachColorTexture(GL_COLOR_ATTACHMENT0, GL_TEXTURE0,
+            GL_RGBA16F, GL_RGBA, GL_FLOAT);
         screenFBO->createAndAttachDepthStencilRenderBuffer();
 
         screenFBO->verifyStatus();
@@ -56,7 +59,8 @@ extractionFramebuffer: {
         graphics.addFramebuffer(bloomExtractionFramebuffer, camera.camera->getWidth(), camera.camera->getHeight());
         auto extraction = graphics.getFramebuffer(bloomExtractionFramebuffer);
 
-        drawSystemData->extractedBrightColor = extraction->createAndAttachColorTexture(GL_COLOR_ATTACHMENT0, GL_TEXTURE0);
+        drawSystemData->extractedBrightColor = extraction->createAndAttachColorTexture(GL_COLOR_ATTACHMENT0, GL_TEXTURE0,
+            GL_RGBA16F, GL_RGBA, GL_FLOAT);
 
         extraction->createAndAttachDepthStencilRenderBuffer();
 
@@ -67,7 +71,8 @@ horizontalBlurFramebuffer: {
         graphics.addFramebuffer(horizontalBlurFramebuffer, camera.camera->getWidth(), camera.camera->getHeight());
         auto horizontalBlurFBO = graphics.getFramebuffer(horizontalBlurFramebuffer);
 
-        drawSystemData->extractedBrightColor2 = horizontalBlurFBO->createAndAttachColorTexture(GL_COLOR_ATTACHMENT0);
+        drawSystemData->extractedBrightColor2 = horizontalBlurFBO->createAndAttachColorTexture(GL_COLOR_ATTACHMENT0, GL_TEXTURE0,
+            GL_RGBA16F, GL_RGBA, GL_FLOAT);
         horizontalBlurFBO->verifyStatus();
     }
 
@@ -84,10 +89,6 @@ verticalBlurFramebuffer: {
     graphics.addShader(bloomExtractionShader,
     {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER},
     {"Resources/Shaders/postprocessing.vert", "Resources/Shaders/bloom/brightExtractor.frag"});
-
-    graphics.addShader(blurShader,
-    {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER},
-    {"Resources/Shaders/postprocessing.vert", "Resources/Shaders/standard/gaussianBlur.frag"});
 
     graphics.addShader(bloomShader,
     {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER},

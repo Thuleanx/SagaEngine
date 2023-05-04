@@ -22,7 +22,8 @@ public:
 
     void attachTexture(std::shared_ptr<Texture> texture, GLenum attachment = GL_COLOR_ATTACHMENT0, bool is3D = false);
 
-    std::shared_ptr<Texture> createAndAttachColorTexture(GLenum attachment = GL_COLOR_ATTACHMENT0, GLenum texUnit = GL_TEXTURE0);
+    std::shared_ptr<Texture> createAndAttachColorTexture(GLenum attachment = GL_COLOR_ATTACHMENT0, GLenum texUnit = GL_TEXTURE0,
+            GLenum internalFormat = GL_RGBA, GLenum format = GL_RGBA, GLenum dataType = GL_UNSIGNED_BYTE);
     std::shared_ptr<Texture> createAndAttachVector3Texture(GLenum attachment = GL_COLOR_ATTACHMENT0, GLenum texUnit = GL_TEXTURE0);
     std::shared_ptr<Texture> createAndAttachFloatTexture(GLenum attachment = GL_COLOR_ATTACHMENT0, GLenum texUnit = GL_TEXTURE0);
 

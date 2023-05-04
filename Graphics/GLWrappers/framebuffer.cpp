@@ -64,9 +64,11 @@ void Framebuffer::attachTexture(std::shared_ptr<Texture> texture, GLenum attachm
     unbind();
 }
 
-std::shared_ptr<Texture> Framebuffer::createAndAttachColorTexture(GLenum attachment, GLenum texUnit) {
+std::shared_ptr<Texture> Framebuffer::createAndAttachColorTexture(GLenum attachment, GLenum texUnit,
+    GLenum internalFormat, GLenum format, GLenum dataType) {
+
     std::shared_ptr<Texture> texture = std::make_shared<Texture>(texUnit);
-    texture->initialize2D(width, height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
+    texture->initialize2D(width, height, internalFormat, format, dataType);
     texture->setInterpolation(GL_LINEAR);
     texture->setWrapping(GL_CLAMP_TO_EDGE);
     attachTexture(texture, attachment);
@@ -107,7 +109,7 @@ std::shared_ptr<Texture> Framebuffer::createAndAttachDepthStencilTexture(GLenum 
     std::shared_ptr<Texture> texture = std::make_shared<Texture>(texUnit, GL_TEXTURE_2D);
     texture->initialize2D(width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
     texture->setInterpolation(GL_LINEAR);
-    texture->setInterpolation(GL_CLAMP_TO_EDGE);
+    texture->setWrapping(GL_CLAMP_TO_EDGE);
 
     attachTexture(texture, GL_DEPTH_STENCIL_ATTACHMENT);
     Debug::checkGLError();
