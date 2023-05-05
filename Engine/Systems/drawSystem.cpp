@@ -104,7 +104,7 @@ void drawSystem_OnSetup(std::shared_ptr<GameWorld> world) {
         Graphics::postProcessingSetup(world, camera);
     auto drawData = world->getComponent<DrawSystemData>(world->getMasterEntity());
 
-    if (drawData) drawData->skybox = std::make_shared<Saga::Graphics::Skybox>("Resources/Images/skyboxes/ocean/", "png");
+    if (drawData) drawData->skybox = std::make_shared<Saga::Graphics::Skybox>("Resources/Images/skyboxes/universe/", "png");
 }
 
 void drawSystem(std::shared_ptr<Saga::GameWorld> world) {
