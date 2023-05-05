@@ -19,8 +19,9 @@ public:
      * @param skyboxPath should be a path to a directory containing the skybox.
      *  the 6 files of the skyboxes must be pngs of the names:
      *  right, left, up, down, front, back.
+     *  @param fileextension the extension of the skybox files (i.e. "png").
      */
-    Skybox(const std::string &skyboxPath);
+    Skybox(const std::string &skyboxPath, const std::string &skyboxExtension);
 
     /**
      * @brief Destroy the skybox

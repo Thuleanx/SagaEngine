@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "Engine/_Core/logger.h"
+#include "Graphics/debug.h"
 #include "stb_image.h"
 
 namespace GraphicsEngine {
@@ -13,9 +14,9 @@ CubeMap::CubeMap(std::vector<std::string> filenames, std::vector<GLenum> faces){
 
     int width, height, nrChannels;
     for(int i = 0; i<6; i++){
-        SINFO("Trying to load cubemap file %s.", filenames[i].c_str());
+        SINFO("Trying to load cubemap file [%s].", filenames[i].c_str());
         unsigned char *data = stbi_load(filenames[i].c_str(), &width, &height, &nrChannels, 0);
-        if(data){
+        if (data){
             glTexImage2D(faces[i], 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         }
         else{
@@ -29,7 +30,7 @@ CubeMap::CubeMap(std::vector<std::string> filenames, std::vector<GLenum> faces){
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
+    Debug::checkGLError();
 }
 
 CubeMap::~CubeMap(){

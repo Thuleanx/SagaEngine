@@ -9,6 +9,8 @@ namespace Saga {
 
 namespace Saga::Systems::Graphics {
     struct PostProcessingSettings {
+        bool enabled = false;
+
         std::string screenFramebuffer = "screenFramebuffer";
         std::string bloomExtractionFramebuffer = "bloomExtraction";
         std::string bloomExtractionShader = "bloomExtraction";

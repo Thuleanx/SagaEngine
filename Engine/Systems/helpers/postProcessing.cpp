@@ -89,8 +89,10 @@ void usePostProcessingFBO(std::shared_ptr<GameWorld> world) {
         world->getComponent<DrawSystemData>(world->getMasterEntity()) :
         world->emplace<DrawSystemData>(world->getMasterEntity());
 
-    graphics.getFramebuffer(drawSystemData->postProcessingSettings.screenFramebuffer)->bind();
-    /* graphics.bindDefaultFramebuffer(); */
+    if (drawSystemData->postProcessingSettings.enabled)
+        graphics.getFramebuffer(drawSystemData->postProcessingSettings.screenFramebuffer)->bind();
+    else
+        graphics.bindDefaultFramebuffer();
 }
 
 void performPostProcessing(std::shared_ptr<Saga::GameWorld> world, Camera& camera) {
@@ -100,6 +102,8 @@ void performPostProcessing(std::shared_ptr<Saga::GameWorld> world, Camera& camer
         world->hasComponent<DrawSystemData>(world->getMasterEntity()) ?
         world->getComponent<DrawSystemData>(world->getMasterEntity()) :
         world->emplace<DrawSystemData>(world->getMasterEntity());
+
+    if (!drawSystemData->postProcessingSettings.enabled) return;
 
     if (!drawSystemData->screenFragmentColor ||
         !drawSystemData->bloomColor0 ||
@@ -147,6 +151,8 @@ void drawPostProcessingGizmos(std::shared_ptr<Saga::GameWorld> world) {
         world->hasComponent<DrawSystemData>(world->getMasterEntity()) ?
         world->getComponent<DrawSystemData>(world->getMasterEntity()) :
         world->emplace<DrawSystemData>(world->getMasterEntity());
+
+    ImGui::Checkbox("Enable post processing", &drawSystemData->postProcessingSettings.enabled);
 
     if (ImGui::CollapsingHeader("Fog")) {
         ImGui::SliderFloat("fog density", &drawSystemData->postProcessingSettings.fogDensity, 0, 1);

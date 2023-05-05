@@ -9,5 +9,6 @@ uniform mat4 view;
 void main()
 {
     cubemap_uvw = pos;
-    gl_Position = projection * view * vec4(pos, 1.0);
+    vec4 actualPos = projection * view * vec4(pos, 1.0);
+    gl_Position = actualPos.xyww;
 }

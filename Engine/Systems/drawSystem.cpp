@@ -54,12 +54,6 @@ inline void renderScene(std::shared_ptr<GameWorld> world, Saga::Camera& camera, 
         graphics.clearScreen(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     } else graphics.clearScreen(GL_DEPTH_BUFFER_BIT);
 
-    {
-        // draw skybox
-        auto drawData = world->getComponent<DrawSystemData>(world->getMasterEntity());
-        if (drawData && drawData->skybox) 
-            drawData->skybox->draw(camera); 
-    }
 
     // set shader
     SASSERT_MESSAGE(camera.shader != "", "Camera cannot have an empty shader");
@@ -92,6 +86,13 @@ inline void renderScene(std::shared_ptr<GameWorld> world, Saga::Camera& camera, 
         renderAllShapes(world);
     }
 
+    {
+        // draw skybox
+        auto drawData = world->getComponent<DrawSystemData>(world->getMasterEntity());
+        if (drawData && drawData->skybox) 
+            drawData->skybox->draw(camera); 
+    }
+
     Graphics::performPostProcessing(world, camera);
 }
 
@@ -103,7 +104,7 @@ void drawSystem_OnSetup(std::shared_ptr<GameWorld> world) {
         Graphics::postProcessingSetup(world, camera);
     auto drawData = world->getComponent<DrawSystemData>(world->getMasterEntity());
 
-    if (drawData) drawData->skybox = std::make_shared<Saga::Graphics::Skybox>("Resources/Images/skyboxes/universe/");
+    if (drawData) drawData->skybox = std::make_shared<Saga::Graphics::Skybox>("Resources/Images/skyboxes/ocean/", "png");
 }
 
 void drawSystem(std::shared_ptr<Saga::GameWorld> world) {

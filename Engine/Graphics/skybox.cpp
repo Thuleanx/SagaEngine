@@ -7,12 +7,12 @@ namespace Saga::Graphics {
 namespace {
 
 std::vector<std::string> faces = {
-    "right.png",
-    "left.png",
-    "top.png",
-    "bottom.png",
-    "front.png",
-    "back.png"
+    "right",
+    "left",
+    "top",
+    "bottom",
+    "front",
+    "back"
 };
 
 std::vector<GLenum> facesType = {
@@ -71,9 +71,9 @@ float skyboxVertices[] = {
 
 }
 
-Skybox::Skybox(const std::string &skyboxPath) {
+Skybox::Skybox(const std::string &skyboxPath, const std::string& fileExtension) {
     std::vector<std::string> filenames;
-    for (int i = 0; i < 6; i++) filenames.push_back(skyboxPath + faces[i]);
+    for (int i = 0; i < 6; i++) filenames.push_back(skyboxPath + faces[i] + "." + fileExtension);
 
     skyTexture = std::make_shared<GraphicsEngine::CubeMap>(
         filenames,
