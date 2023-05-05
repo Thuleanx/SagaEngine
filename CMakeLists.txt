@@ -104,6 +104,8 @@ add_executable(${PROJECT_NAME}
     Graphics/textrenderer.cpp
     Graphics/fullscreenquad.h
     Graphics/fullscreenquad.cpp
+    Graphics/cubemap.h
+    Graphics/cubemap.cpp
     Graphics/GLWrappers/framebuffer.h
     Graphics/GLWrappers/framebuffer.cpp
     Graphics/GLWrappers/shader.h

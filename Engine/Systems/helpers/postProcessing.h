@@ -16,7 +16,7 @@ namespace Saga::Systems::Graphics {
         std::string postProcessingColors = "postProcessingColors";
 
         glm::vec3 fogColor = glm::vec3(0.7);
-        float fogDensity = 0.5;
+        float fogDensity = 0.25;
 
         int bloomBlurIterations = 5;
         float bloomRadius = 3;

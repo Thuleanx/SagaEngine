@@ -1,5 +1,6 @@
 #include "drawSystem.h"
 #include "Engine/Components/drawSystemData.h"
+#include "Engine/Graphics/skybox.h"
 #include "Engine/Systems/helpers/postProcessing.h"
 #include "Engine/Systems/helpers/shadowMap.h"
 #include "Engine/_Core/logger.h"
@@ -20,6 +21,7 @@
 #include "imgui.h"
 #include <cmath>
 #include <iostream>
+#include <memory>
 
 namespace Saga::Systems {
 
@@ -45,11 +47,19 @@ inline void renderScene(std::shared_ptr<GameWorld> world, Saga::Camera& camera, 
     // graphics setup
     glViewport(0, 0, camera.camera->getWidth(), camera.camera->getHeight());
 
+
     // clear color buffer
     if (camera.clearColorBufferOnDraw) {
         graphics.setClearColor(camera.clearColor);
         graphics.clearScreen(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     } else graphics.clearScreen(GL_DEPTH_BUFFER_BIT);
+
+    {
+        // draw skybox
+        auto drawData = world->getComponent<DrawSystemData>(world->getMasterEntity());
+        if (drawData && drawData->skybox) 
+            drawData->skybox->draw(camera); 
+    }
 
     // set shader
     SASSERT_MESSAGE(camera.shader != "", "Camera cannot have an empty shader");
@@ -91,6 +101,9 @@ void drawSystem_OnSetup(std::shared_ptr<GameWorld> world) {
     Graphics::shadowMapSetup(world);
     for (Saga::Camera& camera : *world->viewAll<Camera>())
         Graphics::postProcessingSetup(world, camera);
+    auto drawData = world->getComponent<DrawSystemData>(world->getMasterEntity());
+
+    if (drawData) drawData->skybox = std::make_shared<Saga::Graphics::Skybox>("Resources/Images/skyboxes/universe/");
 }
 
 void drawSystem(std::shared_ptr<Saga::GameWorld> world) {
@@ -98,6 +111,7 @@ void drawSystem(std::shared_ptr<Saga::GameWorld> world) {
     Graphics::drawShadowMapGizmos();
     Graphics::drawPostProcessingGizmos(world);
     ImGui::End();
+
     for (Saga::Camera& camera : *world->viewAll<Camera>()) {
         std::optional<glm::mat4> lightSpaceMatrix = Graphics::renderShadowMap(world, camera);
         renderScene(world, camera, lightSpaceMatrix);

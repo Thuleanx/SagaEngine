@@ -2,6 +2,7 @@
 
 #include "Engine/Graphics/fog.h"
 #include "Engine/Graphics/gaussianBlur.h"
+#include "Engine/Graphics/skybox.h"
 #include "Engine/Systems/helpers/postProcessing.h"
 #include "Graphics/GLWrappers/texture.h"
 #include "Graphics/fullscreenquad.h"
@@ -22,6 +23,8 @@ struct DrawSystemData {
 
     std::shared_ptr<Graphics::GaussianBlur> bloomBlur;
     std::shared_ptr<Graphics::Fog> fog;
+
+    std::shared_ptr<Graphics::Skybox> skybox;
 
     Systems::Graphics::PostProcessingSettings postProcessingSettings;
 };

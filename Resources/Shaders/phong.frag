@@ -155,9 +155,9 @@ float computeSpecularIntensity(vec3 worldSpace_toLight, vec3 worldSpace_toEye) {
         return 0;
     }
 
-    if (dot(worldSpace_toLight, normalize(worldSpace_norm)) < 0) {
-        return 0;
-    }
+/*     if (dot(worldSpace_toLight, normalize(worldSpace_norm)) < 0) { */
+/*         return 0; */
+/*     } */
 
     //reflect toLight
     vec3 worldSpace_toLightReflected = reflect(-worldSpace_toLight, normalize(worldSpace_norm));

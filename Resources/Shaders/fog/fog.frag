@@ -24,7 +24,7 @@ void main() {
     float depth = texture(DepthTex, uv).r;
     depth = linearizePerspectiveDepth(depth) * far;
 
-    float squaredDepth = (depth*fogDensity)*(depth*fogDensity);
+    float squaredDepth = (depth*fogDensity);
     float fogFactor = pow(2, -squaredDepth);
 
     color = mix(fogColor, color, fogFactor);
