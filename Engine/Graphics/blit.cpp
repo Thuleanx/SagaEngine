@@ -9,7 +9,6 @@ namespace Saga::Graphics {
         if (framebuffer.size()) graphics.bindFramebuffer(framebuffer);
         else graphics.bindDefaultFramebuffer();
 
-
         graphics.bindShader(shader);
         graphics.getActiveShader()->setSampler("MainTex", 0);
         mainTex->bind(GL_TEXTURE0);

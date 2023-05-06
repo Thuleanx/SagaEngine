@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Graphics/depthOfField.h"
 #include "Engine/Graphics/fog.h"
 #include "Engine/Graphics/gaussianBlur.h"
 #include "Engine/Graphics/skybox.h"
@@ -22,6 +23,7 @@ struct DrawSystemData {
     std::shared_ptr<GraphicsEngine::Texture> bloomColor1;
 
     std::shared_ptr<Graphics::GaussianBlur> bloomBlur;
+    std::shared_ptr<Graphics::DepthOfField> dof;
     std::shared_ptr<Graphics::Fog> fog;
 
     std::shared_ptr<Graphics::Skybox> skybox;

@@ -7,6 +7,7 @@
 #include <cstdarg>
 #include "plog/Appenders/ColorConsoleAppender.h"
 #include "plog/Formatters/TxtFormatter.h"
+#include "plog/Formatters/FuncMessageFormatter.h"
 #include "plog/Init.h"
 #include "plog/Severity.h"
 #include "plog/Initializers/RollingFileInitializer.h"
@@ -20,7 +21,7 @@ bool initializeLogger() {
     ofs.close();
 
     // open the log file again for output
-    static plog::ColorConsoleAppender<plog::TxtFormatter> appender;
+    static plog::ColorConsoleAppender<plog::FuncMessageFormatter> appender;
     plog::init(plog::Severity::verbose, "sagaruntime.log").addAppender(&appender);
 
     /* PLOG_VERBOSE << "This is a VERBOSE message"; */

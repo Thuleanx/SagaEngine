@@ -3,6 +3,7 @@
 #include "Engine/Components/drawSystemData.h"
 #include "Engine/Gameworld/gameworld.h"
 #include "Engine/Graphics/blit.h"
+#include "Engine/Graphics/depthOfField.h"
 #include "Engine/Graphics/fog.h"
 #include "Engine/Graphics/gaussianBlur.h"
 #include "Graphics/GLWrappers/texture.h"
@@ -57,6 +58,7 @@ screenFramebuffer: {
     drawSystemData->bloomColor1->setWrapping(GL_CLAMP_TO_EDGE);
 
     drawSystemData->fog = std::make_shared<Saga::Graphics::Fog>(width, height, drawSystemData->screenFragmentColorAfterFog);
+    drawSystemData->dof = std::make_shared<Saga::Graphics::DepthOfField>(width, height, drawSystemData->bloomColor0);
 
 extractionFramebuffer: {
         graphics.addFramebuffer(drawSystemData->postProcessingSettings.bloomExtractionFramebuffer, camera.camera->getWidth(), camera.camera->getHeight());
@@ -115,12 +117,20 @@ void performPostProcessing(std::shared_ptr<Saga::GameWorld> world, Camera& camer
 
     glDisable(GL_DEPTH_TEST);
 
+    // dof -> bloomColor0
+    drawSystemData->dof->apply(camera, 
+        drawSystemData->screenFragmentColor,
+        drawSystemData->depthStencil,
+        drawSystemData->postProcessingSettings.focusDistance, 
+        drawSystemData->postProcessingSettings.focusRange, 5, 5);
+
     // fog -> screenFragmentColorAfterFog
     drawSystemData->fog->applyFog(camera, 
-        drawSystemData->screenFragmentColor, 
-        drawSystemData->depthStencil, 
-        drawSystemData->postProcessingSettings.fogColor, 
+        drawSystemData->bloomColor0,
+        drawSystemData->depthStencil,
+        drawSystemData->postProcessingSettings.fogColor,
         drawSystemData->postProcessingSettings.fogDensity);
+    
 
     // bloom: extract hdr colors -> tempScreenFragmentColor
     graphics.bindShader(drawSystemData->postProcessingSettings.bloomExtractionShader);
@@ -153,6 +163,11 @@ void drawPostProcessingGizmos(std::shared_ptr<Saga::GameWorld> world) {
         world->emplace<DrawSystemData>(world->getMasterEntity());
 
     ImGui::Checkbox("Enable post processing", &drawSystemData->postProcessingSettings.enabled);
+
+    if (ImGui::CollapsingHeader("Depth of Field")) {
+        ImGui::SliderFloat("focus distance", &drawSystemData->postProcessingSettings.focusDistance, 0, 50);
+        ImGui::SliderFloat("focus range", &drawSystemData->postProcessingSettings.focusRange, 0, 10);
+    }
 
     if (ImGui::CollapsingHeader("Fog")) {
         ImGui::SliderFloat("fog density", &drawSystemData->postProcessingSettings.fogDensity, 0, 1);

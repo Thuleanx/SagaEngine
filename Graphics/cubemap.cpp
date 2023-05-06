@@ -14,7 +14,6 @@ CubeMap::CubeMap(std::vector<std::string> filenames, std::vector<GLenum> faces){
 
     int width, height, nrChannels;
     for(int i = 0; i<6; i++){
-        SINFO("Trying to load cubemap file [%s].", filenames[i].c_str());
         try {
             unsigned char *data = stbi_load(filenames[i].c_str(), &width, &height, &nrChannels, 0);
             if (data) glTexImage2D(faces[i], 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);

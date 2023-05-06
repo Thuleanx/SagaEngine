@@ -56,9 +56,13 @@ void Texture::initialize3D(int width, int height, int depth,
 
 void Texture::initialize2D(int width, int height,
                            GLint internalFormat, GLint format, GLint dataType) {
+    // apparently interpolation and wrapmode must be set before we can use the texture
+    setInterpolation(GL_LINEAR);
+    setWrapping(GL_CLAMP_TO_EDGE);
     bind();
     glTexImage2D(m_texTarget, 0, internalFormat, width, height, 0, format,
                  dataType, NULL);
+    Debug::checkGLError();
     unbind();
 }
 

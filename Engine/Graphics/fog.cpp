@@ -9,6 +9,7 @@ int Fog::newUID = 0;
 Fog::Fog(int width, int height, std::shared_ptr<GraphicsEngine::Texture> resultTex) :
     width(width), height(height), uid(newUID++), fbo("fogfbo#" + std::to_string(uid)) {
 
+
     using namespace GraphicsEngine::Global;
     graphics.addFramebuffer(fbo, width, height);
     auto framebuffer = graphics.getFramebuffer(fbo);
