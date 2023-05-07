@@ -142,6 +142,7 @@ void performPostProcessing(std::shared_ptr<Saga::GameWorld> world, Camera& camer
     // bloom: extract hdr colors -> bloomColor0
     graphics.bindShader(drawSystemData->postProcessingSettings.bloomExtractionShader);
     graphics.getActiveShader()->setFloat("threshold", drawSystemData->postProcessingSettings.bloomThreshold);
+    graphics.getActiveShader()->setFloat("intensity", drawSystemData->postProcessingSettings.bloomIntensity);
     Saga::Graphics::blit(drawSystemData->postProcessingSettings.bloomExtractionFramebuffer, 
         drawSystemData->postProcessingSettings.bloomExtractionShader, drawSystemData->screenFragmentColorAfterDOF);
     Debug::checkGLError();
@@ -188,7 +189,8 @@ void drawPostProcessingGizmos(std::shared_ptr<Saga::GameWorld> world) {
     }
 
     if (ImGui::CollapsingHeader("Bloom")) {
-        ImGui::SliderInt("bloom iterations", &drawSystemData->postProcessingSettings.bloomBlurIterations, 0, 20);
+        ImGui::SliderFloat("bloom intensity", &drawSystemData->postProcessingSettings.bloomIntensity, 0.f, 10.f);
+        /* ImGui::SliderInt("bloom iterations", &drawSystemData->postProcessingSettings.bloomBlurIterations, 0, 20); */
         ImGui::SliderFloat("bloom radius", &drawSystemData->postProcessingSettings.bloomRadius, 1.f, 10.f);
         ImGui::SliderFloat("bloom threshold", &drawSystemData->postProcessingSettings.bloomThreshold, 0.f, 1.f);
     }

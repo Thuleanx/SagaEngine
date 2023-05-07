@@ -28,11 +28,12 @@ namespace Saga::Systems::Graphics {
         glm::vec3 fogColor = glm::vec3(0.7);
         float fogDensity = 0.05;
 
+        float bloomIntensity = 1;
         int bloomBlurIterations = 5;
         float bloomRadius = 3;
         float bloomThreshold = 0.7;
 
-        float exposure = 0.3;
+        float exposure = 1;
         float temperature = 0;
         float tint = 0;
         float contrast = 1;

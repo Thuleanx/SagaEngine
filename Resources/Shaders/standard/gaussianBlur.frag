@@ -15,8 +15,6 @@ uniform float weight[16];
 void main() {
     vec2 tex_offset = 1.0 / textureSize(MainTex, 0); // gets size of single texel
 
-
-
     vec3 result = texture(MainTex, uv).rgb * weight[0]; // current fragment's contribution
     if(horizontal) {
         for(int i = 1; i < kernelSz; ++i)

@@ -74,7 +74,7 @@ float unitWeight(vec3 color) {
 void main() {
     /* vec2 tex_offset = 1.0 / textureSize(MainTex, 0); // gets size of single texel */
 
-    ivec2 texCoord = ivec2(textureSize(MainTex, 0) * uv);
+    ivec2 texCoord = ivec2(textureSize(MainTex, 0) * uv - 0.5);
 
     float accumulatedWeight = 0;
     vec3 result = vec3(0);

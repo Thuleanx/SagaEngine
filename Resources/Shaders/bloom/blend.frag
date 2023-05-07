@@ -90,13 +90,18 @@ vec3 applySaturation(vec3 col) {
     return mix(vec3(lum), col, saturation);
 }
 
+vec3 blendBloom(vec3 col, vec3 bloom) {
+    return col + bloom;
+    /* return 1 - (1 - col) * (1 - bloom); */
+    /* return col / (1 - bloom); */
+}
+
 void main() {
     vec3 hdrColor = texture(MainTex, uv).rgb;
     vec3 bloomColor = texture(bloom, uv).rgb;
 
-    hdrColor += bloomColor;
+    hdrColor = blendBloom(hdrColor, bloomColor);
     hdrColor = max(hdrColor,0);
-
     // exposure
     hdrColor *= exposure;
 
@@ -113,7 +118,7 @@ void main() {
     hdrColor = max(hdrColor, 0);
 
     // tonemapping
-    hdrColor = narkowiczACES(hdrColor);
+    hdrColor = reinhardExtended(hdrColor);
 
     hdrColor = gammaCorrection(hdrColor);
 
