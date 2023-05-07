@@ -99,10 +99,12 @@ glm::vec3 Camera::getUp(){
 
 void Camera::calculateProjection(){
     m_proj = glm::perspective(m_fov, m_aspect, m_near, m_far);
+    calculateFrustumCorners();
 }
 
 void Camera::calculateView(){
     m_view = glm::lookAt(m_pos, m_pos+m_look, m_up);
+    calculateFrustumCornersWorldSpace();
 }
 
 void Camera::calculateFrustumCorners() {
@@ -110,10 +112,18 @@ void Camera::calculateFrustumCorners() {
     // takes from projected to view space.
     glm::mat4 inverseProj = glm::inverse(m_proj);
 
-    for (float x = -1; x <= 1; x++)
-    for (float y = -1; y <= 1; y++)
-    for (float z = 0; z <= 1; z++, p++) {
+    for (int x = -1; x <= 1; x+=2)
+    for (int y = -1; y <= 1; y+=2)
+    for (int z = -1; z <= 0; z++, p++)
         frustumCorners[p] = inverseProj * glm::vec4(x,y,z,1);
+}
+
+void Camera::calculateFrustumCornersWorldSpace() {
+    // bring viewspace object to world space.
+    glm::mat4 inverseView = glm::inverse(m_view);
+    for (int i = 0; i < 8; i++) {
+        frustumCorners_worldSpace[i] = inverseView * 
+            glm::vec4(frustumCorners[i].x, frustumCorners[i].y, frustumCorners[i].z, 1);
     }
 }
 

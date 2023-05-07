@@ -38,6 +38,7 @@ namespace GraphicsEngine {
 		void calculateProjection();
 		void calculateView();
         void calculateFrustumCorners();
+        void calculateFrustumCornersWorldSpace();
 
 		int m_width;
 		int m_height;
@@ -50,6 +51,7 @@ namespace GraphicsEngine {
 		float m_far;
 
         glm::vec3 frustumCorners[8];
+        glm::vec3 frustumCorners_worldSpace[8];
 
 		glm::mat4 m_proj = glm::mat4(1);
 		glm::mat4 m_view = glm::mat4(1);

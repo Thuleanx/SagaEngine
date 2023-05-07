@@ -1,4 +1,6 @@
 #include "collisionSystemOptimizationStatic.h"
+#include "Engine/Utils/geometry/triangle.h"
+#include "glm/ext/quaternion_common.hpp"
 #include <numeric>
 
 namespace Saga::Systems {
@@ -47,7 +49,12 @@ namespace Saga::Systems {
 
         if (hit) {
             auto [triangleData, t] = hit.value();
-            glm::vec3 triangleNormal = glm::normalize(glm::cross(triangleData->triangle[1] - triangleData->triangle[0], triangleData->triangle[2] - triangleData->triangle[0]));
+            Geometry::Triangle triangle = Geometry::Triangle {
+                .a = triangleData->triangle[0],
+                .b = triangleData->triangle[1],
+                .c = triangleData->triangle[2]
+            };
+            glm::vec3 triangleNormal = triangle.getNormal();
             return Collision {
                 .t = t,
                 .pos = t * dir + pos,

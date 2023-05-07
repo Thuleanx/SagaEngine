@@ -214,4 +214,6 @@ void main() {
     else{
         fragColor = vec4(tempColor, 1.0);
     }
+
+    /* fragColor = vec4((normalize(worldSpace_norm) + 1) / 2,1); */
 }

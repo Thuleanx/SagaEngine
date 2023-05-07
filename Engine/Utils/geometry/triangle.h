@@ -22,16 +22,18 @@ namespace Saga::Geometry {
          * @param pos the position in cartesian space.
          * @return glm::vec3 the barycentric coordinate (u,v,w) such that p projected onto
          * the plane of a,b,c is = u * a + v * b + w * c.
+         * @return nothing if conversion is impossible (i.e. triangle is degenerate)
          */
-        glm::vec3 toBarycentric(const glm::vec3 pos);
+        std::optional<glm::vec3> toBarycentric(const glm::vec3 pos);
 
         /**
          * @brief Convert a point from cartesian to UV coordinate
          *
          * @param pos the position in cartesian space.
          * @return glm::vec3 the barycentric coordinate (u,v,w) such that p = u * a + v * b + w * c.
+         * @return nothing if conversion is not possible (i.e. triangle is degenerate)
          */
-        glm::vec2 toUV(const glm::vec3 pos);
+        std::optional<glm::vec2> toUV(const glm::vec3 pos);
 
         /**
          * @brief Get the normal of this triangle.

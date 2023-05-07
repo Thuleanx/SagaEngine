@@ -254,19 +254,19 @@ std::vector<float> Graphics::getObjData(std::string filepath){
         throw std::runtime_error(warn + err);
     }
 
-    std::vector<glm::vec3> faces;
+    std::vector<std::array<tinyobj::index_t, 3>> faces;
     std::vector<glm::vec3> vertices;
+    std::vector<glm::vec3> normals;
 
     for(size_t s = 0; s < shapes.size(); s++) {
         size_t index_offset = 0;
         for(size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
             unsigned int fv = shapes[s].mesh.num_face_vertices[f];
 
-            glm::vec3 face;
+            std::array<tinyobj::index_t, 3> face;
             for(size_t v = 0; v < fv; v++) {
                 tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
-
-                face[v] = idx.vertex_index;
+                face[v] = idx;
 
             }
             faces.push_back(face);
@@ -277,33 +277,39 @@ std::vector<float> Graphics::getObjData(std::string filepath){
     for (size_t i = 0; i < attrib.vertices.size(); i += 3) {
         vertices.emplace_back(attrib.vertices[i], attrib.vertices[i + 1], attrib.vertices[i + 2]);
     }
-
+    for (size_t i = 0; i < attrib.normals.size(); i += 3) {
+        normals.emplace_back(attrib.normals[i], attrib.normals[i+1], attrib.normals[i+2]);
+    }
     std::vector<float> data;
     data.resize(18 * faces.size());
     for(int i = 0; i<faces.size(); i++){
-        glm::vec3 v0 = vertices[static_cast<int>(faces[i].x)];
-        glm::vec3 v1 = vertices[static_cast<int>(faces[i].y)];
-        glm::vec3 v2 = vertices[static_cast<int>(faces[i].z)];
-        glm::vec3 normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
+        glm::vec3 v0 = vertices[static_cast<int>(faces[i][0].vertex_index)];
+        glm::vec3 v1 = vertices[static_cast<int>(faces[i][1].vertex_index)];
+        glm::vec3 v2 = vertices[static_cast<int>(faces[i][2].vertex_index)];
+        glm::vec3 triangleNormal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
+
+        glm::vec3 normal0 = normals.size() ? normals[static_cast<int>(faces[i][0].normal_index)] : triangleNormal;
+        glm::vec3 normal1 = normals.size() ? normals[static_cast<int>(faces[i][1].normal_index)] : triangleNormal;
+        glm::vec3 normal2 = normals.size() ? normals[static_cast<int>(faces[i][2].normal_index)] : triangleNormal;
 
         data[18*i] = v0.x;
         data[18*i+1] = v0.y;
         data[18*i+2] = v0.z;
-        data[18*i+3] = normal.x;
-        data[18*i+4] = normal.y;
-        data[18*i+5] = normal.z;
+        data[18*i+3] = normal0.x;
+        data[18*i+4] = normal0.y;
+        data[18*i+5] = normal0.z;
         data[18*i+6] = v1.x;
         data[18*i+7] = v1.y;
         data[18*i+8] = v1.z;
-        data[18*i+9] = normal.x;
-        data[18*i+10] = normal.y;
-        data[18*i+11] = normal.z;
+        data[18*i+9] = normal1.x;
+        data[18*i+10] = normal1.y;
+        data[18*i+11] = normal1.z;
         data[18*i+12] = v2.x;
         data[18*i+13] = v2.y;
         data[18*i+14] = v2.z;
-        data[18*i+15] = normal.x;
-        data[18*i+16] = normal.y;
-        data[18*i+17] = normal.z;
+        data[18*i+15] = normal2.x;
+        data[18*i+16] = normal2.y;
+        data[18*i+17] = normal2.z;
     }
 
     return data;
