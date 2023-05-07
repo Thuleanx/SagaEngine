@@ -1,5 +1,6 @@
 #include "drawSystem.h"
 #include "Engine/Components/drawSystemData.h"
+#include "Engine/Graphics/blit.h"
 #include "Engine/Graphics/skybox.h"
 #include "Engine/Systems/helpers/postProcessing.h"
 #include "Engine/Systems/helpers/shadowMap.h"
@@ -47,13 +48,11 @@ inline void renderScene(std::shared_ptr<GameWorld> world, Saga::Camera& camera, 
     // graphics setup
     glViewport(0, 0, camera.camera->getWidth(), camera.camera->getHeight());
 
-
     // clear color buffer
     if (camera.clearColorBufferOnDraw) {
         graphics.setClearColor(camera.clearColor);
         graphics.clearScreen(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     } else graphics.clearScreen(GL_DEPTH_BUFFER_BIT);
-
 
     // set shader
     SASSERT_MESSAGE(camera.shader != "", "Camera cannot have an empty shader");
@@ -76,6 +75,8 @@ inline void renderScene(std::shared_ptr<GameWorld> world, Saga::Camera& camera, 
         graphics.getActiveShader()->setMat4("lightSpaceMatrix", shadowMapLightSpaceMatrix.value());
 
         auto drawData = world->getComponent<DrawSystemData>(world->getMasterEntity());
+
+        /* Saga::Graphics::blit("", "blitTest", drawData->shadowMap); */
         if (drawData && drawData->shadowMap)
             drawData->shadowMap->bind();
         renderAllShapes(world);
@@ -103,8 +104,12 @@ void drawSystem_OnSetup(std::shared_ptr<GameWorld> world) {
     for (Saga::Camera& camera : *world->viewAll<Camera>())
         Graphics::postProcessingSetup(world, camera);
     auto drawData = world->getComponent<DrawSystemData>(world->getMasterEntity());
-
     if (drawData) drawData->skybox = std::make_shared<Saga::Graphics::Skybox>("Resources/Images/skyboxes/universe/", "png");
+
+    using namespace GraphicsEngine::Global;
+    graphics.addShader("blitTest", {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, 
+    {"Resources/Shaders/postprocessing.vert", "Resources/Shaders/blit.frag"});
+    
 }
 
 void drawSystem(std::shared_ptr<Saga::GameWorld> world) {

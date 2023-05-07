@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Utils/graphics/frustum.h"
 #include "Graphics/camera.h"
 #include <memory>
 #include <glm/vec3.hpp>
@@ -19,6 +20,15 @@ struct Camera {
 	std::string shader; //!< shader used to render Meshes seen by this camera.
 
 	operator const std::shared_ptr<GraphicsEngine::Camera>() const { return camera; }
+
+    /**
+     * @brief Get the world space frustum of the camera.
+     *
+     * @return the world space frustum of the camera, 
+     * if it exists.
+     * @return nothing if camera missing.
+     */
+    std::optional<Geometry::Frustum> getFrustum();
 };
 
 } // namespace Saga

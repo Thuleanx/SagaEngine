@@ -4,13 +4,17 @@
 #include "Engine/Components/material.h"
 #include "Engine/Components/mesh.h"
 #include "Engine/Components/transform.h"
+#include "Engine/Datastructures/Accelerant/boundingBox.h"
 #include "Engine/Gameworld/gameworld.h"
+#include "Engine/Utils/graphics/frustum.h"
 #include "Engine/Utils/random.h"
 #include "Engine/_Core/logger.h"
 #include "Graphics/GLWrappers/shader.h"
 #include "Graphics/GLWrappers/texture.h"
 #include "Graphics/global.h"
 #include "Graphics/graphics.h"
+#include "glm/fwd.hpp"
+#include "glm/gtx/string_cast.hpp"
 #include "imgui.h"
 #include <cmath>
 #include <string>
@@ -36,6 +40,16 @@ namespace Saga::Systems::Graphics {
          * @param shader the name of the shader to load the kernel into.
          */
         void shadowMapKernelSetup(std::string shader);
+
+        struct CameraMatrix {
+            glm::mat4 view;
+            glm::mat4 projection;
+        };
+
+        /**
+         * @brief Compute matrices correponding to the minimum bounding volume for the light.
+         */
+        CameraMatrix getLightCameraMatrix(Saga::Camera& camera, glm::vec3 lightDir);
     }
 
     void shadowMapSetup(std::shared_ptr<GameWorld> world) {
@@ -65,7 +79,6 @@ namespace Saga::Systems::Graphics {
         shadowMapFBO->verifyStatus();
         SINFO("Shadow map framebuffer setup successful");
 
-
         graphics.addShader("shadowMapShader", { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER},
         {"Resources/Shaders/shadow/shadowMap.vert", "Resources/Shaders/shadow/shadowMap.frag"});
 
@@ -93,23 +106,10 @@ namespace Saga::Systems::Graphics {
             graphics.getFramebuffer("shadowMap")->bind();
             graphics.clearScreen(GL_DEPTH_BUFFER_BIT);
 
-            glm::mat4 lightProjection = glm::ortho(
-                    -mapped_area, mapped_area,
-                    -mapped_area, mapped_area, 
-                    near_plane, far_plane);
-
-            glm::vec3 focusPosition = glm::vec3(0,0,0);
             glm::vec3 lightDir = glm::normalize(mainLight.value()->light->getDir());
-            glm::vec3 lightPos = focusPosition - lightDir * distance_to_camera;
 
-            glm::vec3 up = glm::vec3(0,1,0);
-            // might cause discontinueties
-            if (std::abs(glm::dot(up, lightDir) - 1))
-                up = glm::normalize(glm::vec3(.1,0.9,.1));
-
-            glm::mat4 lightView = glm::lookAt(lightPos, focusPosition, up);
+            auto [lightView, lightProjection] = getLightCameraMatrix(camera, lightDir);
             lightSpaceMatrix = lightProjection * lightView;
-
 
             graphics.bindShader("shadowMapShader");
             graphics.getActiveShader()->setMat4("lightSpaceMatrix", lightSpaceMatrix);
@@ -149,6 +149,47 @@ namespace Saga::Systems::Graphics {
                 std::string prop = "kernel[" + std::to_string(i) + "]";
                 shaderPtr->setVec2(prop, pcf_kernel[i]);
             }
+        }
+
+        CameraMatrix getLightCameraMatrix(Saga::Camera& camera, glm::vec3 lightDir) {
+            STRACE("light direction: %s", glm::to_string(lightDir).c_str());
+            glm::vec3 up = glm::vec3(0,1,0);
+            // might cause discontinueties
+            if (std::abs(glm::dot(up, lightDir) - 1) < 0.0001)
+                up = glm::normalize(glm::vec3(.1,0.9,.1));
+
+            // light view at origin
+
+            std::optional<Geometry::Frustum> frustum = camera.getFrustum();
+            if (!frustum) {
+                SERROR("Camera frustum can't be computed");
+                return {
+                    glm::mat4(1),
+                    glm::mat4(1)
+                };
+            }
+
+            Geometry::Frustum cameraFrustum_WS = frustum.value();
+
+            const auto lightView = glm::lookAt(camera.camera->getPos(), camera.camera->getPos() + lightDir, up);
+
+            // grab frustrum corners, transform to light space
+            Geometry::Frustum cameraFrustum_LS = cameraFrustum_WS;
+            cameraFrustum_LS.transform(lightView);
+
+            // get bounding box
+            BoundingBox cameraBoundingBox_LS = cameraFrustum_LS.getBounds();
+
+            const glm::mat4 lightProjection = glm::ortho(
+                cameraBoundingBox_LS.bounds[0].x, cameraBoundingBox_LS.bounds[1].x,
+                cameraBoundingBox_LS.bounds[0].y, cameraBoundingBox_LS.bounds[1].y,
+                cameraBoundingBox_LS.bounds[0].z * 0.1f, cameraBoundingBox_LS.bounds[1].z
+            );
+
+            return {
+                lightView,
+                lightProjection
+            };
         }
     }
 }

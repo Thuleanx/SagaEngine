@@ -21,7 +21,7 @@ bool initializeLogger() {
     ofs.close();
 
     // open the log file again for output
-    static plog::ColorConsoleAppender<plog::FuncMessageFormatter> appender;
+    static plog::ColorConsoleAppender<plog::TxtFormatter> appender;
     plog::init(plog::Severity::verbose, "sagaruntime.log").addAppender(&appender);
 
     /* PLOG_VERBOSE << "This is a VERBOSE message"; */
