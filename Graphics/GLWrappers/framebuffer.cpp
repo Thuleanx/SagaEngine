@@ -71,7 +71,7 @@ std::shared_ptr<Texture> Framebuffer::createAndAttachColorTexture(GLenum attachm
 
     std::shared_ptr<Texture> texture = std::make_shared<Texture>(texUnit);
     texture->initialize2D(width, height, internalFormat, format, dataType);
-    texture->setInterpolation(GL_LINEAR);
+    texture->setInterpolation(GL_NEAREST);
     texture->setWrapping(GL_CLAMP_TO_EDGE);
     attachTexture(texture, attachment);
     Debug::checkGLError();

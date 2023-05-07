@@ -71,7 +71,7 @@ float skyboxVertices[] = {
 
 }
 
-Skybox::Skybox(const std::string &skyboxPath, const std::string& fileExtension) {
+Skybox::Skybox(const std::string &skyboxPath, const std::string& fileExtension, float exposure) {
     std::vector<std::string> filenames;
     for (int i = 0; i < 6; i++) filenames.push_back(skyboxPath + faces[i] + "." + fileExtension);
 
@@ -91,6 +91,9 @@ Skybox::Skybox(const std::string &skyboxPath, const std::string& fileExtension) 
     using namespace GraphicsEngine::Global;
     graphics.addShader(shaderId,
     {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, {"Resources/Shaders/skybox/skybox.vert", "Resources/Shaders/skybox/skybox.frag"});
+
+    graphics.bindShader(shaderId);
+    graphics.getActiveShader()->setFloat("exposure", exposure);
 
     SINFO("Skybox at directory %s.", skyboxPath.c_str());
 }

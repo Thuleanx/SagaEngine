@@ -185,6 +185,7 @@ namespace Platformer {
 		systems.addKeyboardEventSystem(GLFW_KEY_S, Application::Systems::playerInputSystem_OnDownButton);
 		systems.addKeyboardEventSystem(GLFW_KEY_D, Application::Systems::playerInputSystem_OnRightButton);
 		systems.addKeyboardEventSystem(GLFW_KEY_SPACE, Application::Systems::playerInputSystem_OnJumpButton);
+        systems.addMouseEventSystem(GLFW_MOUSE_BUTTON_RIGHT, Application::Systems::playerInputSystem_OnMouseButton);
 
 		systems.addStagedSystem(Saga::System<float, float>(Application::Systems::thirdPersonCameraSystem), Saga::SystemManager::Stage::LateUpdate);
 		systems.addMousePosSystem(Application::Systems::thirdPersonCameraSystem_OnMousePos);

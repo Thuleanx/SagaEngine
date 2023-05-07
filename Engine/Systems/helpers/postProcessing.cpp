@@ -49,12 +49,15 @@ screenFramebuffer: {
 
     drawSystemData->bloomColor0 = std::make_shared<GraphicsEngine::Texture>();
     drawSystemData->bloomColor0->initialize2D(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+    drawSystemData->bloomColor0->setInterpolation(GL_NEAREST);
 
     drawSystemData->bloomColor1 = std::make_shared<GraphicsEngine::Texture>();
     drawSystemData->bloomColor1->initialize2D(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+    drawSystemData->bloomColor1->setInterpolation(GL_NEAREST);
 
     drawSystemData->screenFragmentColorAfterDOF = std::make_shared<GraphicsEngine::Texture>();
     drawSystemData->screenFragmentColorAfterDOF ->initialize2D(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+    drawSystemData->screenFragmentColorAfterDOF->setInterpolation(GL_NEAREST);
 
     drawSystemData->fog = std::make_shared<Saga::Graphics::Fog>(width, height, 
             drawSystemData->screenFragmentColorAfterFog);
@@ -144,6 +147,7 @@ void performPostProcessing(std::shared_ptr<Saga::GameWorld> world, Camera& camer
     Debug::checkGLError();
 
     // bloom: blur -> bloomColor0
+    drawSystemData->bloomBlur->setRadius(drawSystemData->postProcessingSettings.bloomRadius);
     drawSystemData->bloomBlur->apply(drawSystemData->postProcessingSettings.bloomBlurIterations);
     Debug::checkGLError();
 

@@ -31,6 +31,13 @@ public:
      */
     ~GaussianBlur();
 
+    /**
+     * @brief Set radius for the blur.
+     *
+     * @param radius a scale to the blur's radius.
+     */
+    void setRadius(float radius);
+
 private:
     const std::string blurShaderId = "gaussianBlur"; //!< Id of the blur shader in the graphics engine's eye.
     const int KERNEL_SIZE = 16; //!< size of the gaussian blur kernel. In practice, this should be at least three times the sigma.

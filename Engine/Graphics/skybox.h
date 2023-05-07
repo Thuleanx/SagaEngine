@@ -20,8 +20,9 @@ public:
      *  the 6 files of the skyboxes must be pngs of the names:
      *  right, left, up, down, front, back.
      *  @param fileextension the extension of the skybox files (i.e. "png").
+     *  @param exposure the exposure of the skybox.
      */
-    Skybox(const std::string &skyboxPath, const std::string &skyboxExtension);
+    Skybox(const std::string &skyboxPath, const std::string &skyboxExtension, float exposure = 1);
 
     /**
      * @brief Destroy the skybox

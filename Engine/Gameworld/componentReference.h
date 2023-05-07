@@ -4,6 +4,7 @@
 #include "../Entity/entity.h"
 #include "componentContainer.h"
 #include <iostream>
+#include <optional>
 
 namespace Saga {
 
@@ -48,12 +49,23 @@ public:
 	 */
     Component* operator->() { return getVolatile(); }
 
+    /**
+     * @brief Get the entity this component is on.
+     *
+     * @return entity if this is not a null reference.
+     * @return nothing otherwise.
+     */
+    std::optional<Entity> getEntity() {
+        if (!getVolatile()) return {};
+        return entity;
+    }
+
 private:
 	// will be wonky behaviour if you encounter the ABA problem. But if you do it's not really the engine's fault is it
 	int lastReallocated = -1;
 	Component* cachedComponent = nullptr; //!< a cached pointer to the component. Will be valid as long as the container has not reallocated its memory.
 	std::shared_ptr<ComponentContainer<Component>> componentContainer;
-	Entity entity;
+	Entity entity = (Entity) -1;
 
 	/**
 	 * @brief Get a volatile pointer to the component this references.

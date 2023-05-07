@@ -1,5 +1,6 @@
 #include "thirdPersonCameraSystem.h"
 #include "../Components/thirdPersonCamera.h"
+#include "Application/General/Components/playerInput.h"
 #include "Engine/saga.h"
 
 namespace Application::Systems {
@@ -19,7 +20,6 @@ namespace Application::Systems {
 				Saga::Transform &playerTransform = *tpcamera->playerToFollow;
 
 				glm::vec3 currentPlayerPos = playerTransform.transform->getPos();
-				// SDEBUG("Player is at <%f, %f, %f>", currentPlayerPos.x, currentPlayerPos.y, currentPlayerPos.z);
 
 				if (currentPlayerPos != transform->transform->getPos())
 					transform->transform->setPos(currentPlayerPos);
@@ -32,6 +32,7 @@ namespace Application::Systems {
 
 	void registerThirdPersonCameraSystem(std::shared_ptr<Saga::GameWorld> world) {
 		world->registerGroup<Saga::Camera, ThirdPersonCamera, Saga::Transform>();
+		world->registerGroup<Saga::Camera, PlayerInput, ThirdPersonCamera, Saga::Transform>();
 	}
 
 	void thirdPersonCameraSystem_OnMousePos(std::shared_ptr<Saga::GameWorld> world, double xpos, double ypos) {
@@ -39,8 +40,11 @@ namespace Application::Systems {
 			*world->viewGroup<Saga::Camera, ThirdPersonCamera, Saga::Transform>()) {
 
 			glm::vec2 mousePos(xpos, ypos);
+            std::optional<Saga::Entity> player = tpcamera->playerToFollow.getEntity();
+            if (!player) continue;
+            auto playerInput = world->getComponent<PlayerInput>(player.value());
 
-			if (!tpcamera->isFirstFrame) {
+			if (!tpcamera->isFirstFrame && playerInput && playerInput->mouseDown) {
 				glm::vec2 mouseDelta = mousePos - tpcamera->mousePosLastFrame;
 
 				glm::vec3 look = camera->camera->getLook();

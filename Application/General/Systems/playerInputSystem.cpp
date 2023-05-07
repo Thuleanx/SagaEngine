@@ -10,6 +10,13 @@ namespace Application::Systems {
 			callback(playerInput, action);
 	}
 
+	void playerInputSystem_OnMouseButton(std::shared_ptr<Saga::GameWorld> world, int action) {
+		playerInputSystem_OnButton(world, action, [](PlayerInput& playerInput, int act) {
+			if (act == GLFW_PRESS || act == GLFW_RELEASE)
+				playerInput.mouseDown = act == GLFW_PRESS;
+		});
+	}
+
 	void playerInputSystem_OnLeftButton(std::shared_ptr<Saga::GameWorld> world, int action) {
 		playerInputSystem_OnButton(world, action, [](PlayerInput& playerInput, int act) {
 			if (act == GLFW_PRESS || act == GLFW_RELEASE)

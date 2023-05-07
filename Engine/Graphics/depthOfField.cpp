@@ -140,15 +140,20 @@ void DepthOfField::generateTextures() {
     for (int i = 0; i < 2; i++) {
         foregroundBlurred[i] = std::make_shared<GraphicsEngine::Texture>();
         foregroundBlurred[i]->initialize2D(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+        foregroundBlurred[i]->setInterpolation(GL_NEAREST);
+
         backgroundBlurred[i] = std::make_shared<GraphicsEngine::Texture>();
         backgroundBlurred[i]->initialize2D(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+        backgroundBlurred[i]->setInterpolation(GL_NEAREST);
+
         cocNear[i] = std::make_shared<GraphicsEngine::Texture>();
         cocNear[i]->initialize2D(width, height, GL_R16F, GL_RED, GL_FLOAT);
+        cocNear[i]->setInterpolation(GL_NEAREST);
     }
 
     coc = std::make_shared<GraphicsEngine::Texture>();
     coc->initialize2D(width, height, GL_R16F, GL_RED, GL_FLOAT);
-
+    coc->setInterpolation(GL_NEAREST);
 }
 
 }

@@ -67,20 +67,28 @@ float karisWeight(vec3 color) {
     return 1.0 / (1.0 + luminance(color));
 }
 
+float unitWeight(vec3 color) {
+    return 1;
+}
+
 void main() {
-    vec2 tex_offset = blurRadius / textureSize(MainTex, 0); // gets size of single texel
+    /* vec2 tex_offset = 1.0 / textureSize(MainTex, 0); // gets size of single texel */
+
+    ivec2 texCoord = ivec2(textureSize(MainTex, 0) * uv);
 
     float accumulatedWeight = 0;
     vec3 result = vec3(0);
 
-    vec3 fragColor = texture(MainTex, uv).rgb;
-    float fragWeight = karisWeight(fragColor);
+    vec3 fragColor = texelFetch(MainTex, texCoord, 0).rgb;
+    float fragWeight = unitWeight(fragColor);
     result += fragColor * fragWeight;
     accumulatedWeight += fragWeight;
 
     for (int i = 0; i < OFFSET_SZ; i++) {
-        fragColor = texture(MainTex, uv + offsets[i] * tex_offset).rgb;
-        fragWeight = karisWeight(fragColor);
+        ivec2 offset = ivec2(round(blurRadius * offsets[i]));
+
+        fragColor = texelFetch(MainTex, offset + texCoord, 0).rgb;
+        fragWeight = unitWeight(fragColor);
         result += fragColor * fragWeight;
         accumulatedWeight += fragWeight;
     }

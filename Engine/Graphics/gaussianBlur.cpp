@@ -24,6 +24,11 @@ GaussianBlur::~GaussianBlur() {
     GraphicsEngine::Global::graphics.removeShader(getShader());
 }
 
+void GaussianBlur::setRadius(float radius) {
+    GraphicsEngine::Global::graphics.bindShader(getShader());
+    GraphicsEngine::Global::graphics.getActiveShader()->setFloat("blurRadius", radius);
+}
+
 std::string GaussianBlur::getShader() { return blurShaderId + std::to_string(uid); }
 
 void GaussianBlur::constructShader() {
