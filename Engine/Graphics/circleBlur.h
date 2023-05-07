@@ -8,39 +8,37 @@
 namespace Saga::Graphics {
 
 /**
- * @brief Classic max filter used to expand a [0,1] texture.
+ * @brief Classic circle blur operator used to blur a texture.
  */
-class MaxFilter : public SeparableKernel {
+class CircleBlur : public SeparableKernel {
 public:
     /**
-     * @brief Create a max filter object that, for each pixel, centers a box around it and take the max value.
-     * This is performed exclusively on textures with GL_RED format.
+     * @brief Create a circle blur filter object that blurs a texutre.
      *
      * @param width the texture's width.
      * @param height the texture's height.
-     * @param texture0 the texture to apply the effect to, and where the result will be stored.
+     * @param texture0 the texture to blur, and where the result will be stored.
      * @param texture1 another texture with the same parameter with texture0, used as an intermediary texture in the blur.
-     * @param size the size of the max window. Must be non negative.
+     * @param size the size of the circle blur.
      */
-    MaxFilter(int width, int height,
+    CircleBlur(int width, int height,
         std::shared_ptr<GraphicsEngine::Texture> texture0,
-        std::shared_ptr<GraphicsEngine::Texture> texture1, int size);
+        std::shared_ptr<GraphicsEngine::Texture> texture1, float size = 1);
     /**
      * @brief Destructor for the gaussian blur.
      */
-    ~MaxFilter();
+    ~CircleBlur();
 
     /**
      * @brief Set the kernel size.
      *
      * @param size the desired size, in pixels.
      */
-    void setSize(int size);
+    void setSize(float size);
 
 private:
-    const std::string shaderID = "maxFilter"; //!< Id of the blur shader in the graphics engine's eye.
-    int size; //!< size of the filter.
-
+    const std::string shaderID = "circleBlurFilter"; //!< Id of the blur shader in the graphics engine's eye.
+    float size; //!< size of the filter.
 protected:
     /**
      * @brief Find the name of the blur shader.

@@ -57,18 +57,18 @@ DepthOfField::DepthOfField(int width, int height, std::shared_ptr<GraphicsEngine
     graphics.getActiveShader()->setSampler("foregroundBlurred", 3);
     graphics.getActiveShader()->setSampler("backgroundBlurred", 4);
 
-    foregroundBlur = std::make_shared<GaussianBlur>(width, height, 
+    foregroundBlur = std::make_shared<CircleBlur>(width, height, 
         foregroundBlurred[0],
         foregroundBlurred[1]
     );
 
-    backgroundBlur = std::make_shared<GaussianBlur>(width, height, 
+    backgroundBlur = std::make_shared<CircleBlur>(width, height, 
         backgroundBlurred[0],
         backgroundBlurred[1]
     );
 
     cocNearExpand = std::make_shared<MaxFilter>(width, height, cocNear[0], cocNear[1], 10);
-    cocNearBlur = std::make_shared<GaussianBlur>(width, height, cocNear[0], cocNear[1]);
+    cocNearBlur = std::make_shared<CircleBlur>(width, height, cocNear[0], cocNear[1]);
 }
 
 DepthOfField::~DepthOfField() {

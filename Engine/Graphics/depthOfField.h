@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Components/camera.h"
-#include "Engine/Graphics/gaussianBlur.h"
+#include "Engine/Graphics/circleBlur.h"
 #include "Engine/Graphics/maxFilter.h"
 #include "Graphics/GLWrappers/framebuffer.h"
 #include "Graphics/GLWrappers/texture.h"
@@ -39,11 +39,11 @@ private:
     std::shared_ptr<GraphicsEngine::Texture> foregroundBlurred[2];
     std::shared_ptr<GraphicsEngine::Texture> backgroundBlurred[2];
 
-    std::shared_ptr<GaussianBlur> foregroundBlur;
-    std::shared_ptr<GaussianBlur> backgroundBlur;
+    std::shared_ptr<CircleBlur> foregroundBlur;
+    std::shared_ptr<CircleBlur> backgroundBlur;
 
     std::shared_ptr<MaxFilter> cocNearExpand;
-    std::shared_ptr<GaussianBlur> cocNearBlur;
+    std::shared_ptr<CircleBlur> cocNearBlur;
 
     void loadShaderWithParam(Saga::Camera& camera, 
             float focusDistance, float focusRange);

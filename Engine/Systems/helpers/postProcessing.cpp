@@ -168,6 +168,12 @@ void drawPostProcessingGizmos(std::shared_ptr<Saga::GameWorld> world) {
 
     ImGui::Checkbox("Enable post processing", &drawSystemData->postProcessingSettings.enabled);
 
+
+    if (ImGui::CollapsingHeader("Fog")) {
+        ImGui::SliderFloat("fog density", &drawSystemData->postProcessingSettings.fogDensity, 0, 1);
+        ImGui::ColorPicker3("fog color", glm::value_ptr(drawSystemData->postProcessingSettings.fogColor));
+    }
+
     if (ImGui::CollapsingHeader("Depth of Field")) {
         ImGui::SliderFloat("focus distance", &drawSystemData->postProcessingSettings.focusDistance, 0, 50);
         ImGui::SliderFloat("focus range", &drawSystemData->postProcessingSettings.focusRange, 0, 10);
@@ -175,11 +181,6 @@ void drawPostProcessingGizmos(std::shared_ptr<Saga::GameWorld> world) {
         ImGui::SliderInt("blur iterations back", &drawSystemData->postProcessingSettings.dofBlurIterationsBack, 0, 10);
         ImGui::SliderInt("near COC expand", &drawSystemData->postProcessingSettings.dofNearCocExpand, 0, 30);
         ImGui::SliderInt("blur near COC iterations", &drawSystemData->postProcessingSettings.dofBlurNearCocIterations, 0, 10);
-    }
-
-    if (ImGui::CollapsingHeader("Fog")) {
-        ImGui::SliderFloat("fog density", &drawSystemData->postProcessingSettings.fogDensity, 0, 1);
-        ImGui::ColorPicker3("fog color", glm::value_ptr(drawSystemData->postProcessingSettings.fogColor));
     }
 
     if (ImGui::CollapsingHeader("Bloom")) {
