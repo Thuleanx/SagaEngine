@@ -59,12 +59,33 @@ const vec2 offsets[48] = vec2[48](
 );
 const int OFFSET_SZ = 48;
 
+float luminance(vec3 color) {
+    return dot(color, vec3(0.299f, 0.587f, 0.114f));
+}
+
+float karisWeight(vec3 color) {
+    return 1.0 / (1.0 + luminance(color));
+}
+
 void main() {
     vec2 tex_offset = blurRadius / textureSize(MainTex, 0); // gets size of single texel
-    vec3 result = texture(MainTex, uv).rgb;
-    for (int i = 0; i < OFFSET_SZ; i++)
-        result += texture(MainTex, uv + offsets[i] * tex_offset).rgb;
-    result = result / (OFFSET_SZ + 1);
+
+    float accumulatedWeight = 0;
+    vec3 result = vec3(0);
+
+    vec3 fragColor = texture(MainTex, uv).rgb;
+    float fragWeight = karisWeight(fragColor);
+    result += fragColor * fragWeight;
+    accumulatedWeight += fragWeight;
+
+    for (int i = 0; i < OFFSET_SZ; i++) {
+        fragColor = texture(MainTex, uv + offsets[i] * tex_offset).rgb;
+        fragWeight = karisWeight(fragColor);
+        result += fragColor * fragWeight;
+        accumulatedWeight += fragWeight;
+    }
+
+    result = result / (accumulatedWeight);
 
     outColor = vec4(result, 1);
 }
