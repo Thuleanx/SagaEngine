@@ -58,11 +58,8 @@ void Framebuffer::attachTexture(std::shared_ptr<Texture> texture, GLenum attachm
 
     if (attachment != GL_DEPTH_ATTACHMENT && attachment != GL_DEPTH_STENCIL_ATTACHMENT) {
         if (std::find(attachments.begin(), attachments.end(), attachment) == attachments.end()) {
-            SINFO("attachment size: %d. adding: %d", attachments.size(), attachment);
             attachments.push_back(attachment);
-            SINFO("attachment size: %d", attachments.size());
             glDrawBuffers(attachments.size(), attachments.data());
-            SINFO("attachment size: %d", attachments.size());
         }
     }
     Debug::checkGLError();

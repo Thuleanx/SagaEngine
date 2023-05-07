@@ -17,11 +17,16 @@ namespace Saga::Systems::Graphics {
         std::string blurShader = "gaussianBlur";
         std::string postProcessingColors = "postProcessingColors";
 
-        float focusDistance = 3;
-        float focusRange = 3;
+        int dofBlurIterationsFront = 2;
+        int dofBlurIterationsBack = 2;
+        int dofNearCocExpand = 20;
+        int dofBlurNearCocIterations = 1;
+
+        float focusDistance = 5;
+        float focusRange = 5;
 
         glm::vec3 fogColor = glm::vec3(0.7);
-        float fogDensity = 0.25;
+        float fogDensity = 0.05;
 
         int bloomBlurIterations = 5;
         float bloomRadius = 3;

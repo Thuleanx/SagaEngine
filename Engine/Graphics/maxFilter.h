@@ -10,32 +10,36 @@ namespace Saga::Graphics {
 /**
  * @brief Classic gaussian blur operator used to blur a texture.
  */
-class GaussianBlur : public SeparableKernel {
+class MaxFilter : public SeparableKernel {
 public:
     /**
-     * @brief Create a gaussian blur object that blurs a texture of specified width and height.
+     * @brief Create a max filter object that, for each pixel, centers a box around it and take the max value.
+     * This is performed exclusively on textures with GL_RED format.
      *
      * @param width the texture's width.
      * @param height the texture's height.
      * @param texture0 the texture to blur, and where the result will be stored.
      * @param texture1 another texture with the same parameter with texture0, used as an intermediary texture in the blur.
-     * @param sigma the standard deviation of the gaussian operator. The higher, the more blurred the image will be.
-     *
-     * @note sigma should be supplied so that 3*sigma < KERNEL_SIZE. Otherwise, you will get cut-off in the blur.
+     * @param size the size of the max window. Must be non negative.
      */
-    GaussianBlur(int width, int height,
+    MaxFilter(int width, int height,
         std::shared_ptr<GraphicsEngine::Texture> texture0,
-        std::shared_ptr<GraphicsEngine::Texture> texture1, float sigma = 3);
+        std::shared_ptr<GraphicsEngine::Texture> texture1, int size);
     /**
      * @brief Destructor for the gaussian blur.
      */
-    ~GaussianBlur();
+    ~MaxFilter();
+
+    /**
+     * @brief Set the kernel size.
+     *
+     * @param size the desired size, in pixels.
+     */
+    void setSize(int size);
 
 private:
-    const std::string blurShaderId = "gaussianBlur"; //!< Id of the blur shader in the graphics engine's eye.
-    const int KERNEL_SIZE = 16; //!< size of the gaussian blur kernel. In practice, this should be at least three times the sigma.
-
-    float sigma; //!< standard deviation of the blur.
+    const std::string shaderID = "maxFilter"; //!< Id of the blur shader in the graphics engine's eye.
+    int size; //!< size of the filter.
 
 protected:
     /**

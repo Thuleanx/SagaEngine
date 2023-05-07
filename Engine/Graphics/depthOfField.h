@@ -2,6 +2,7 @@
 
 #include "Engine/Components/camera.h"
 #include "Engine/Graphics/gaussianBlur.h"
+#include "Engine/Graphics/maxFilter.h"
 #include "Graphics/GLWrappers/framebuffer.h"
 #include "Graphics/GLWrappers/texture.h"
 #include <memory>
@@ -19,7 +20,8 @@ public:
 
     void apply(Saga::Camera& camera, 
         std::shared_ptr<GraphicsEngine::Texture> mainTex, std::shared_ptr<GraphicsEngine::Texture> depthTex,
-        float focalDistance, float focalRange, int foregroundBlurIterations, int backgroundBlurIterations);
+        float focalDistance, float focalRange, int foregroundBlurIterations, int backgroundBlurIterations, 
+        int sizeOfNearExpand, int nearCocBlur);
 
 private:
     static int newUID;
@@ -33,11 +35,15 @@ private:
     std::string combineFBO;
 
     std::shared_ptr<GraphicsEngine::Texture> coc;
-    std::shared_ptr<GraphicsEngine::Texture> cocNear;
+    std::shared_ptr<GraphicsEngine::Texture> cocNear[2];
     std::shared_ptr<GraphicsEngine::Texture> foregroundBlurred[2];
     std::shared_ptr<GraphicsEngine::Texture> backgroundBlurred[2];
+
     std::shared_ptr<GaussianBlur> foregroundBlur;
     std::shared_ptr<GaussianBlur> backgroundBlur;
+
+    std::shared_ptr<MaxFilter> cocNearExpand;
+    std::shared_ptr<GaussianBlur> cocNearBlur;
 
     void loadShaderWithParam(Saga::Camera& camera, 
             float focusDistance, float focusRange);

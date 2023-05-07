@@ -18,6 +18,7 @@ struct DrawSystemData {
     // for post processing
     std::shared_ptr<GraphicsEngine::Texture> screenFragmentColor;
     std::shared_ptr<GraphicsEngine::Texture> screenFragmentColorAfterFog;
+    std::shared_ptr<GraphicsEngine::Texture> screenFragmentColorAfterDOF;
     std::shared_ptr<GraphicsEngine::Texture> depthStencil;
     std::shared_ptr<GraphicsEngine::Texture> bloomColor0;
     std::shared_ptr<GraphicsEngine::Texture> bloomColor1;

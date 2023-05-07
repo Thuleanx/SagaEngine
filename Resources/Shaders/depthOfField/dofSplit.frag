@@ -30,8 +30,9 @@ void main() {
 
     coc = (depth - focusDistance) / focusRange;
     coc = clamp(coc, -1, 1);
-    cocNear = clamp(coc, -1, 0);
 
-    foregroundColor = vec4(vec3(coc), 1);
+    cocNear = -clamp(coc, -1, 0);
+
+    foregroundColor = vec4(color, 1);
     backgroundColor = vec4(color * max(coc, 0), 1);
 }

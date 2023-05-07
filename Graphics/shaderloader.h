@@ -77,14 +77,10 @@ private:
 
         // Read shader file
         std::string shaderStr = readFile(filepath);
-        STRACE("Successfully read file %s", filepath);
         const char *shaderSrc = shaderStr.c_str();
 
-        SINFO("GL SHADER SOURCE");
         glShaderSource(shaderID, 1, &shaderSrc, NULL);
-        STRACE("Successfully sourced file %s", filepath);
 
-        SINFO("GL COMPILE SHADER: %d", shaderID);
         glCompileShader(shaderID);
 
 
@@ -97,7 +93,7 @@ private:
             std::string log(length, '\0');
             glGetShaderInfoLog(shaderID, length, nullptr, &log[0]);
             glDeleteShader(shaderID);
-            SERROR("Shader failed to compile: %s", log.c_str());
+            SERROR("Shader %s failed to compile: %s", filepath, log.c_str());
             throw std::runtime_error(log);
         }
 

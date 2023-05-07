@@ -22,11 +22,16 @@ void main() {
     vec3 foreground = texture(foregroundBlurred, uv).rgb;
     vec3 background = texture(backgroundBlurred, uv).rgb;
 
-    // do near coc blending 
-    vec3 color = mix(actualColor, foreground, -nearCoc);
+    vec3 color = actualColor;
 
     // do far coc blending
     color = mix(color, background, farCoc);
 
-    outColor = vec4(color,1);
+    // do near coc blending 
+    color = mix(color, foreground.rgb, nearCoc);
+
+    /* outColor = vec4(vec3(nearCoc, 0, 0), 1); */
+    outColor = vec4(color, 1);
+    /* outColor = vec4(background, 1); */
+    /* outColor = vec4(vec3(nearCoc, 0, 0) + vec3(0,farCoc,0),1); */
 }

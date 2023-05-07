@@ -21,19 +21,15 @@ DepthOfField::DepthOfField(int width, int height, std::shared_ptr<GraphicsEngine
 
     SASSERT(splitFBO != combineFBO);
 
-    SINFO("Creating dof fbos");
-
     graphics.addFramebuffer(splitFBO, width, height);
     {
         auto framebuffer = graphics.getFramebuffer(splitFBO);
         framebuffer->attachTexture(coc, GL_COLOR_ATTACHMENT0);
-        framebuffer->attachTexture(cocNear, GL_COLOR_ATTACHMENT1);
+        framebuffer->attachTexture(cocNear[0], GL_COLOR_ATTACHMENT1);
         framebuffer->attachTexture(foregroundBlurred[0], GL_COLOR_ATTACHMENT2);
         framebuffer->attachTexture(backgroundBlurred[0], GL_COLOR_ATTACHMENT3);
         framebuffer->verifyStatus();
     }
-
-    SINFO("Creating dof fbos");
 
     graphics.addFramebuffer(combineFBO, width, height);
     {
@@ -41,8 +37,6 @@ DepthOfField::DepthOfField(int width, int height, std::shared_ptr<GraphicsEngine
         framebuffer->attachTexture(resultTex, GL_COLOR_ATTACHMENT0);
         framebuffer->verifyStatus();
     }
-
-    SINFO("End dof fbos");
 
     graphics.addShader(depthOfFieldShaderID,
     {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER},
@@ -72,6 +66,9 @@ DepthOfField::DepthOfField(int width, int height, std::shared_ptr<GraphicsEngine
         backgroundBlurred[0],
         backgroundBlurred[1]
     );
+
+    cocNearExpand = std::make_shared<MaxFilter>(width, height, cocNear[0], cocNear[1], 10);
+    cocNearBlur = std::make_shared<GaussianBlur>(width, height, cocNear[0], cocNear[1]);
 }
 
 DepthOfField::~DepthOfField() {
@@ -92,7 +89,8 @@ void DepthOfField::loadShaderWithParam(Saga::Camera& camera, float focusDistance
 
 void DepthOfField::apply(Saga::Camera& camera, 
         std::shared_ptr<GraphicsEngine::Texture> mainTex, std::shared_ptr<GraphicsEngine::Texture> depthTex,
-        float focalDistance, float focalRange, int foregroundBlurIterations, int backgroundBlurIterations) {
+        float focalDistance, float focalRange, int foregroundBlurIterations, int backgroundBlurIterations,
+        int sizeOfNearExpand, int nearCocBlurIterations) {
 
     using namespace GraphicsEngine::Global;
 
@@ -100,29 +98,38 @@ void DepthOfField::apply(Saga::Camera& camera,
 
     glDisable(GL_BLEND);
 
+    // first process the screen, compute coc, and split into textures
     graphics.bindFramebuffer(splitFBO);
     graphics.bindShader(depthOfFieldShaderID);
     loadShaderWithParam(camera, focalDistance, focalRange);
     depthTex->bind(GL_TEXTURE1);
     blit(splitFBO, depthOfFieldShaderID, mainTex);
 
-    foregroundBlur->blur(foregroundBlurIterations);
-    backgroundBlur->blur(backgroundBlurIterations);
+    glDisable(GL_BLEND);
+    // expand and blur out nearCoc
+    cocNearExpand->setSize(sizeOfNearExpand);
+    cocNearExpand->apply(1);
+    cocNearBlur->apply(nearCocBlurIterations);
 
+    // blur background and foreground
+    foregroundBlur->apply(foregroundBlurIterations);
+    backgroundBlur->apply(backgroundBlurIterations);
+
+    // combine into depth of field result
     graphics.bindFramebuffer(combineFBO);
     graphics.bindShader(depthOfFieldCombineShaderID);
-
     mainTex->bind(GL_TEXTURE0);
     coc->bind(GL_TEXTURE1);
-    cocNear->bind(GL_TEXTURE2);
+    cocNear[0]->bind(GL_TEXTURE2);
     foregroundBlurred[0]->bind(GL_TEXTURE3);
     backgroundBlurred[0]->bind(GL_TEXTURE4);
 
     blit(combineFBO, depthOfFieldCombineShaderID, mainTex);
 
+    // unbind stuff, not really neccessary
     mainTex->unbind(GL_TEXTURE0);
     coc->unbind(GL_TEXTURE1);
-    cocNear->unbind(GL_TEXTURE1);
+    cocNear[0]->unbind(GL_TEXTURE1);
     foregroundBlurred[0]->unbind(GL_TEXTURE3);
     backgroundBlurred[0]->unbind(GL_TEXTURE4);
 
@@ -130,23 +137,18 @@ void DepthOfField::apply(Saga::Camera& camera,
 }
 
 void DepthOfField::generateTextures() {
-
-    // generate them textures
     for (int i = 0; i < 2; i++) {
         foregroundBlurred[i] = std::make_shared<GraphicsEngine::Texture>();
         foregroundBlurred[i]->initialize2D(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
-    }
-
-    for (int i = 0; i < 2; i++) {
         backgroundBlurred[i] = std::make_shared<GraphicsEngine::Texture>();
         backgroundBlurred[i]->initialize2D(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+        cocNear[i] = std::make_shared<GraphicsEngine::Texture>();
+        cocNear[i]->initialize2D(width, height, GL_R16F, GL_RED, GL_FLOAT);
     }
 
     coc = std::make_shared<GraphicsEngine::Texture>();
     coc->initialize2D(width, height, GL_R16F, GL_RED, GL_FLOAT);
 
-    cocNear = std::make_shared<GraphicsEngine::Texture>();
-    cocNear->initialize2D(width, height, GL_R16F, GL_RED, GL_FLOAT);
 }
 
 }

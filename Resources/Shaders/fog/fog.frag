@@ -27,6 +27,6 @@ void main() {
     float squaredDepth = (depth*fogDensity)*(depth*fogDensity);
     float fogFactor = pow(2, -squaredDepth);
 
-    /* color = mix(fogColor, color, fogFactor); */
+    color = mix(fogColor, color, fogFactor);
     outColor = vec4(vec3(color), 1);
 }
