@@ -97,7 +97,7 @@ std::shared_ptr<Texture> Framebuffer::createAndAttachFloatTexture(GLenum attachm
 
 std::shared_ptr<Texture> Framebuffer::createAndAttachDepthTexture(GLenum texUnit, GLenum interpolationMode, GLenum wrapMode) {
     std::shared_ptr<Texture> texture = std::make_shared<Texture>(texUnit);
-    texture->initialize2D(width, height, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+    texture->initialize2D(width, height, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT);
     texture->setInterpolation(interpolationMode);
     texture->setWrapping(wrapMode);
 

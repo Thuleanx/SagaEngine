@@ -12,7 +12,7 @@ namespace Saga::Geometry {
             point /= point.w;
     }
 
-    void Frustum::setFrustum(std::array<glm::vec4, NUM_POINTS> points) {
+    void Frustum::setFrustum(const std::array<glm::vec4, NUM_POINTS> &points) {
         allPoints = points;
     }
 

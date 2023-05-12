@@ -18,7 +18,7 @@ namespace Saga::Random {
         float x, y;
         do {
             // notice we don't use glm::vec2 here. Who knows how slow that is to construct.
-            x = getUniformRandom01(); y = getUniformRandom01();
+            x = 2 * getUniformRandom01() - 1; y = 2 * getUniformRandom01() - 1;
             // also don't compute length, but length squared
             if (x*x + y*y <= 1) return glm::vec2(x,y);
         } while (true);

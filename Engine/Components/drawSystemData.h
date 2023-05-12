@@ -30,6 +30,8 @@ struct DrawSystemData {
     std::shared_ptr<Graphics::Skybox> skybox;
 
     Systems::Graphics::PostProcessingSettings postProcessingSettings;
+
+    bool debugShadowMap = false;
 };
 
 }

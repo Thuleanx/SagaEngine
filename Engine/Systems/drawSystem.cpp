@@ -76,12 +76,15 @@ inline void renderScene(std::shared_ptr<GameWorld> world, Saga::Camera& camera, 
 
         auto drawData = world->getComponent<DrawSystemData>(world->getMasterEntity());
 
-        /* Saga::Graphics::blit("", "blitTest", drawData->shadowMap); */
-        if (drawData && drawData->shadowMap)
-            drawData->shadowMap->bind();
-        renderAllShapes(world);
-        if (drawData && drawData->shadowMap)
-            drawData->shadowMap->unbind();
+        if (drawData) {
+            if (drawData->debugShadowMap)
+                Saga::Graphics::blit("", "blitTest", drawData->shadowMap);
+            else {
+                if (drawData->shadowMap) drawData->shadowMap->bind();
+                renderAllShapes(world);
+                if (drawData->shadowMap) drawData->shadowMap->unbind();
+            }
+        }
     } else {
         // no shadow map supplied
         renderAllShapes(world);
@@ -114,6 +117,11 @@ void drawSystem_OnSetup(std::shared_ptr<GameWorld> world) {
 
 void drawSystem(std::shared_ptr<Saga::GameWorld> world) {
     ImGui::Begin("Draw System");
+
+    auto drawData = world->getComponent<DrawSystemData>(world->getMasterEntity());
+    if (drawData) {
+        ImGui::Checkbox("Debug Shadow Map", &drawData->debugShadowMap);
+    }
     Graphics::drawShadowMapGizmos();
     Graphics::drawPostProcessingGizmos(world);
     ImGui::End();

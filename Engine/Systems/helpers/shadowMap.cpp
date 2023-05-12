@@ -13,6 +13,7 @@
 #include "Graphics/GLWrappers/texture.h"
 #include "Graphics/global.h"
 #include "Graphics/graphics.h"
+#include "glm/ext/matrix_transform.hpp"
 #include "glm/fwd.hpp"
 #include "glm/gtx/string_cast.hpp"
 #include "imgui.h"
@@ -72,7 +73,8 @@ namespace Saga::Systems::Graphics {
         auto shadowMapFBO = graphics.getFramebuffer("shadowMap");
 
         // setup shadow map texture
-        drawSystemData->shadowMap = shadowMapFBO->createAndAttachDepthTexture(GL_TEXTURE2, GL_NEAREST, GL_CLAMP_TO_BORDER);
+        drawSystemData->shadowMap = shadowMapFBO->createAndAttachDepthTexture(GL_TEXTURE2, 
+                GL_NEAREST, GL_CLAMP_TO_BORDER);
         drawSystemData->shadowMap->setBorderColor(glm::vec4(1.0f,1.0f,1.0f,1.0f));
         SINFO("Created depth texture for shadow mapping");
         shadowMapFBO->disableColorDraw();
@@ -152,7 +154,7 @@ namespace Saga::Systems::Graphics {
         }
 
         CameraMatrix getLightCameraMatrix(Saga::Camera& camera, glm::vec3 lightDir) {
-            STRACE("light direction: %s", glm::to_string(lightDir).c_str());
+            /* STRACE("light direction: %s", glm::to_string(lightDir).c_str()); */
             glm::vec3 up = glm::vec3(0,1,0);
             // might cause discontinueties
             if (std::abs(glm::dot(up, lightDir) - 1) < 0.0001)
@@ -171,19 +173,61 @@ namespace Saga::Systems::Graphics {
 
             Geometry::Frustum cameraFrustum_WS = frustum.value();
 
-            const auto lightView = glm::lookAt(camera.camera->getPos(), camera.camera->getPos() + lightDir, up);
+            auto lightView = glm::lookAt(camera.camera->getPos(), camera.camera->getPos() + lightDir, up);
 
             // grab frustrum corners, transform to light space
             Geometry::Frustum cameraFrustum_LS = cameraFrustum_WS;
             cameraFrustum_LS.transform(lightView);
+            cameraFrustum_LS.homogenize();
 
             // get bounding box
             BoundingBox cameraBoundingBox_LS = cameraFrustum_LS.getBounds();
 
+            // confine the box
+            glm::vec3 maxSize(50, 50, 50);
+            BoundingBox confiner {
+                .bounds = {
+                    - maxSize / 2.0f,
+                    + maxSize / 2.0f
+                }
+            };
+
+            cameraBoundingBox_LS = BoundingBox::confineBox(
+                cameraBoundingBox_LS,
+                confiner
+            );
+
+            // get world space camera position
+            glm::vec4 cameraPosWorldSpace = glm::inverse(lightView) * glm::vec4(cameraBoundingBox_LS.centroid(),1);
+            cameraPosWorldSpace /= cameraPosWorldSpace.w;
+
+            lightView = glm::lookAt(glm::vec3(cameraPosWorldSpace), glm::vec3(cameraPosWorldSpace) + lightDir, up);
+
+            cameraFrustum_LS = cameraFrustum_WS;
+            cameraFrustum_LS.transform(lightView);
+            cameraFrustum_LS.homogenize();
+
+            cameraBoundingBox_LS = cameraFrustum_LS.getBounds();
+
+            cameraBoundingBox_LS = BoundingBox::confineBox(
+                cameraBoundingBox_LS,
+                confiner
+            );
+
+
+            STRACE("Bounds x:[%f, %f] y:[%f, %f] z:[%f, %f]", 
+                cameraBoundingBox_LS.bounds[0].x,
+                cameraBoundingBox_LS.bounds[1].x,
+                cameraBoundingBox_LS.bounds[0].y,
+                cameraBoundingBox_LS.bounds[1].y,
+                cameraBoundingBox_LS.bounds[0].z,
+                cameraBoundingBox_LS.bounds[1].z
+            );
+
             const glm::mat4 lightProjection = glm::ortho(
                 cameraBoundingBox_LS.bounds[0].x, cameraBoundingBox_LS.bounds[1].x,
                 cameraBoundingBox_LS.bounds[0].y, cameraBoundingBox_LS.bounds[1].y,
-                cameraBoundingBox_LS.bounds[0].z * 0.1f, cameraBoundingBox_LS.bounds[1].z
+                cameraBoundingBox_LS.bounds[0].z, cameraBoundingBox_LS.bounds[1].z
             );
 
             return {

@@ -65,6 +65,7 @@ void VAO::draw(){
 
 void VAO::addAttribute(GLuint attrib_index, GLint attrib_size){
     glEnableVertexAttribArray(attrib_index);
-    glVertexAttribPointer(attrib_index, attrib_size, GL_FLOAT, GL_FALSE, m_vert_size*sizeof(GLfloat), reinterpret_cast<void*>(m_curr_offset*sizeof(GLfloat)));
+    glVertexAttribPointer(attrib_index, attrib_size, GL_FLOAT, GL_FALSE, m_vert_size*sizeof(GLfloat), 
+            reinterpret_cast<void*>(m_curr_offset*sizeof(GLfloat)));
     m_curr_offset += attrib_size;
 }

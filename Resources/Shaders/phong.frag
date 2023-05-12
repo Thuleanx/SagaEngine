@@ -1,5 +1,7 @@
 #version 330 core
 
+const float tau = 6.283185307179586;
+
 // Shadow data
 const int KERNEL_SZ = 64;
 uniform sampler2D shadowMap;
@@ -60,8 +62,9 @@ float shadow() {
     float shadow = 0.0;
 
     // random rotation for the kernel
-    float cosRot = rand(projCoords.xy) * 2 - 1;
-    float sinRot = sqrt(1 - cosRot*cosRot);
+    float theta = rand(worldSpace_pos.xy) * tau;
+    float cosRot = sin(theta);
+    float sinRot = cos(theta);
 
     mat2 kernelRotation;
     kernelRotation[0] = vec2(cosRot, -sinRot);
@@ -70,8 +73,8 @@ float shadow() {
     // loop through kernel
     for (int i = 0; i < KERNEL_SZ; i++) {
         // depth of object closest to the light
-        float closestDepth = texture(shadowMap, projCoords.xy + kernelRotation * kernel[i] * texelSize).r;
-        shadow += currentDepth > closestDepth ? 1.0 : 0.0;
+        float closestDepth = texture(shadowMap, projCoords.xy + kernelRotation * kernel[i] * texelSize * 0.5).r;
+        shadow += currentDepth - 0.00001 > closestDepth ? 1.0 : 0.0;
     }
 
     shadow = shadow / KERNEL_SZ;
