@@ -165,6 +165,11 @@ void Shader::setVec3(const std::string &name, glm::vec3 value) {
 	Debug::checkGLError();
 }
 
+void Shader::setVec4(const std::string &name, glm::vec4 value) {
+	glUniform4f(glGetUniformLocation(m_handle, name.c_str()), value.r, value.g, value.b, value.a);
+	Debug::checkGLError();
+}
+
 void Shader::setVec2(const std::string &name, glm::vec2 value) {
 	glUniform2f(glGetUniformLocation(m_handle, name.c_str()), value.r, value.g);
 	Debug::checkGLError();
