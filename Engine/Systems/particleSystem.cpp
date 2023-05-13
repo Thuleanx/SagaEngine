@@ -66,16 +66,20 @@ void particleSystemEmissionUpdate(std::shared_ptr<GameWorld> world, float deltaT
 void particleSystemOnRender(std::shared_ptr<GameWorld> world, Saga::Camera& camera) {
     // switch to additive blend mode
     glDisable(GL_CULL_FACE);
+    glDepthMask(false);
+    glEnable(GL_BLEND);
     for (Saga::ParticleCollection& collection : *world->viewAll<ParticleCollection>()) {
         // additive blend :>
         switch (collection.blendMode) {
             case ParticleCollection::ADDITIVE:
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-                collection.sortByDistanceToCamera(camera);
+                glBlendFunc(GL_ONE, GL_ONE);
                 break;
             case ParticleCollection::NORMAL:
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 collection.sortByDistanceToCamera(camera);
+                break;
+            case ParticleCollection::MULTIPLICATIVE:
+                glBlendFunc(GL_DST_COLOR, GL_ZERO);
                 break;
         }
 
@@ -114,8 +118,9 @@ void particleSystemOnRender(std::shared_ptr<GameWorld> world, Saga::Camera& came
         for (int poolIndex = 0; poolIndex < collection.numberOfLiveParticles; poolIndex++) {
             Saga::ParticleCollection::Particle& particle = collection.pool[poolIndex];
 
-            glm::mat4 rot = glm::inverse(camera.camera->getView());
-            rot[3] = glm::vec4(0,0,0,1);
+            glm::mat4 rot = glm::mat4(glm::mat3(camera.camera->getView()));
+            rot[3][3] = 1;
+            rot = glm::inverse(rot);
 
             glm::mat4 mvp = camera.camera->getProjection() * camera.camera->getView();
             mvp = glm::translate(mvp, particle.position);
@@ -131,10 +136,11 @@ void particleSystemOnRender(std::shared_ptr<GameWorld> world, Saga::Camera& came
 
         if (collection.mainTex) collection.mainTex->unbind(GL_TEXTURE0);
         collection.shader->unbind();
-
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDepthMask(true);
     glEnable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
 }
 
 void registerParticleSystem(std::shared_ptr<GameWorld> world) {

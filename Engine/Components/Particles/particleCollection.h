@@ -50,7 +50,8 @@ public:
     */
     enum BlendMode {
         ADDITIVE = 0, //!< a + b
-        NORMAL = 1 //!< a(srcAlpha) * (1 - srcAlpha)b
+        NORMAL = 1, //!< a(srcAlpha) * (1 - srcAlpha)b
+        MULTIPLICATIVE = 2, //!< ab
     };
 
     /*
