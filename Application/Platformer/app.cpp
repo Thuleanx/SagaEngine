@@ -17,11 +17,13 @@
 #include "Engine/Entity/entity.h"
 #include "Engine/Systems/aiSystem.h"
 #include "Engine/Systems/particleSystem.h"
+#include "Graphics/GLWrappers/texture.h"
 #include "Systems/playerControllerSystem.h"
 #include "../General/Systems/playerInputSystem.h"
 #include "../General/Systems/thirdPersonCameraSystem.h"
 #include "Components/playerController.h"
 #include "imgui.h"
+#include <memory>
 #include <stdlib.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -153,15 +155,16 @@ namespace Platformer {
 
         auto setupParticleEmitter = [this]() -> Saga::Entity {
             Saga::Entity emitter = mainWorld->createEntity();
-            mainWorld->emplace<Saga::ParticleEmitter>(emitter, 60, Saga::ParticleTemplate{
-                .velocity = glm::vec3(0,5,0),
-                .velocityRandomness = glm::vec3(5, 2, 5),
+            mainWorld->emplace<Saga::ParticleEmitter>(emitter, 10, Saga::ParticleTemplate{
+                .velocity = glm::vec3(0,1,0),
+                .velocityRandomness = glm::vec3(1, 0.5, 1),
                 .color = glm::vec4(1,0,0,1),
-                .size = 0.1,
-                .sizeVariation = 0.05,
-                .lifetime = 0.5,
+                .size = 0.5,
+                .sizeVariation = 0.1,
+                .lifetime = 2,
             });
-            mainWorld->emplace<Saga::ParticleCollection>(emitter, 100);
+            auto mainTex = std::make_shared<GraphicsEngine::Texture>("Resources/Images/particles/whitePuff00.png");
+            mainWorld->emplace<Saga::ParticleCollection>(emitter, 100, Saga::ParticleCollection::ADDITIVE, mainTex);
             mainWorld->emplace<Saga::Transform>(emitter);
             return emitter;
         };

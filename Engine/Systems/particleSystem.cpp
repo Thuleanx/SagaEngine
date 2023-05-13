@@ -10,6 +10,7 @@
 #include "Graphics/global.h"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/gtx/string_cast.hpp"
+#include <algorithm>
 #include <memory>
 
 namespace Saga::Systems {
@@ -18,22 +19,18 @@ void particleSystemSimulationUpdate(std::shared_ptr<GameWorld> world, float delt
     // in the process of simulating the particles, we need
     // to ensure that all and only live particles stay in the index range [left, right)
     for (Saga::ParticleCollection& collection : *world->viewAll<ParticleCollection>()) {
-        for (int poolIndex = collection.leftOfPool; poolIndex != collection.rightOfPool; poolIndex = collection.nextIndex(poolIndex)) {
+        collection.sortByLifetime();
+
+        for (int poolIndex = 0; poolIndex < collection.numberOfLiveParticles; poolIndex++) {
             Saga::ParticleCollection::Particle& particle = collection.pool[poolIndex];
 
             // standard eulerian simulation
             particle.position += particle.velocity * deltaTime;
             particle.lifetimeRemaining -= deltaTime;
-
-            if (particle.lifetimeRemaining >= 0) continue;
-
-            // if dead, we need to remove this from the index range [left, right)
-            // one way is to swap it with the element at left
-            if (poolIndex != collection.leftOfPool) {
-                // TODO: write specialize code for a faster swap
-                std::swap(collection.pool[poolIndex], collection.pool[collection.leftOfPool]);
+            if (particle.lifetimeRemaining <= 0) {
+                collection.numberOfLiveParticles = poolIndex;
+                break;
             }
-            collection.leftOfPool = collection.nextIndex(collection.leftOfPool);
         }
     }
 }
@@ -51,6 +48,10 @@ void particleSystemEmissionUpdate(std::shared_ptr<GameWorld> world, float deltaT
             // we are adding the transform position to the particle template
             // before emitting
             emitter->particleTemplate.position += transform->getPos();
+
+            // we need to sort the collection so that we don't have 
+            collection->sortByLifetime();
+            collection->resetOverrideElement();
         }
 
         while (emissionCount --> 0) collection->emit(emitter->particleTemplate);
@@ -64,16 +65,30 @@ void particleSystemEmissionUpdate(std::shared_ptr<GameWorld> world, float deltaT
 
 void particleSystemOnRender(std::shared_ptr<GameWorld> world, Saga::Camera& camera) {
     // switch to additive blend mode
-    /* glBlendFunc(GL_SRC_ALPHA, GL_ONE); */
     glDisable(GL_CULL_FACE);
     for (Saga::ParticleCollection& collection : *world->viewAll<ParticleCollection>()) {
+        // additive blend :>
+        switch (collection.blendMode) {
+            case ParticleCollection::ADDITIVE:
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+                collection.sortByDistanceToCamera(camera);
+                break;
+            case ParticleCollection::NORMAL:
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                collection.sortByDistanceToCamera(camera);
+                break;
+        }
 
         if (!collection.VAO || !collection.VBO) {
             std::vector<float> particleVBO = {
                 -0.5f, -0.5f, 0,
+                0.0f, 0.0f,
                 0.5f, -0.5f, 0,
+                1.0f, 0.0f,
                 0.5f, 0.5f, 0,
-                -0.5f, 0.5f, 0
+                1.0f, 1.0f,
+                -0.5f, 0.5f, 0,
+                0.0f, 1.0f,
             };
             std::vector<int> particleVEO = {
                 0, 1, 2, 2, 3, 0
@@ -81,22 +96,22 @@ void particleSystemOnRender(std::shared_ptr<GameWorld> world, Saga::Camera& came
             collection.VBO = std::make_shared<GraphicsEngine::VBO>(particleVBO);
             collection.VEO = std::make_shared<GraphicsEngine::VEO>(particleVEO);
             collection.VAO = std::make_shared<GraphicsEngine::VAO>(collection.VBO,
-                             GraphicsEngine::VAOAttrib::POS, collection.VEO);
+                             GraphicsEngine::VAOAttrib::POS | GraphicsEngine::VAOAttrib::UV, collection.VEO);
         }
 
         if (!collection.shader) {
             GraphicsEngine::Global::graphics.addShader("particleDefault",
             {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER},
-            {"Resources/Shaders/particles/vertex.vert", "Resources/Shaders/particles/particle.frag"});
+            {"Resources/Shaders/particles/vertex.vert", "Resources/Shaders/particles/particleTextured.frag"});
 
             collection.shader = GraphicsEngine::Global::graphics.getShader("particleDefault");
         }
 
         collection.shader->bind();
-        /* if (collection.leftOfPool != collection.rightOfPool) { */
-        /*     STRACE("rendering particle system: [%d, %d)", collection.leftOfPool, collection.rightOfPool); */
-        /* } */
-        for (int poolIndex = collection.leftOfPool; poolIndex != collection.rightOfPool; poolIndex = collection.nextIndex(poolIndex)) {
+        if (collection.mainTex) collection.mainTex->bind(GL_TEXTURE0);
+
+
+        for (int poolIndex = 0; poolIndex < collection.numberOfLiveParticles; poolIndex++) {
             Saga::ParticleCollection::Particle& particle = collection.pool[poolIndex];
 
             glm::mat4 rot = glm::inverse(camera.camera->getView());
@@ -109,13 +124,17 @@ void particleSystemOnRender(std::shared_ptr<GameWorld> world, Saga::Camera& came
 
             collection.shader->setVec4("color", particle.color);
             collection.shader->setMat4("mvp", mvp);
+            collection.shader->setSampler("MainTex", 0);
 
             collection.VAO->draw();
         }
+
+        if (collection.mainTex) collection.mainTex->unbind(GL_TEXTURE0);
         collection.shader->unbind();
+
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
     glEnable(GL_CULL_FACE);
-    /* glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); */
 }
 
 void registerParticleSystem(std::shared_ptr<GameWorld> world) {

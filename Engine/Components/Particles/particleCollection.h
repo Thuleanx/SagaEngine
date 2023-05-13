@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Components/camera.h"
 #include "Engine/Systems/particleSystem.h"
 #include <glm/glm.hpp>
 #include <vector>
@@ -11,6 +12,7 @@ namespace GraphicsEngine {
     class VAO;
     class VBO;
     class VEO;
+    class Texture;
 }
 
 namespace Saga {
@@ -34,6 +36,7 @@ struct ParticleTemplate {
 
 };
 
+
 /**
  * @brief
  * Collection of particles identical to particle systems in other
@@ -42,6 +45,14 @@ struct ParticleTemplate {
  */
 class ParticleCollection {
 public:
+    /**
+    * @brief Different particle blend modes that's supported.
+    */
+    enum BlendMode {
+        ADDITIVE = 0, //!< a + b
+        NORMAL = 1 //!< a(srcAlpha) * (1 - srcAlpha)b
+    };
+
     /*
      * @brief Default constructor needed for the purpose of populating particle collections in a game world.
      * Do no call this constructor.
@@ -51,15 +62,41 @@ public:
     /**
      * @brief Create an empty collection of particles.
      *
+     * @param maxParticles the maximum number of particles in the collection. 
+     * @param blendMode how the particles should blend
+     * @param mainTex the main texture used for this particle system.
+     *
      * @note If the simulation ever exceed this number of particles,
      * the older particles will be deleted when creating more particles.
      */
-    ParticleCollection(int maxParticles);
+    ParticleCollection(int maxParticles, BlendMode blendMode = NORMAL, std::shared_ptr<GraphicsEngine::Texture> mainTex = nullptr);
 
     /**
      * @brief Emit a single particle.
      */
     void emit(ParticleTemplate &particleTemplate);
+
+    /**
+     * @brief Sort collection by lifetime remaining. This is useful in simulating the particles (as you will know exactly when to stop), as well 
+     * as emitting particles (to know which particle to override).
+     */
+    void sortByLifetime();
+
+    /**
+     * @brief Sort collection by distance to camera. Further particles are earlier in the list of particles.
+     * This allows for z sorting of the particles before rendering.
+     */
+    void sortByDistanceToCamera(Saga::Camera& camera);
+
+    /**
+     * @brief Reverse order of the particles in the pool.
+     */
+    void reverseOrder();
+
+    /**
+     * @brief Reset which element to override when emitting to 0.
+     */
+    void resetOverrideElement();
 private:
     /**
      * @brief Internal storage for a particle used in simulating and displaying said particle.
@@ -88,30 +125,29 @@ private:
      */
     std::vector<Particle> pool;
 
-    /**
-     * @brief We use these two as pointers into the pool of particles, essentially
-     * modelling it as a deque. Only particles between leftParticle and rightParticle are active.
-     * In between updates, it's guarantee that all particles in between left and right particle
-     * are active. rightOfPool in this case is exclusive.
-     */
-    int leftOfPool = 0,
-        rightOfPool = 0;
+    int overrideElement = 0; //!< pointer to the element to override when emitting more particles than maximum.
+                             // This pointer increments and loops around.
 
-    std::shared_ptr<GraphicsEngine::VAO> VAO; //!< for drawing particles
-    std::shared_ptr<GraphicsEngine::VBO> VBO; //!< for drawing particles
-    std::shared_ptr<GraphicsEngine::VEO> VEO; //!< for drawing particles
+    int numberOfLiveParticles = 0; //!< number of particles whose lifetime is positive.
+
+    std::shared_ptr<GraphicsEngine::VAO> VAO; //!< for drawing particles.
+    std::shared_ptr<GraphicsEngine::VBO> VBO; //!< for drawing particles.
+    std::shared_ptr<GraphicsEngine::VEO> VEO; //!< for drawing particles.
+    std::shared_ptr<GraphicsEngine::Texture> mainTex; //!< for textured particles.
+
+    BlendMode blendMode; //!< used for when rendering the particles. Tells particles how they should blend.
 
     /**
-     * @brief Get the next index in the pool.
+     * @brief Get the next index in the pool, wrapping around to 0 at pool size.
      *
      * @param index the current index.
      * @return index the next index, wrapping around to 0 if neccessary.
      */
     int nextIndex(int index);
 
+
     // declare the friend systems so they can use the class's private variables.
     friend void Systems::particleSystemSimulationUpdate(std::shared_ptr<GameWorld> world, float deltaTime, float time);
-    friend void Systems::particleSystemEmissionUpdate(std::shared_ptr<GameWorld> world, float deltaTime, float time);
     friend void Systems::particleSystemOnRender(std::shared_ptr<GameWorld> world, Saga::Camera& camera);
 };
 

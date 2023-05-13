@@ -11,7 +11,7 @@ public:
 
     // load 2D texture from filepath, relative to project's root I believe
     Texture(std::string filePath, GLenum texUnit = GL_TEXTURE0,
-            GLint internalFormat = GL_RGBA, GLint format = GL_RGB, GLint dataType = GL_UNSIGNED_BYTE,
+            GLint internalFormat = GL_RGBA, GLint format = GL_RGBA, GLint dataType = GL_UNSIGNED_BYTE,
             GLenum texTarget = GL_TEXTURE_2D,
             GLenum interpolationMode = GL_LINEAR, GLenum wrapMode = GL_REPEAT);
 
