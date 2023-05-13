@@ -4,6 +4,7 @@
 #include "Engine/Graphics/skybox.h"
 #include "Engine/Systems/helpers/postProcessing.h"
 #include "Engine/Systems/helpers/shadowMap.h"
+#include "Engine/Systems/particleSystem.h"
 #include "Engine/_Core/logger.h"
 #include "Graphics/GLWrappers/texture.h"
 #include "Graphics/global.h"
@@ -93,9 +94,14 @@ inline void renderScene(std::shared_ptr<GameWorld> world, Saga::Camera& camera, 
     {
         // draw skybox
         auto drawData = world->getComponent<DrawSystemData>(world->getMasterEntity());
-        if (drawData && drawData->skybox) 
-            drawData->skybox->draw(camera); 
+        if (drawData && drawData->skybox)
+            drawData->skybox->draw(camera);
     }
+
+    {   // draw particles
+        particleSystemOnRender(world, camera);
+    }
+
 
     Graphics::performPostProcessing(world, camera);
 }
@@ -110,9 +116,9 @@ void drawSystem_OnSetup(std::shared_ptr<GameWorld> world) {
     if (drawData) drawData->skybox = std::make_shared<Saga::Graphics::Skybox>("Resources/Images/skyboxes/universe/", "png");
 
     using namespace GraphicsEngine::Global;
-    graphics.addShader("blitTest", {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER}, 
+    graphics.addShader("blitTest", {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER},
     {"Resources/Shaders/postprocessing.vert", "Resources/Shaders/blit.frag"});
-    
+
 }
 
 void drawSystem(std::shared_ptr<Saga::GameWorld> world) {

@@ -1,4 +1,5 @@
 #pragma once
+#include "Engine/Components/camera.h"
 #include <memory>
 
 namespace Saga {
@@ -6,7 +7,6 @@ namespace Saga {
 }
 
 namespace Saga::Systems {
-
     /**
      * @brief Responsible for updating / simulating particle collections in the scene.
      *
@@ -15,7 +15,17 @@ namespace Saga::Systems {
      * @param deltaTime time since last frame.
      * @param time time ellapsed since the beginnning of the program.
      */
-    void particleSystemOnUpdate(std::shared_ptr<GameWorld> world, float deltaTime, float time);
+    void particleSystemSimulationUpdate(std::shared_ptr<GameWorld> world, float deltaTime, float time);
+
+    /**
+     * @brief Responsible for emitting new particles according to the world's ParticleEmitter 
+     *
+     * @ingroup system
+     * @param world
+     * @param deltaTime time since last frame.
+     * @param time time ellapsed since the beginnning of the program.
+     */
+    void particleSystemEmissionUpdate(std::shared_ptr<GameWorld> world, float deltaTime, float time);
 
     /**
      * @brief Responsible for rendering particle systems on screen.
@@ -26,8 +36,9 @@ namespace Saga::Systems {
      *
      * @ingroup system
      * @param world
+     * @param camera the camera to render from.
      */
-    void particleSystemOnRender(std::shared_ptr<GameWorld> world);
+    void particleSystemOnRender(std::shared_ptr<GameWorld> world, Saga::Camera& camera);
 
     /**
      * @brief Register Groups that the particle system uses, as well as any of its systems.

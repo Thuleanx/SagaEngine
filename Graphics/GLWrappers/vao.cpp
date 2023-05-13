@@ -1,10 +1,12 @@
 #include "vao.h"
+#include "Engine/_Core/logger.h"
 #include <iostream>
 
 using namespace GraphicsEngine;
 
-VAO::VAO(std::shared_ptr<VBO> vbo, VAOAttrib attribs):
+VAO::VAO(std::shared_ptr<VBO> vbo, VAOAttrib attribs, std::shared_ptr<VEO> veo):
     m_vbo(vbo),
+    m_veo(veo),
     m_curr_offset(0),
     m_vert_size(0)
 {
@@ -27,6 +29,7 @@ VAO::VAO(std::shared_ptr<VBO> vbo, VAOAttrib attribs):
 
     //Attach layout to vbo depending on which of the above attributes it has
     m_vbo->bind();
+    if (m_veo) m_veo->bind();
 
     if(attribs & VAOAttrib::POS){
         addAttribute(0, 3);
@@ -41,8 +44,9 @@ VAO::VAO(std::shared_ptr<VBO> vbo, VAOAttrib attribs):
         addAttribute(3, 3);
     }
 
-    m_vbo->unbind();
     unbind();
+    if (m_veo) m_veo->unbind();
+    m_vbo->unbind();
 }
 
 VAO::~VAO(){
@@ -59,7 +63,10 @@ void VAO::unbind(){
 
 void VAO::draw(){
     bind();
-    glDrawArrays(GL_TRIANGLES, 0, m_vbo->getLength()/m_vert_size);
+    if (m_veo)
+        glDrawElements(GL_TRIANGLES, m_veo->getLength(), GL_UNSIGNED_INT, nullptr);
+    else
+        glDrawArrays(GL_TRIANGLES, 0, m_vbo->getLength()/m_vert_size);
     unbind();
 }
 

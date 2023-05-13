@@ -1,5 +1,6 @@
 #pragma once
 
+#include "veo.h"
 #include "vbo.h"
 #include <memory>
 
@@ -23,7 +24,7 @@ inline bool operator&(VAOAttrib lhs, VAOAttrib rhs) {
 
 class VAO {
 public:
-    VAO(std::shared_ptr<VBO> vbo, VAOAttrib attribs);
+    VAO(std::shared_ptr<VBO> vbo, VAOAttrib attribs, std::shared_ptr<VEO> veo = nullptr);
     ~VAO();
 
     void bind();
@@ -35,6 +36,7 @@ private:
     void addAttribute(GLuint attrib_index, GLint attrib_size);
 
     std::shared_ptr<VBO> m_vbo;
+    std::shared_ptr<VEO> m_veo;
     GLuint m_handle;
     GLint m_curr_offset;
     GLuint m_vert_size;

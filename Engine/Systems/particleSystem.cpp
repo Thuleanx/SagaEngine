@@ -1,52 +1,130 @@
 #include "particleSystem.h"
 #include "Engine/Components/Particles/particleCollection.h"
+#include "Engine/Components/Particles/particleEmitter.h"
+#include "Engine/Components/camera.h"
+#include "Engine/Components/transform.h"
 #include "Engine/Gameworld/gameworld.h"
 #include "Graphics/GLWrappers/shader.h"
+#include "Graphics/GLWrappers/vao.h"
+#include "Graphics/GLWrappers/veo.h"
+#include "Graphics/global.h"
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/gtx/string_cast.hpp"
+#include <memory>
 
 namespace Saga::Systems {
-    void particleSystemOnUpdate(std::shared_ptr<GameWorld> world, float deltaTime, float time) {
-        // in the process of simulating the particles, we need
-        // to ensure that all and only live particles stay in the index range [left, right)
-        for (Saga::ParticleCollection& collection : *world->viewAll<ParticleCollection>()) {
-            for (int poolIndex = collection.leftOfPool; poolIndex != collection.rightOfPool; poolIndex = collection.nextIndex(poolIndex)) {
-                Saga::ParticleCollection::Particle& particle = collection.pool[poolIndex];
 
-                // standard eulerian simulation
-                particle.position += particle.velocity * deltaTime;
-                particle.lifetimeRemaining -= deltaTime;
+void particleSystemSimulationUpdate(std::shared_ptr<GameWorld> world, float deltaTime, float time) {
+    // in the process of simulating the particles, we need
+    // to ensure that all and only live particles stay in the index range [left, right)
+    for (Saga::ParticleCollection& collection : *world->viewAll<ParticleCollection>()) {
+        for (int poolIndex = collection.leftOfPool; poolIndex != collection.rightOfPool; poolIndex = collection.nextIndex(poolIndex)) {
+            Saga::ParticleCollection::Particle& particle = collection.pool[poolIndex];
 
-                if (particle.lifetimeRemaining >= 0) continue;
+            // standard eulerian simulation
+            particle.position += particle.velocity * deltaTime;
+            particle.lifetimeRemaining -= deltaTime;
 
-                // if dead, we need to remove this from the index range [left, right)
-                // one way is to swap it with the element at left
-                if (poolIndex != collection.leftOfPool) {
-                    // TODO: write specialize code for a faster swap
-                    std::swap(collection.pool[poolIndex], collection.pool[collection.leftOfPool]);
-                }
-                collection.leftOfPool = collection.nextIndex(collection.leftOfPool);
+            if (particle.lifetimeRemaining >= 0) continue;
+
+            // if dead, we need to remove this from the index range [left, right)
+            // one way is to swap it with the element at left
+            if (poolIndex != collection.leftOfPool) {
+                // TODO: write specialize code for a faster swap
+                std::swap(collection.pool[poolIndex], collection.pool[collection.leftOfPool]);
             }
+            collection.leftOfPool = collection.nextIndex(collection.leftOfPool);
         }
     }
+}
 
-    void particleSystemOnRender(std::shared_ptr<GameWorld> world) {
-        // switch to additive blend mode
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        for (Saga::ParticleCollection& collection : *world->viewAll<ParticleCollection>()) {
-            collection.shader->bind();
-            for (int poolIndex = collection.leftOfPool; poolIndex != collection.rightOfPool; poolIndex = collection.nextIndex(poolIndex)) {
-                Saga::ParticleCollection::Particle& particle = collection.pool[poolIndex];
+void particleSystemEmissionUpdate(std::shared_ptr<GameWorld> world, float deltaTime, float time) {
+    auto group = *world->viewGroup<Saga::ParticleCollection, Saga::ParticleEmitter, Saga::Transform>();
+    for (auto [entity, collection, emitter, transform] : group) {
+        bool hasTranslated = false;
 
-                collection.shader->setVec4("color", particle.color);
-            }
-            collection.shader->unbind();
+        int emissionCount = (time - emitter->timeLastEmitted) * emitter->emissionRate;
+        if (emissionCount) {
+            hasTranslated = true;
+            emitter->timeLastEmitted += emissionCount * 1.0f / emitter->emissionRate;
+            // here we want to emit at the particle emitter's position. Hence
+            // we are adding the transform position to the particle template
+            // before emitting
+            emitter->particleTemplate.position += transform->getPos();
         }
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    }
 
-    void registerParticleSystem(std::shared_ptr<GameWorld> world) {
-        /* world->registerGroup<Saga::ParticleCollection, Saga::Transform>(); */
-        // register the systems
-        world->getSystems().addStagedSystem(Saga::System<float, float>(particleSystemOnUpdate), 
-                SystemManager::Stage::Update);
+        while (emissionCount --> 0) collection->emit(emitter->particleTemplate);
+
+        // we undo the add so that the emitter's particleTemplate position
+        // is accurate. If we want to be numerically precise, we could have
+        // cached the position to store back later, but who cares.
+        if (hasTranslated) emitter->particleTemplate.position -= transform->getPos();
     }
+}
+
+void particleSystemOnRender(std::shared_ptr<GameWorld> world, Saga::Camera& camera) {
+    // switch to additive blend mode
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    glDisable(GL_CULL_FACE);
+    for (Saga::ParticleCollection& collection : *world->viewAll<ParticleCollection>()) {
+
+        if (!collection.VAO || !collection.VBO) {
+            std::vector<float> particleVBO = {
+                -0.5f, -0.5f, 0,
+                0.5f, -0.5f, 0,
+                0.5f, 0.5f, 0,
+                -0.5f, 0.5f, 0
+            };
+            std::vector<int> particleVEO = {
+                0, 1, 2, 2, 3, 0
+            };
+            collection.VBO = std::make_shared<GraphicsEngine::VBO>(particleVBO);
+            collection.VEO = std::make_shared<GraphicsEngine::VEO>(particleVEO);
+            collection.VAO = std::make_shared<GraphicsEngine::VAO>(collection.VBO,
+                             GraphicsEngine::VAOAttrib::POS, collection.VEO);
+        }
+
+        if (!collection.shader) {
+            GraphicsEngine::Global::graphics.addShader("particleDefault",
+            {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER},
+            {"Resources/Shaders/particles/vertex.vert", "Resources/Shaders/particles/particle.frag"});
+
+            collection.shader = GraphicsEngine::Global::graphics.getShader("particleDefault");
+        }
+
+        collection.shader->bind();
+        collection.shader->setMat4("view", camera.camera->getView());
+        collection.shader->setMat4("projection", camera.camera->getProjection());
+        if (collection.leftOfPool != collection.rightOfPool) {
+            STRACE("rendering particle system: [%d, %d)", collection.leftOfPool, collection.rightOfPool);
+        }
+        for (int poolIndex = collection.leftOfPool; poolIndex != collection.rightOfPool; poolIndex = collection.nextIndex(poolIndex)) {
+            Saga::ParticleCollection::Particle& particle = collection.pool[poolIndex];
+
+            glm::mat4 model = glm::mat4(1);
+
+            /* SDEBUG("positon: %s", glm::to_string(particle.position).c_str()); */
+            model = glm::translate(glm::mat4(1), particle.position);
+            /* model = glm::lookAt(particle.position, camera.camera->getPos(), camera.camera->getUp()); */
+            model = model * glm::scale(glm::mat4(1), glm::vec3(particle.size));
+
+            collection.shader->setVec4("color", particle.color);
+            collection.shader->setMat4("model", model);
+
+            collection.VAO->draw();
+        }
+        collection.shader->unbind();
+    }
+    glEnable(GL_CULL_FACE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void registerParticleSystem(std::shared_ptr<GameWorld> world) {
+    world->registerGroup<Saga::ParticleCollection, Saga::ParticleEmitter, Saga::Transform>();
+    // register the systems
+    world->getSystems().addStagedSystem(Saga::System<float, float>(particleSystemSimulationUpdate),
+                                        SystemManager::Stage::Update);
+    world->getSystems().addStagedSystem(Saga::System<float, float>(particleSystemEmissionUpdate),
+                                        SystemManager::Stage::Update);
+}
 }

@@ -214,15 +214,14 @@ namespace Saga::Systems::Graphics {
                 confiner
             );
 
-
-            STRACE("Bounds x:[%f, %f] y:[%f, %f] z:[%f, %f]", 
-                cameraBoundingBox_LS.bounds[0].x,
-                cameraBoundingBox_LS.bounds[1].x,
-                cameraBoundingBox_LS.bounds[0].y,
-                cameraBoundingBox_LS.bounds[1].y,
-                cameraBoundingBox_LS.bounds[0].z,
-                cameraBoundingBox_LS.bounds[1].z
-            );
+            /* STRACE("Bounds x:[%f, %f] y:[%f, %f] z:[%f, %f]", */ 
+            /*     cameraBoundingBox_LS.bounds[0].x, */
+            /*     cameraBoundingBox_LS.bounds[1].x, */
+            /*     cameraBoundingBox_LS.bounds[0].y, */
+            /*     cameraBoundingBox_LS.bounds[1].y, */
+            /*     cameraBoundingBox_LS.bounds[0].z, */
+            /*     cameraBoundingBox_LS.bounds[1].z */
+            /* ); */
 
             const glm::mat4 lightProjection = glm::ortho(
                 cameraBoundingBox_LS.bounds[0].x, cameraBoundingBox_LS.bounds[1].x,

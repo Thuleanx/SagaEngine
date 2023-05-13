@@ -3,18 +3,20 @@
 #include "Application/Platformer/Behaviours/loadPlayerPosition.h"
 #include "Application/Platformer/Behaviours/walkPath.h"
 #include "Application/Platformer/Components/friendController.h"
-#include "Application/Platformer/Components/simpleTestAI.h"
 #include "Application/Platformer/Systems/friendControllerSystem.h"
 #include "Application/Platformer/Systems/simpleTestAISystem.h"
 #include "Engine/Components/BehaviourTree/behaviourtree.h"
 #include "Engine/Components/BehaviourTree/blackboard.h"
 #include "Engine/Components/BehaviourTree/compositenodes.h"
 #include "Engine/Components/BehaviourTree/tasknodes.h"
+#include "Engine/Components/Particles/particleCollection.h"
+#include "Engine/Components/Particles/particleEmitter.h"
 #include "Engine/Components/collider.h"
 #include "Engine/Components/navigation/navMeshData.h"
 #include "Engine/Constants/colorthemes.h"
 #include "Engine/Entity/entity.h"
 #include "Engine/Systems/aiSystem.h"
+#include "Engine/Systems/particleSystem.h"
 #include "Systems/playerControllerSystem.h"
 #include "../General/Systems/playerInputSystem.h"
 #include "../General/Systems/thirdPersonCameraSystem.h"
@@ -44,7 +46,7 @@ namespace Platformer {
 
         std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
 
-		auto setupCamera = [this](Saga::Entity player) {
+		auto setupCamera = [this](Saga::Entity player) -> Saga::Entity {
 			Saga::Entity camera = mainWorld->createEntity();
 			std::shared_ptr<GraphicsEngine::Camera> defaultCamera 
 				= std::make_shared<GraphicsEngine::Camera>();
@@ -65,7 +67,7 @@ namespace Platformer {
 			return camera;
 		};
 
-		auto setupTerrain = [this](glm::vec3 pos) {
+		auto setupTerrain = [this](glm::vec3 pos) -> Saga::Entity {
 			Saga::Entity plane = mainWorld->createEntity();
 			Saga::Mesh& planeMesh = *mainWorld->emplace<Saga::Mesh>(plane, "Resources/Meshes/arena.obj");
 			Saga::Material& mat = *mainWorld->emplace<Saga::Material>(plane,
@@ -91,7 +93,7 @@ namespace Platformer {
 			return lightEnt;
 		};
 
-		auto setupPlayer = [this]() {
+		auto setupPlayer = [this]() -> Saga::Entity {
 			Saga::Entity player = mainWorld->createEntity();
 			mainWorld->emplace<Application::PlayerInput>(player);
 			mainWorld->emplace<Platformer::PlayerController>(player, 5);
@@ -107,7 +109,7 @@ namespace Platformer {
 			return player;
 		};
 
-        auto setupFriend = [this, &rng]() {
+        auto setupFriend = [this, &rng]() -> Saga::Entity {
             Saga::Entity fr = mainWorld->createEntity();
             float movespeed = std::uniform_real_distribution<float>(4.f, 9.f)(rng);
             float orbitDistance = std::uniform_real_distribution<float>(2,3)(rng);
@@ -134,7 +136,7 @@ namespace Platformer {
 
         };
 
-		auto setupBackingTrack = [this]() {
+		auto setupBackingTrack = [this]() -> Saga::Entity {
 			Saga::Entity backingTrack = mainWorld->createEntity();
             mainWorld->emplace<Saga::AudioEmitter>(backingTrack, "event:/Loop", true);
 			mainWorld->emplace<Saga::Transform>(backingTrack);
@@ -149,6 +151,19 @@ namespace Platformer {
             /* mainWorld->emplace<Saga::Material>(navMeshContainer, glm::vec3(0,0,0.5)); */
         };
 
+        auto setupParticleEmitter = [this]() -> Saga::Entity {
+            Saga::Entity emitter = mainWorld->createEntity();
+            mainWorld->emplace<Saga::ParticleEmitter>(emitter, 1, Saga::ParticleTemplate{
+                .velocity = glm::vec3(0,7,0),
+                .color = glm::vec4(1,0,0,1),
+                .size = 0.5,
+                .lifetime = 2,
+            });
+            mainWorld->emplace<Saga::ParticleCollection>(emitter, 100);
+            mainWorld->emplace<Saga::Transform>(emitter);
+            return emitter;
+        };
+
 		Saga::Entity plane = setupTerrain(glm::vec3(0,0,0));
         /* setupTerrain(glm::vec3(80,0,0)); */
         /* setupTerrain(glm::vec3(-80,0,0)); */
@@ -158,6 +173,7 @@ namespace Platformer {
 		Saga::Entity player = setupPlayer();
 		Saga::Entity camera = setupCamera(player);
 		/* Saga::Entity backingTrack = setupBackingTrack(); */
+        Saga::Entity particleEmitter = setupParticleEmitter();
 
         int friendCnt = 0;
         while (friendCnt --> 0) 
@@ -170,6 +186,7 @@ namespace Platformer {
 		Saga::Systems::registerDrawSystem(mainWorld);
 		Saga::Systems::registerCollisionSystem(mainWorld);
         Saga::Systems::registerAISystems(mainWorld);
+        Saga::Systems::registerParticleSystem(mainWorld);
 		Platformer::Systems::registerPlayerControllerSystem(mainWorld);
         Platformer::Systems::registerSimpleTestAISystem(mainWorld);
 		Platformer::Systems::registerFriendControllerSystem(mainWorld);
@@ -185,7 +202,7 @@ namespace Platformer {
 		systems.addKeyboardEventSystem(GLFW_KEY_S, Application::Systems::playerInputSystem_OnDownButton);
 		systems.addKeyboardEventSystem(GLFW_KEY_D, Application::Systems::playerInputSystem_OnRightButton);
 		systems.addKeyboardEventSystem(GLFW_KEY_SPACE, Application::Systems::playerInputSystem_OnJumpButton);
-        systems.addMouseEventSystem(GLFW_MOUSE_BUTTON_RIGHT, Application::Systems::playerInputSystem_OnMouseButton);
+        systems.addMouseEventSystem(GLFW_MOUSE_BUTTON_LEFT, Application::Systems::playerInputSystem_OnMouseButton);
 
 		systems.addStagedSystem(Saga::System<float, float>(Application::Systems::thirdPersonCameraSystem), Saga::SystemManager::Stage::LateUpdate);
 		systems.addMousePosSystem(Application::Systems::thirdPersonCameraSystem_OnMousePos);

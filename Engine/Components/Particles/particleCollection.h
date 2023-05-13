@@ -8,6 +8,9 @@
 // Forward declare shader so we don't have to include it.
 namespace GraphicsEngine {
     class Shader;
+    class VAO;
+    class VBO;
+    class VEO;
 }
 
 namespace Saga {
@@ -16,10 +19,11 @@ namespace Saga {
  * @brief Template for creating a 2D particle.
  */
 struct ParticleTemplate {
-    glm::vec3   position, //!< world space position of particle.
-        velocity; //!< world space velocity of particle.
+    glm::vec3   position = glm::vec3(0,0,0), //!< world space position of particle.
+                velocity = glm::vec3(0,0,0); //!< world space velocity of particle.
     glm::vec4 color;      //!< color of the particle. (1,1,1,1) is full white.
 
+    float size = 1; // size of particle in world space
     float rotation = 0.0f; //!< rotation of the particle, counterclockwise in radians, relative to the camera.
     float lifetime = 1.0f; //!< lifetime of the particle, in seconds.
 };
@@ -60,6 +64,7 @@ private:
 
         glm::vec4 color; //!< color of the particle.
 
+        float size; //!< world space size.
         float rotation = 0.0f; //!< rotation of the particle, counterclockwise in radians, relative to the camera.
         float lifetime = 1.0f; //!< lifetime of the particle, in seconds.
         float lifetimeRemaining = 0.0f; //!< time left before the particle expires.
@@ -67,8 +72,6 @@ private:
 
     /**
      * @brief Used for rendering the particles. The shader should expect the following uniforms and data:
-     *
-     * - Location
      */
     std::shared_ptr<GraphicsEngine::Shader> shader;
 
@@ -88,6 +91,10 @@ private:
     int leftOfPool = 0,
         rightOfPool = 0;
 
+    std::shared_ptr<GraphicsEngine::VAO> VAO; //!< for drawing particles
+    std::shared_ptr<GraphicsEngine::VBO> VBO; //!< for drawing particles
+    std::shared_ptr<GraphicsEngine::VEO> VEO; //!< for drawing particles
+
     /**
      * @brief Get the next index in the pool.
      *
@@ -97,8 +104,9 @@ private:
     int nextIndex(int index);
 
     // declare the friend systems so they can use the class's private variables.
-    friend void Systems::particleSystemOnUpdate(std::shared_ptr<GameWorld> world, float deltaTime, float time);
-    friend void Systems::particleSystemOnRender(std::shared_ptr<GameWorld> world);
+    friend void Systems::particleSystemSimulationUpdate(std::shared_ptr<GameWorld> world, float deltaTime, float time);
+    friend void Systems::particleSystemEmissionUpdate(std::shared_ptr<GameWorld> world, float deltaTime, float time);
+    friend void Systems::particleSystemOnRender(std::shared_ptr<GameWorld> world, Saga::Camera& camera);
 };
 
 }
