@@ -19,13 +19,19 @@ namespace Saga {
  * @brief Template for creating a 2D particle.
  */
 struct ParticleTemplate {
-    glm::vec3   position = glm::vec3(0,0,0), //!< world space position of particle.
-                velocity = glm::vec3(0,0,0); //!< world space velocity of particle.
+    glm::vec3   position = glm::vec3(0,0,0); //!< world space position of particle.
+    
+    glm::vec3 velocity = glm::vec3(0,0,0); //!< world space velocity of particle.
+    std::optional<glm::vec3> velocityRandomness; // randomness to velocity applied to every spawn.
+    
     glm::vec4 color;      //!< color of the particle. (1,1,1,1) is full white.
 
     float size = 1; // size of particle in world space
+    std::optional<float> sizeVariation; //!< size parameters
+
     float rotation = 0.0f; //!< rotation of the particle, counterclockwise in radians, relative to the camera.
     float lifetime = 1.0f; //!< lifetime of the particle, in seconds.
+
 };
 
 /**

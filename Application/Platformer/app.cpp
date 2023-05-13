@@ -153,11 +153,13 @@ namespace Platformer {
 
         auto setupParticleEmitter = [this]() -> Saga::Entity {
             Saga::Entity emitter = mainWorld->createEntity();
-            mainWorld->emplace<Saga::ParticleEmitter>(emitter, 1, Saga::ParticleTemplate{
-                .velocity = glm::vec3(0,7,0),
+            mainWorld->emplace<Saga::ParticleEmitter>(emitter, 60, Saga::ParticleTemplate{
+                .velocity = glm::vec3(0,5,0),
+                .velocityRandomness = glm::vec3(5, 2, 5),
                 .color = glm::vec4(1,0,0,1),
-                .size = 0.5,
-                .lifetime = 2,
+                .size = 0.1,
+                .sizeVariation = 0.05,
+                .lifetime = 0.5,
             });
             mainWorld->emplace<Saga::ParticleCollection>(emitter, 100);
             mainWorld->emplace<Saga::Transform>(emitter);

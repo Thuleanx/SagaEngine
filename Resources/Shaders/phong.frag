@@ -73,8 +73,8 @@ float shadow() {
     // loop through kernel
     for (int i = 0; i < KERNEL_SZ; i++) {
         // depth of object closest to the light
-        float closestDepth = texture(shadowMap, projCoords.xy + kernelRotation * kernel[i] * texelSize * 0.5).r;
-        shadow += currentDepth - 0.00001 > closestDepth ? 1.0 : 0.0;
+        float closestDepth = texture(shadowMap, projCoords.xy + kernelRotation * kernel[i] * texelSize).r;
+        shadow += currentDepth > closestDepth ? 1.0 : 0.0;
     }
 
     shadow = shadow / KERNEL_SZ;

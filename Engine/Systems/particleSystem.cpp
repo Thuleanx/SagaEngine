@@ -64,7 +64,7 @@ void particleSystemEmissionUpdate(std::shared_ptr<GameWorld> world, float deltaT
 
 void particleSystemOnRender(std::shared_ptr<GameWorld> world, Saga::Camera& camera) {
     // switch to additive blend mode
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    /* glBlendFunc(GL_SRC_ALPHA, GL_ONE); */
     glDisable(GL_CULL_FACE);
     for (Saga::ParticleCollection& collection : *world->viewAll<ParticleCollection>()) {
 
@@ -93,30 +93,29 @@ void particleSystemOnRender(std::shared_ptr<GameWorld> world, Saga::Camera& came
         }
 
         collection.shader->bind();
-        collection.shader->setMat4("view", camera.camera->getView());
-        collection.shader->setMat4("projection", camera.camera->getProjection());
-        if (collection.leftOfPool != collection.rightOfPool) {
-            STRACE("rendering particle system: [%d, %d)", collection.leftOfPool, collection.rightOfPool);
-        }
+        /* if (collection.leftOfPool != collection.rightOfPool) { */
+        /*     STRACE("rendering particle system: [%d, %d)", collection.leftOfPool, collection.rightOfPool); */
+        /* } */
         for (int poolIndex = collection.leftOfPool; poolIndex != collection.rightOfPool; poolIndex = collection.nextIndex(poolIndex)) {
             Saga::ParticleCollection::Particle& particle = collection.pool[poolIndex];
 
-            glm::mat4 model = glm::mat4(1);
+            glm::mat4 rot = glm::inverse(camera.camera->getView());
+            rot[3] = glm::vec4(0,0,0,1);
 
-            /* SDEBUG("positon: %s", glm::to_string(particle.position).c_str()); */
-            model = glm::translate(glm::mat4(1), particle.position);
-            /* model = glm::lookAt(particle.position, camera.camera->getPos(), camera.camera->getUp()); */
-            model = model * glm::scale(glm::mat4(1), glm::vec3(particle.size));
+            glm::mat4 mvp = camera.camera->getProjection() * camera.camera->getView();
+            mvp = glm::translate(mvp, particle.position);
+            mvp = mvp * rot;
+            mvp = mvp * glm::scale(glm::mat4(1), glm::vec3(particle.size));
 
             collection.shader->setVec4("color", particle.color);
-            collection.shader->setMat4("model", model);
+            collection.shader->setMat4("mvp", mvp);
 
             collection.VAO->draw();
         }
         collection.shader->unbind();
     }
     glEnable(GL_CULL_FACE);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    /* glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); */
 }
 
 void registerParticleSystem(std::shared_ptr<GameWorld> world) {
