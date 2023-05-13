@@ -61,9 +61,16 @@ private:
             return "";
         }
 
+        const std::string includeKeyWord = "#include ";
+
         std::string line = "";
         while (std::getline(fileStream, line)) {
-            content.append(line + "\n");
+            if (line.starts_with(includeKeyWord)) {
+                std::string filenameToInclude = line.substr(includeKeyWord.length(), line.length() - includeKeyWord.length());
+                content.append(readFile(filenameToInclude.c_str()) + "\n");
+            } else {
+                content.append(line + "\n");
+            }
         }
 
         fileStream.close();

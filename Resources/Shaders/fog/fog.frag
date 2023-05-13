@@ -12,21 +12,14 @@ uniform float fogDensity;
 uniform sampler2D MainTex;
 uniform sampler2D DepthTex;
 
-float linearizePerspectiveDepth(float depth) {
-    float fon = far/near;
-    depth = (1 - fon) * depth + fon;
-    depth = 1.0 / depth;
-    return depth;
-}
+#include Resources/Shaders/_includes/depth.glsl
+#include Resources/Shaders/_includes/fog.glsl
 
 void main() {
     vec3 color = texture(MainTex, uv).rgb;
     float depth = texture(DepthTex, uv).r;
+
     depth = linearizePerspectiveDepth(depth) * far;
-
-    float squaredDepth = (depth*fogDensity)*(depth*fogDensity);
-    float fogFactor = pow(2, -squaredDepth);
-
-    color = mix(fogColor, color, fogFactor);
-    outColor = vec4(vec3(color), 1);
+    float fogFactor = fogFactorByDepth(depth, fogDensity);
+    outColor = vec4(calculateFog(color, fogColor, fogFactor), 1);
 }
