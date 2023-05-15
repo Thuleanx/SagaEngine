@@ -10,6 +10,7 @@ public:
 	virtual ~StarApp() override;
 private:
     void worldSetup();
+    void endingWorldSetup();
 	std::shared_ptr<Saga::GameWorld> mainWorld;
 };
 

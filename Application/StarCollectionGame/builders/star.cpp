@@ -11,15 +11,20 @@ namespace Star {
 Saga::Entity createStar(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos) {
     Saga::Entity entity = world->createEntity();
 
-    /* world->emplace<Saga::Mesh>(entity, "Resources/Meshes/star.obj"); */
-    world->emplace<Saga::Mesh>(entity, Saga::Mesh::StandardType::Sphere);
-    world->emplace<Saga::Material>(entity, glm::vec3(2,2,2));
-    world->emplace<Saga::Transform>(entity)->transform->setPos(pos);
+    world->emplace<Saga::Mesh>(entity, "Resources/Meshes/star.obj");
+    /* world->emplace<Saga::Mesh>(entity, Saga::Mesh::StandardType::Sphere); */
+    world->emplace<Saga::Material>(entity, glm::vec3(1,1,0))->material->setEmission(glm::vec3(1,1,0) * 0.5f);
+    world->emplace<Saga::Transform>(entity)->transform->setPos(pos)->setScale(0.5);
 
     world->emplace<Saga::Collider>(entity);
     world->emplace<Saga::CylinderCollider>(entity, 1, 0.5); // height, radius
 
-    world->emplace<Star::Collectible>(entity);
+    world->emplace<Star::Comet>(entity, Comet {
+        .initialPos = pos,
+        .rotationSpeed = 3,
+        .boppingSpeed = 2,
+        .boppingDistance = 1,
+    });
     world->getSystems().addEventSystem(Saga::EngineEvents::OnCollision, entity,
         Saga::System<Saga::Entity, Saga::Entity>(Star::Systems::starCollect));
 

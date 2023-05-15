@@ -48,6 +48,10 @@ glm::vec3 Material::getColor(){
     return m_color;
 }
 
+glm::vec3 Material::getEmission(){
+    return m_emission;
+}
+
 void Material::setColor(glm::vec3 color){
     m_color = color;
 }
@@ -58,6 +62,10 @@ float Material::getShininess(){
 
 void Material::setShininess(float shininess){
     m_shininess = shininess;
+}
+
+void Material::setEmission(glm::vec3 color) {
+    m_emission = color;
 }
 
 void Material::setTiling(glm::vec2 tiling){

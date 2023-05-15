@@ -14,52 +14,62 @@ ModelTransform::~ModelTransform(){
 
 }
 
-void ModelTransform::setPos(glm::vec3 pos){
+ModelTransform* ModelTransform::setPos(glm::vec3 pos){
     m_pos = pos;
+    return this;
 }
 
-void ModelTransform::translate(glm::vec3 delta) {
+ModelTransform* ModelTransform::translate(glm::vec3 delta) {
     m_pos += delta;
+    return this;
 }
 
 glm::vec3 ModelTransform::getPos() {
     return m_pos;
 }
 
-void ModelTransform::setScale(glm::vec3 scale) {
+ModelTransform* ModelTransform::setScale(glm::vec3 scale) {
     m_scale = scale;
+    return this;
 }
 
-void ModelTransform::setScale(float scale) {
+ModelTransform* ModelTransform::setScale(float scale) {
     m_scale = glm::vec3(scale);
+    return this;
 }
 
-void ModelTransform::scale(glm::vec3 scale) {
+ModelTransform* ModelTransform::scale(glm::vec3 scale) {
     m_scale *= scale;
+    return this;
 }
 
-void ModelTransform::scale(float scale) {
+ModelTransform* ModelTransform::scale(float scale) {
     m_scale *= scale;
+    return this;
 }
 
 glm::vec3 ModelTransform::getScale() {
     return m_scale;
 }
 
-void ModelTransform::setRotation(float angle, glm::vec3 axis) {
+ModelTransform* ModelTransform::setRotation(float angle, glm::vec3 axis) {
     m_rotation = glm::rotate(glm::mat4(1), angle, axis);
+    return this;
 }
 
-void ModelTransform::setRotation(glm::mat4 r) {
+ModelTransform* ModelTransform::setRotation(glm::mat4 r) {
     m_rotation = r;
+    return this;
 }
 
-void ModelTransform::rotate(float angle, glm::vec3 axis) {
+ModelTransform* ModelTransform::rotate(float angle, glm::vec3 axis) {
     m_rotation = glm::rotate(m_rotation, angle, axis);
+    return this;
 }
 
-void ModelTransform::rotate(glm::mat4 r) {
+ModelTransform* ModelTransform::rotate(glm::mat4 r) {
     m_rotation = r * m_rotation;
+    return this;
 }
 
 glm::mat4 ModelTransform::getRotation() {

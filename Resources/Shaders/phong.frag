@@ -17,6 +17,7 @@ in vec4 lightSpace_pos;
 // Object Material Data
 uniform int colorSource; // 0 = solid color (objColor), 1 = texture color (objTexture), 2 = per-vertex color (vertColor)
 uniform vec3 objColor;
+uniform vec3 emission;
 uniform sampler2D objTexture;
 uniform vec2 objTexture_tiling;
 uniform float shininess;
@@ -206,16 +207,16 @@ void main() {
 
     // Apply correct object color
     if (colorSource == 0 ) {
-        fragColor = vec4(tempColor * objColor, 1.0);
+        fragColor = vec4(tempColor * objColor + emission, 1.0);
     } 
     else if (colorSource == 1){
-        fragColor = vec4(tempColor * vec3(texture(objTexture, tex_coord * objTexture_tiling)), 1.0);
+        fragColor = vec4(tempColor * vec3(texture(objTexture, tex_coord * objTexture_tiling)) + emission, 1.0);
     }
     else if (colorSource == 2) {
-        fragColor = vec4(tempColor * vertColor, 1.0);
+        fragColor = vec4(tempColor * vertColor + emission, 1.0);
     }
     else{
-        fragColor = vec4(tempColor, 1.0);
+        fragColor = vec4(tempColor + emission, 1.0);
     }
 
     /* fragColor = vec4((normalize(worldSpace_norm) + 1) / 2,1); */

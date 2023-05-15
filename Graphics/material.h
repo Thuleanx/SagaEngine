@@ -25,9 +25,11 @@ public:
     std::shared_ptr<Texture> getTexture();
     void setTexture(std::shared_ptr<Texture> texture);
     glm::vec3 getColor();
+    glm::vec3 getEmission();
     void setColor(glm::vec3 color);
     float getShininess();
     void setShininess(float shininess);
+    void setEmission(glm::vec3 color);
 
 	void setTiling(glm::vec2 tiling);
 	glm::vec2 getTiling();
@@ -36,6 +38,7 @@ private:
     ColorSource m_colorSource;
     std::shared_ptr<Texture> m_texture;
     glm::vec3 m_color;
+    glm::vec3 m_emission = glm::vec3(0,0,0);
     float m_shininess;
 	glm::vec2 m_tiling = glm::vec2(1,1);
 };

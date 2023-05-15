@@ -3,21 +3,24 @@
 ## Core
 - [x] player movement
 - [x] player jump
-- [ ] player tether
-- [ ] star appear
 - [x] star collect on touch
 - [x] player bigger on touch
 - [x] on falling off => player teleports to the top
-- [ ] on everything collected, everything glows, and world resets.
+- [x] on everything collected, world resets.
 - [ ] star flows in from offscreen
 - [ ] arena layout
 
+## Polish
+- [ ] Camera zoom out but smoothed when player collects more things
+- [ ] Player grows smoothly after collecting more stars
+
 ## Art
+- [ ] color scheme
 - [x] skybox
 - [x] player model
     - [ ] player glow more with more things collected
 - [x] star model
-    - [ ] star glow
+    - [x] star glow
 
 ## Sound
 - [ ] sfx for jump

@@ -41,6 +41,7 @@ void Shader::setMaterial(std::shared_ptr<Material> material) {
 	}
 	float shininess = material->getShininess();
 	glUniform1f(glGetUniformLocation(m_handle, "shininess"), shininess);
+	glUniform3f(glGetUniformLocation(m_handle, "emission"), material->getEmission().r, material->getEmission().g, material->getEmission().b);
 }
 
 void Shader::setCamera(std::shared_ptr<Camera> camera) {

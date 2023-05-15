@@ -11,7 +11,7 @@ class GameWorld;
 namespace Star {
 
 struct PlayerInput {
-    constexpr static float inputBufferTime = 0.1f;
+    constexpr static float inputBufferTime = 0.3f;
 
     bool mouseDown;
     bool up = 0, down = 0, left = 0, right = 0;

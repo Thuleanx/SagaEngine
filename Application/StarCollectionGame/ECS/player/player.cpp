@@ -1,5 +1,6 @@
 #include "player.h"
 #include "Application/StarCollectionGame/ECS/editor.h"
+#include "Application/StarCollectionGame/ECS/star/star.h"
 #include "Engine/Components/camera.h"
 #include "Engine/Components/collider.h"
 #include "Engine/Components/rigidbody.h"
@@ -128,8 +129,8 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
         if (transform->getPos().y < player->minY)
             transform->transform->setPos(glm::vec3(0,player->maxY,10));
 
-        float raycastDepth = 0.01f;
-        float skinWidth = 0.00f;
+        float raycastDepth = 0.1f;
+        float skinWidth = 0.001f;
 
         glm::vec3 groundCastPosition = transform->getPos() + glm::vec3(0,1,0) * skinWidth;
         glm::vec3 groundCastDir = glm::vec3(0,-1,0) * (skinWidth + raycastDepth);
@@ -210,6 +211,7 @@ void registerGroupsAndSystems(std::shared_ptr<Saga::GameWorld> world) {
     world->registerGroup<Saga::EllipsoidCollider, Star::Player, Star::PlayerInput, Saga::RigidBody, Saga::Transform>();
     world->registerGroup<Saga::Camera, Star::Camera, Saga::Transform>();
     world->registerGroup<Saga::Camera, Star::Camera, Star::PlayerInput, Saga::Transform>();
+    world->registerGroup<Comet, Saga::Transform>();
 
     auto& systems = world->getSystems();
 
@@ -225,6 +227,8 @@ void registerGroupsAndSystems(std::shared_ptr<Saga::GameWorld> world) {
     systems.addMousePosSystem(Saga::System<double,double>(cameraControllerScroll));
 
     systems.addStagedSystem(Saga::System<float,float>(playerController), Saga::SystemManager::Stage::Update);
+    systems.addStagedSystem(Saga::System<float,float>(animateStar), Saga::SystemManager::Stage::Update);
+
     systems.addStagedSystem(Saga::System<>(drawEditor), Saga::SystemManager::Stage::Draw);
 }
 

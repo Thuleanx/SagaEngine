@@ -18,7 +18,7 @@ Saga::Entity createPlayer(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos)
     world->emplace<Star::Player>(entity, Star::Player {
         .baseMoveSpeed = 5,
         .baseAccelerationSpeed = 20,
-        .gravity = 10,
+        .gravity = 5,
         .jumpSpeed = 10,
         .numStarsCollected = 0,
         .minY = -40,

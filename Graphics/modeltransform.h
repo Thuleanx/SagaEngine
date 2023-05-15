@@ -9,18 +9,18 @@ public:
     ModelTransform();
     ~ModelTransform();
 
-    void setPos(glm::vec3 pos);
-    void translate(glm::vec3 delta);
+    ModelTransform* setPos(glm::vec3 pos);
+    ModelTransform* translate(glm::vec3 delta);
     glm::vec3 getPos();
-    void setScale(glm::vec3 scale);
-    void setScale(float scale);
-    void scale(glm::vec3 scale);
-    void scale(float scale);
+    ModelTransform* setScale(glm::vec3 scale);
+    ModelTransform* setScale(float scale);
+    ModelTransform* scale(glm::vec3 scale);
+    ModelTransform* scale(float scale);
     glm::vec3 getScale();
-    void setRotation(float angle, glm::vec3 axis);
-    void setRotation(glm::mat4 r);
-    void rotate(float angle, glm::vec3 axis);
-    void rotate(glm::mat4 r);
+    ModelTransform* setRotation(float angle, glm::vec3 axis);
+    ModelTransform* setRotation(glm::mat4 r);
+    ModelTransform* rotate(float angle, glm::vec3 axis);
+    ModelTransform* rotate(glm::mat4 r);
     glm::mat4 getRotation();
     glm::mat4 getModelMatrix();
     void clear();

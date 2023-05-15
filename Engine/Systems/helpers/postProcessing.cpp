@@ -190,7 +190,7 @@ void drawPostProcessingGizmos(std::shared_ptr<Saga::GameWorld> world) {
 
     if (ImGui::CollapsingHeader("Bloom")) {
         ImGui::SliderFloat("bloom intensity", &drawSystemData->postProcessingSettings.bloomIntensity, 0.f, 10.f);
-        /* ImGui::SliderInt("bloom iterations", &drawSystemData->postProcessingSettings.bloomBlurIterations, 0, 20); */
+        ImGui::SliderInt("bloom iterations", &drawSystemData->postProcessingSettings.bloomBlurIterations, 0, 20);
         ImGui::SliderFloat("bloom radius", &drawSystemData->postProcessingSettings.bloomRadius, 1.f, 10.f);
         ImGui::SliderFloat("bloom threshold", &drawSystemData->postProcessingSettings.bloomThreshold, 0.f, 1.f);
     }
