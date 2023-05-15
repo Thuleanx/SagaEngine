@@ -9,12 +9,12 @@
 
 namespace Star {
 
-void createPlayer(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity) {
+void createPlayer(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, glm::vec3 pos) {
     world->emplace<Star::PlayerInput>(entity);
     world->emplace<Star::Player>(entity, Star::Player {
-        .movementSpeed = 3,
-        .accelerationSpeed = 3,
-        .gravity = 2,
+        .movementSpeed = 5,
+        .accelerationSpeed = 20,
+        .gravity = 10,
         .jumpSpeed = 10,
         .numStarsCollected = 0
     });
@@ -37,7 +37,7 @@ void createPlayer(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity) {
         .shader = "phong"
     });
 
-    world->emplace<Saga::Transform>(entity)->transform->setPos(glm::vec3(0,0,0));
+    world->emplace<Saga::Transform>(entity)->transform->setPos(pos);
 
     world->emplace<Saga::Collider>(entity);
     world->emplace<Saga::EllipsoidCollider>(entity, glm::vec3(0.5f));

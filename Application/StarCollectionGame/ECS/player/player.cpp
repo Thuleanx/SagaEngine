@@ -33,28 +33,28 @@ void playerInputButton(std::shared_ptr<Saga::GameWorld> world, int action,
 void playerInputLeft(std::shared_ptr<Saga::GameWorld> world, int action) {
     playerInputButton(world, action, [](PlayerInput& input, int action) -> void {
         if (action == GLFW_PRESS || action == GLFW_RELEASE)
-            input.left = action = GLFW_PRESS;
+            input.left = action == GLFW_PRESS;
     });
 }
 
 void playerInputRight(std::shared_ptr<Saga::GameWorld> world, int action) {
     playerInputButton(world, action, [](PlayerInput& input, int action) -> void {
         if (action == GLFW_PRESS || action == GLFW_RELEASE)
-            input.right = action = GLFW_PRESS;
+            input.right = action == GLFW_PRESS;
     });
 }
 
 void playerInputUp(std::shared_ptr<Saga::GameWorld> world, int action) {
     playerInputButton(world, action, [](PlayerInput& input, int action) -> void {
         if (action == GLFW_PRESS || action == GLFW_RELEASE)
-            input.up = action = GLFW_PRESS;
+            input.up = action == GLFW_PRESS;
     });
 }
 
 void playerInputDown(std::shared_ptr<Saga::GameWorld> world, int action) {
     playerInputButton(world, action, [](PlayerInput& input, int action) -> void {
         if (action == GLFW_PRESS || action == GLFW_RELEASE)
-            input.down = action = GLFW_PRESS;
+            input.down = action == GLFW_PRESS;
     });
 }
 
@@ -103,6 +103,8 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
             frameAcceleration = velocityDiff;
 
         rigidBody->velocity += frameAcceleration;
+        /* rigidBody->velocity.x = desiredVelocity.x; */
+        /* rigidBody->velocity.z = desiredVelocity.z; */
     }
 
     auto group2 = *world->viewGroup<Saga::EllipsoidCollider, Star::Player, Star::PlayerInput,
@@ -110,18 +112,17 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
 
     // jump + gravity
     for (auto &[entity, ellipsoidCollider, player, playerInput, rigidBody, transform] : group2) {
-        float raycastDepth = 0.1f;
-        float skinWidth = 0.01f;
+        float raycastDepth = 0.01f;
+        float skinWidth = 0.00f;
 
-        glm::vec3 groundCastPosition = transform->getPos() + ellipsoidCollider->radius.y * glm::vec3(0,-1,0)
-                                       + glm::vec3(0,1,0) * skinWidth;
+        glm::vec3 groundCastPosition = transform->getPos() + glm::vec3(0,1,0) * skinWidth;
         glm::vec3 groundCastDir = glm::vec3(0,-1,0) * (skinWidth + raycastDepth);
 
-        auto grounded = Saga::Physics::raycastAllTriangles(world,
-                        groundCastPosition, groundCastDir);
+        auto grounded = 
+            Saga::Physics::ellipsoidCastAllTriangles(world,
+                        groundCastPosition, groundCastDir, ellipsoidCollider->radius);
 
         rigidBody->velocity.y -= deltaTime * player->gravity;
-
         if (grounded) player->coyoteTime = playerInput->inputBufferTime;
 
         if (player->coyoteTime > 0 && playerInput->jump > 0) {
@@ -200,7 +201,7 @@ void registerGroupsAndSystems(std::shared_ptr<Saga::GameWorld> world) {
     systems.addKeyboardEventSystem(GLFW_KEY_W, playerInputUp);
     systems.addKeyboardEventSystem(GLFW_KEY_S, playerInputDown);
     systems.addKeyboardEventSystem(GLFW_KEY_A, playerInputLeft);
-    systems.addKeyboardEventSystem(GLFW_KEY_D, playerInputLeft);
+    systems.addKeyboardEventSystem(GLFW_KEY_D, playerInputRight);
     systems.addKeyboardEventSystem(GLFW_KEY_SPACE, playerInputJump);
 
     // staged systems for camera

@@ -37,6 +37,16 @@ namespace Physics {
      */
     std::optional<RaycastHit> raycastAllTriangles(std::shared_ptr<GameWorld> world, glm::vec3 pos, glm::vec3 dir);
 
+    /**
+     * @brief Cast an ellipsoid, hitting any mesh collider.
+     *
+     * @param world
+     * @param pos the starting position of the ellipsoid in world space.
+     * @param dir the direction of the ellipsoid in world space.
+     * @param radius of the ellipsoid in world space.
+     */
+    std::optional<RaycastHit> ellipsoidCastAllTriangles(std::shared_ptr<GameWorld> world, glm::vec3 pos, glm::vec3 dir, glm::vec3 radius);
+
 	/**
 	 * @brief Register all Groups that the Physics meta system use
 	 * 

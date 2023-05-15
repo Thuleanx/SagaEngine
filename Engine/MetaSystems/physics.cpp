@@ -53,6 +53,29 @@ namespace Physics {
 
         return {};
     }
+
+    std::optional<RaycastHit> ellipsoidCastAllTriangles(std::shared_ptr<GameWorld> world, glm::vec3 pos, glm::vec3 dir, glm::vec3 radius) {
+        CollisionSystemData& collisionSystemData = Saga::Systems::getSystemData(world);
+
+        if (collisionSystemData.bvh) {
+            auto hit = collisionSystemData.bvh->traceEllipsoid(pos, dir, radius);
+            if (!hit) return {};
+            auto [triangleData, t] = hit.value();
+
+            Collider* collider = world->getComponent<Collider>(triangleData->entity);
+
+            return RaycastHit {
+                .collider = collider,
+                .t = t,
+                .pos = pos + dir * t,
+                .normal = glm::normalize(glm::cross(
+                            triangleData->triangle[1]-triangleData->triangle[0],
+                            triangleData->triangle[2]-triangleData->triangle[0]))
+            };
+        } 
+
+        return {};
+    }
 }
 
 }

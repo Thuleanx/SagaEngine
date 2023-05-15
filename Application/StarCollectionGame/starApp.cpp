@@ -1,6 +1,8 @@
 #include "starApp.h"
 #include "Application/StarCollectionGame/ECS/player/player.h"
+#include "Application/StarCollectionGame/builders/lighting.h"
 #include "Application/StarCollectionGame/builders/player.h"
+#include "Application/StarCollectionGame/builders/star.h"
 #include "Engine/Entity/entity.h"
 #include "Engine/Systems/audioSystem.h"
 #include "Engine/Systems/drawSystem.h"
@@ -26,7 +28,13 @@ void StarApp::worldSetup() {
     Star::Systems::registerGroupsAndSystems(mainWorld);
 
     Saga::Entity player = mainWorld->createEntity();
-    createPlayer(mainWorld, player);
+    createPlayer(mainWorld, player, glm::vec3(0,10,10));
+
+    Saga::Entity mainStage = mainWorld->createEntity();
+    createMainStage(mainWorld, mainStage, glm::vec3(0,0,0));
+
+    Saga::Entity mainLight = mainWorld->createEntity();
+    createDirectionalLight(mainWorld, mainLight, glm::vec3(-1,-1,0), glm::vec3(0.5,0.5,1));
 }
 
 }

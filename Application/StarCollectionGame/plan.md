@@ -1,8 +1,8 @@
 # Plan for star game
 
 ## Core
-- [ ] player movement
-- [ ] player jump
+- [x] player movement
+- [x] player jump
 - [ ] player tether
 - [ ] star appear
 - [ ] star collect on touch
@@ -12,7 +12,7 @@
 - [ ] star flows in from offscreen
 
 ## Art
-- [ ] skybox
+- [x] skybox
 - [ ] player model
     - [ ] player glow more with more things collected
 - [ ] star model
