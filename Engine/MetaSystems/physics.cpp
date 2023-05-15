@@ -3,6 +3,10 @@
 #include "../Utils/geometry/geometry.h"
 #include "../Components/_import.h"
 #include "../_Core/asserts.h"
+#include "Engine/Components/collider.h"
+#include "Engine/Components/collisionSystemData.h"
+#include "Engine/Components/transform.h"
+#include "Engine/Systems/helpers/collisionSystemOptimizationStatic.h"
 
 namespace Saga {
 
@@ -26,6 +30,29 @@ namespace Physics {
 	void registerPhysicsMetaSystem(std::shared_ptr<GameWorld> world) {
 		world->registerGroup<Collider, CylinderCollider, RigidBody, Transform>();
 	}
+
+    std::optional<RaycastHit> raycastAllTriangles(std::shared_ptr<GameWorld> world, glm::vec3 pos, glm::vec3 dir) {
+        CollisionSystemData& collisionSystemData = Saga::Systems::getSystemData(world);
+
+        if (collisionSystemData.bvh) {
+            auto hit = collisionSystemData.bvh->traceRay(pos, dir);
+            if (!hit) return {};
+            auto [triangleData, t] = hit.value();
+
+            Collider* collider = world->getComponent<Collider>(triangleData->entity);
+
+            return RaycastHit {
+                .collider = collider,
+                .t = t,
+                .pos = pos + dir * t,
+                .normal = glm::normalize(glm::cross(
+                            triangleData->triangle[1]-triangleData->triangle[0],
+                            triangleData->triangle[2]-triangleData->triangle[0]))
+            };
+        } 
+
+        return {};
+    }
 }
 
 }

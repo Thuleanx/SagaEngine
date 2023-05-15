@@ -85,6 +85,17 @@ namespace Saga {
          */
         std::optional<TracedData> traceEllipsoid(glm::vec3 pos, glm::vec3 dir, glm::vec3 scale);
 
+        /**
+         * @brief Trace a raycast through the hierarchy, reporting the first intersection if it exists
+         *
+         * @param pos the position of the raycast.
+         * @param dir the direction of the raycast.
+         *
+         * @return TracedData containing the first intersection, if one exists.
+         * @return nothing otherwise.
+         */
+        std::optional<TracedData> traceRay(glm::vec3 pos, glm::vec3 dir);
+
     private:
         /**
          * Maximum number of triangles we want in leaf nodes. If a node potentially
@@ -122,6 +133,18 @@ namespace Saga {
          */
         void traceEllipsoid(glm::vec3 pos, glm::vec3 dir, glm::vec3 scale, 
                 std::shared_ptr<Node> node, std::optional<TracedData> &result);
+
+        /**
+         * @brief Trace a ray through the bounding volume hierarchy, reporting the first intersection if
+         * it exists. This performs some pruning by the result parameter. 
+         *
+         * @param pos the position of the raycast.
+         * @param dir the direction of the raycast.
+         * @param node the node to start the search in.
+         * @param result contains the result of the ellipsoid trace. If result already
+         *      contains a value for t, we prune any intersection that happens after t.
+         */
+        void traceRay(glm::vec3 pos, glm::vec3 dir, std::shared_ptr<Node> node, std::optional<TracedData>& result);
     };
 
 

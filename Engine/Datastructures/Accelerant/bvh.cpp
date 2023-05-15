@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "Engine/Datastructures/Accelerant/boundingBox.h"
 #include "Engine/Utils/geometry/geometry.h"
+#include "Engine/Utils/geometry/triangle.h"
 #include "Engine/_Core/logger.h"
 using namespace glm;
 using namespace std;
@@ -124,6 +125,36 @@ namespace Saga {
             std::optional<float> tc = child->box.findCollisionWithBox(pos, dir, 2.0f*scale);
             if (tc.has_value() && (!result.has_value() || tc.value() < std::get<1>(result.value()))) 
                 traceEllipsoid(pos, dir, scale, child, result);
+        }
+    }
+
+    std::optional<BoundingVolumeHierarchy::TracedData> BoundingVolumeHierarchy::traceRay(glm::vec3 pos, glm::vec3 dir) {
+        std::optional<BoundingVolumeHierarchy::TracedData> result = {};
+        if (root) traceRay(pos, dir, root, result);
+        return result;
+    }
+
+    void BoundingVolumeHierarchy::traceRay(glm::vec3 pos, glm::vec3 dir, std::shared_ptr<Node> node, std::optional<BoundingVolumeHierarchy::TracedData> &result) {
+        // this should only run for terminal nodes
+        // we loop through all shapes and see if any intersects with our ellipsoid
+        for (BoundedShapeData* brsd : node->shapes) {
+            std::optional<float> tc = Saga::Geometry::rayTriangleIntersection(pos, dir,
+                Saga::Geometry::Triangle {
+                    .a = brsd->data.triangle[0], 
+                    .b = brsd->data.triangle[1], 
+                    .c = brsd->data.triangle[2]
+                }
+            );
+
+            if (tc && tc.value() >= 0 && (!result.has_value() || tc < std::get<1>(result.value()))) 
+                result = {&brsd->data, tc.value()};
+        }
+
+        // recurse through children
+        for (std::shared_ptr<Node> child : node->children) {
+            std::optional<float> tc = child->box.findCollisionWithBox(pos, dir, glm::vec3(0,0,0));
+            if (tc.has_value() && (!result.has_value() || tc.value() < std::get<1>(result.value()))) 
+                traceRay(pos, dir, child, result);
         }
     }
 

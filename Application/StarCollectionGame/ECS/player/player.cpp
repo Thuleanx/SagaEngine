@@ -5,6 +5,7 @@
 #include "Engine/Components/transform.h"
 #include "Engine/Gameworld/gameworld.h"
 #include "Engine/MetaSystems/physics.h"
+#include "Engine/Systems/systemManager.h"
 #include "GLFW/glfw3.h"
 #include "glm/ext/quaternion_geometric.hpp"
 #include <glm/gtx/norm.hpp>
@@ -21,7 +22,7 @@ glm::vec2 PlayerInput::movement() {
 }
 
 // INPUTS
-namespace Star {
+namespace Star::Systems {
 void playerInputButton(std::shared_ptr<Saga::GameWorld> world, int action,
                        const std::function<void (PlayerInput &, int)> &callback) {
 
@@ -70,7 +71,7 @@ void playerInputJump(std::shared_ptr<Saga::GameWorld> world, int action) {
 }
 
 
-namespace Star {
+namespace Star::Systems {
 
 void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, float time) {
     auto mainCamera = world->viewAll<Saga::Camera>()->any();
@@ -79,7 +80,7 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
     auto group = *world->viewGroup<Star::Player, Star::PlayerInput, Saga::RigidBody, Saga::Transform>();
 
     // horizontal movement
-    for (auto [entity, player, playerInput, rigidBody, transform] : group) {
+    for (auto &[entity, player, playerInput, rigidBody, transform] : group) {
         glm::vec3 look = mainCamera.value()->camera->getLook();
         glm::vec2 movement = playerInput->movement();
 
@@ -108,7 +109,7 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
          Saga::RigidBody, Saga::Transform>();
 
     // jump + gravity
-    for (auto [entity, ellipsoidCollider, player, playerInput, rigidBody, transform] : group2) {
+    for (auto &[entity, ellipsoidCollider, player, playerInput, rigidBody, transform] : group2) {
         float raycastDepth = 0.1f;
         float skinWidth = 0.01f;
 
@@ -139,16 +140,16 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
 
 void cameraControllerScroll(std::shared_ptr<Saga::GameWorld> world, double xpos, double ypos) {
     auto group = *world->viewGroup<Saga::Camera, Star::Camera, Star::PlayerInput, Saga::Transform>();
-    for (auto [entity, camera, cameraController, playerInput, transform] : group) {
+    for (auto &[entity, camera, cameraController, playerInput, transform] : group) {
         glm::vec2 mousePos(xpos, ypos);
 
-        if (!cameraController->isInitialFrame) {
-            cameraController->mousePosLastFrame = mousePos;
+        glm::vec2 mouseDelta = mousePos - cameraController->mousePosLastFrame;
+        cameraController->mousePosLastFrame = mousePos;
+
+        if (cameraController->isInitialFrame) {
             cameraController->isInitialFrame = false;
             continue;
         }
-
-        glm::vec2 mouseDelta = mousePos - cameraController->mousePosLastFrame;
 
         glm::vec3 look = camera->camera->getLook();
 
@@ -166,18 +167,17 @@ void cameraControllerScroll(std::shared_ptr<Saga::GameWorld> world, double xpos,
         glm::vec3 pos = transform->getPos() + cameraController->shoulderOffset
                         - camera->camera->getLook() * cameraController->distance;
         camera->camera->setPos(pos);
-        if (camera->camera->getPos().y < transform->getPos().y) {
+        if (camera->camera->getPos().y + 1 < transform->getPos().y) {
             camera->camera->rotate(-mouseDelta.y * cameraController->turnRate.y, glm::vec3(look.z, 0, -look.x));
             camera->camera->setPos(cachedCameraPos);
+            continue;
         }
-
-        cameraController->isInitialFrame = false;
     }
 }
 
-void cameraControllerUpdate(std::shared_ptr<Saga::GameWorld> world, double xpos, double ypos) {
+void cameraControllerUpdate(std::shared_ptr<Saga::GameWorld> world, float deltaTime, float time) {
     auto group = *world->viewGroup<Saga::Camera, Star::Camera, Saga::Transform>();
-    for (auto [entity, camera, cameraController, transform] : group) {
+    for (auto &[entity, camera, cameraController, transform] : group) {
         glm::vec3 pos = transform->getPos() + cameraController->shoulderOffset
                         - camera->camera->getLook() * cameraController->distance;
         camera->camera->setPos(pos);
@@ -186,13 +186,28 @@ void cameraControllerUpdate(std::shared_ptr<Saga::GameWorld> world, double xpos,
 
 }
 
-namespace Star {
+namespace Star::Systems {
 
-void registerGroups(std::shared_ptr<Saga::GameWorld> world) {
+void registerGroupsAndSystems(std::shared_ptr<Saga::GameWorld> world) {
     world->registerGroup<Star::Player, Star::PlayerInput, Saga::RigidBody, Saga::Transform>();
     world->registerGroup<Saga::EllipsoidCollider, Star::Player, Star::PlayerInput, Saga::RigidBody, Saga::Transform>();
     world->registerGroup<Saga::Camera, Star::Camera, Saga::Transform>();
     world->registerGroup<Saga::Camera, Star::Camera, Star::PlayerInput, Saga::Transform>();
+
+    auto& systems = world->getSystems();
+
+    // keymap
+    systems.addKeyboardEventSystem(GLFW_KEY_W, playerInputUp);
+    systems.addKeyboardEventSystem(GLFW_KEY_S, playerInputDown);
+    systems.addKeyboardEventSystem(GLFW_KEY_A, playerInputLeft);
+    systems.addKeyboardEventSystem(GLFW_KEY_D, playerInputLeft);
+    systems.addKeyboardEventSystem(GLFW_KEY_SPACE, playerInputJump);
+
+    // staged systems for camera
+    systems.addStagedSystem(Saga::System<float,float>(cameraControllerUpdate), Saga::SystemManager::Stage::Update);
+    systems.addMousePosSystem(Saga::System<double,double>(cameraControllerScroll));
+
+    systems.addStagedSystem(Saga::System<float,float>(playerController), Saga::SystemManager::Stage::Update);
 }
 
 }

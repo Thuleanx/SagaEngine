@@ -23,13 +23,13 @@ struct PlayerInput {
 };
 
 struct Player {
-    float movementSpeed = 3;
-    float accelerationSpeed = 10;
-    float gravity = 10;
-
+    float movementSpeed;
+    float accelerationSpeed;
+    float gravity;
     float coyoteTime;
     float jumpSpeed;
-    int numStarsCollected = 0;
+
+    int numStarsCollected;
 };
 
 struct Camera {
@@ -42,6 +42,8 @@ struct Camera {
     bool isInitialFrame = 1;
     glm::vec2 mousePosLastFrame;
 };
+
+namespace Systems {
 
 // INPUTS
 void playerInputButton(std::shared_ptr<Saga::GameWorld> world, int action,
@@ -59,8 +61,10 @@ void playerInputJump(std::shared_ptr<Saga::GameWorld> world, int action);
 void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, float time);
 
 // CAMERA
-void cameraController(std::shared_ptr<Saga::GameWorld> world, double xpos, double ypos);
+void cameraControllerUpdate(std::shared_ptr<Saga::GameWorld> world, float deltaTime, float time);
+void cameraControllerScroll(std::shared_ptr<Saga::GameWorld> world, double xpos, double ypos);
 
-void registerGroups(std::shared_ptr<Saga::GameWorld> world);
+void registerGroupsAndSystems(std::shared_ptr<Saga::GameWorld> world);
+}
 
 }

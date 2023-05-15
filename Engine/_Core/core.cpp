@@ -4,7 +4,7 @@
 #include <memory>
 #include <utility>
 #include "app.h"
-#include "Application/Platformer/app.h"
+#include "Application/StarCollectionGame/starApp.h"
 #include "logger.h"
 #include "../Audio/audioEngine.h"
 #include "imgui.h"
@@ -16,7 +16,7 @@ namespace Saga {
 Core::Core() {
 	SINFO("Start initializing application.");
 	AudioEngine::init();
-	application = make_shared<Platformer::App>();
+	application = make_shared<Star::StarApp>();
 }
 
 Core::~Core() {
