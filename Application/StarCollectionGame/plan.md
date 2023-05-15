@@ -6,16 +6,17 @@
 - [ ] player tether
 - [ ] star appear
 - [x] star collect on touch
-- [ ] player bigger on touch
-- [ ] on falling off => player teleports to the top
+- [x] player bigger on touch
+- [x] on falling off => player teleports to the top
 - [ ] on everything collected, everything glows, and world resets.
 - [ ] star flows in from offscreen
+- [ ] arena layout
 
 ## Art
 - [x] skybox
-- [ ] player model
+- [x] player model
     - [ ] player glow more with more things collected
-- [ ] star model
+- [x] star model
     - [ ] star glow
 
 ## Sound

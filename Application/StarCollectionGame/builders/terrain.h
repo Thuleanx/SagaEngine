@@ -6,6 +6,7 @@
 
 namespace Star {
 
-void createMainStage(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, glm::vec3 pos);
+Saga::Entity createMainStage(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos);
+Saga::Entity createSubStage(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos);
 
 }

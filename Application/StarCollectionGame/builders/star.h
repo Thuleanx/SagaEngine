@@ -6,6 +6,6 @@
 
 namespace Star {
 
-void createStar(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, glm::vec3 pos);
+Saga::Entity createStar(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos);
 
 }

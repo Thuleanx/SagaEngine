@@ -5,6 +5,7 @@
 namespace Star::Systems {
 
 void starCollect(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, Saga::Entity other) {
+    STRACE("What is happening");
     world->destroyEntity(entity);
 }
 

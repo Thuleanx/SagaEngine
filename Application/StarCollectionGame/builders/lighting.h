@@ -10,6 +10,6 @@ class GameWorld;
 
 namespace Star {
 
-void createDirectionalLight(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, glm::vec3 direction, glm::vec3 color);
+Saga::Entity createDirectionalLight(std::shared_ptr<Saga::GameWorld> world, glm::vec3 direction, glm::vec3 color);
 
 }

@@ -28,17 +28,11 @@ void StarApp::worldSetup() {
     Saga::Systems::setupAudioSystem(mainWorld);
     Star::Systems::registerGroupsAndSystems(mainWorld);
 
-    Saga::Entity player = mainWorld->createEntity();
-    createPlayer(mainWorld, player, glm::vec3(0,10,10));
-
-    Saga::Entity mainStage = mainWorld->createEntity();
-    createMainStage(mainWorld, mainStage, glm::vec3(0,0,0));
-
-    Saga::Entity mainLight = mainWorld->createEntity();
-    createDirectionalLight(mainWorld, mainLight, glm::vec3(-1,-1,0), glm::vec3(0.5,0.5,1));
-
-    Saga::Entity star = mainWorld->createEntity();
-    createStar(mainWorld, star, glm::vec3(0,5,0));
+    createPlayer(mainWorld, glm::vec3(0,10,10));
+    createMainStage(mainWorld, glm::vec3(0,0,0));
+    createDirectionalLight(mainWorld, glm::vec3(-1,-1,0), glm::vec3(0.5,0.5,1));
+    createStar(mainWorld, glm::vec3(0,5,0));
+    createSubStage(mainWorld, glm::vec3(30, 10, 30));
 }
 
 }

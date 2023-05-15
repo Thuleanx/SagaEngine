@@ -8,9 +8,12 @@
 
 namespace Star {
 
-void createStar(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, glm::vec3 pos) {
-    world->emplace<Saga::Material>(entity, glm::vec3(2,2,2));
+Saga::Entity createStar(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos) {
+    Saga::Entity entity = world->createEntity();
+
+    /* world->emplace<Saga::Mesh>(entity, "Resources/Meshes/star.obj"); */
     world->emplace<Saga::Mesh>(entity, Saga::Mesh::StandardType::Sphere);
+    world->emplace<Saga::Material>(entity, glm::vec3(2,2,2));
     world->emplace<Saga::Transform>(entity)->transform->setPos(pos);
 
     world->emplace<Saga::Collider>(entity);
@@ -20,6 +23,7 @@ void createStar(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, glm
     world->getSystems().addEventSystem(Saga::EngineEvents::OnCollision, entity,
         Saga::System<Saga::Entity, Saga::Entity>(Star::Systems::starCollect));
 
+    return entity;
 }
 
 }

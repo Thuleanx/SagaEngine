@@ -12,7 +12,8 @@
 
 namespace Star {
 
-void createPlayer(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, glm::vec3 pos) {
+Saga::Entity createPlayer(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos) {
+    Saga::Entity entity = world->createEntity();
     world->emplace<Star::PlayerInput>(entity);
     world->emplace<Star::Player>(entity, Star::Player {
         .baseMoveSpeed = 5,
@@ -54,6 +55,7 @@ void createPlayer(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, g
 
     world->getSystems().addEventSystem(Saga::EngineEvents::OnCollision, entity,
         Saga::System<Saga::Entity, Saga::Entity>(Systems::playerGrowth));
+    return entity;
 }
 
 }

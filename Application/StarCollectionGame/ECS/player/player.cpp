@@ -1,4 +1,5 @@
 #include "player.h"
+#include "Application/StarCollectionGame/ECS/editor.h"
 #include "Engine/Components/camera.h"
 #include "Engine/Components/collider.h"
 #include "Engine/Components/rigidbody.h"
@@ -224,6 +225,7 @@ void registerGroupsAndSystems(std::shared_ptr<Saga::GameWorld> world) {
     systems.addMousePosSystem(Saga::System<double,double>(cameraControllerScroll));
 
     systems.addStagedSystem(Saga::System<float,float>(playerController), Saga::SystemManager::Stage::Update);
+    systems.addStagedSystem(Saga::System<>(drawEditor), Saga::SystemManager::Stage::Draw);
 }
 
 }

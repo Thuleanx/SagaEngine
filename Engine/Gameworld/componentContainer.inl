@@ -80,22 +80,29 @@ void ComponentContainer<Component>::removeComponent(const Entity entity) {
 
     int componentIndex = componentMap[entity];
 	// first remove the entity
-	componentMap.erase(entity); 
-	entityMap.erase(--cnt); // and decrement the size
 
 	SASSERT_MESSAGE(cnt >= 0, "Number of components decreased below 0. This should not be possible.");
 
 	if (cnt > 0) {
 		// this deletion creates a hole in our component list, we want to adjust that by 
 		// swapping the last entity + component to this hole index
-		Entity entityLast = entityMap[cnt];
-
-        std::swap(components[cnt], components[componentIndex]);
+		Entity entityLast = entityMap[cnt-1];
 
 		// and adjust the corresponding maps
 		componentMap[entityLast] = componentIndex;
 		entityMap[componentIndex] = entityLast;
+
+        STRACE("swapped %d %d", cnt-1, componentIndex);
+        std::swap(components[cnt-1], components[componentIndex]);
+
+        // signal that pointers are bad
+        lastReallocated++;
 	}
+
+
+	componentMap.erase(entity); 
+	entityMap.erase(cnt-1); // and decrement the size
+    cnt--;
 
 	// repack, if too big
 	tryRepack();

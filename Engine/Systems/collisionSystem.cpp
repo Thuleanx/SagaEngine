@@ -92,6 +92,7 @@ namespace Saga::Systems {
 
                     world->deliverEvent(EngineEvents::OnCollision, collision->entity0, collision->entity1);
                     world->deliverEvent(EngineEvents::OnCollision, collision->entity1, collision->entity0);
+                    STRACE("collision between %d, %d", collision->entity0, collision->entity1);
                 }
             }
 
