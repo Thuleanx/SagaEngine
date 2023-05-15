@@ -19,7 +19,7 @@ public:
 	void setCamera(std::shared_ptr<Camera> camera);
 	void setModelTransform(std::shared_ptr<ModelTransform> modelTransform);
 	void setModelTransform(glm::mat4 modelMatrix);
-	void setGlobalCoeffs(glm::vec3 coeffs);
+	void setGlobalCoeffs(glm::vec3 coeffs, glm::vec3 ambientColor = glm::vec3(1,1,1));
 	void setLights(std::vector<std::shared_ptr<Light>> lights);
 	void clearLights();
 	void setTextUniforms(float screenWidth, float screenHeight, glm::vec3 color);

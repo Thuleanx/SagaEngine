@@ -17,6 +17,7 @@ struct Camera {
 	bool clearColorBufferOnDraw; //!< determine if the draw system should clear the color buffer (or only the depth buffer) when using this camera.
 	glm::vec3 clearColor; //!< only relevant if clearColorBufferOnDraw is true.
 	glm::vec3 globalShaderCoefs; //!< only relevant if using phong shading. Coefficients for ambient, diffuse, and specular respectively. Must all be in the range [0,1].
+	glm::vec3 ambientColor; //!< only relevant if using phong shading. Color for the ambient
 	std::string shader; //!< shader used to render Meshes seen by this camera.
 
 	operator const std::shared_ptr<GraphicsEngine::Camera>() const { return camera; }

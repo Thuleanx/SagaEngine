@@ -28,6 +28,7 @@ uniform vec3 worldSpace_camPos;
 
 // Global Data
 uniform vec3 coeffs; // vec3(ka, kd, ks)
+uniform vec3 ambientColor;
 
 // Light Data
 uniform int lightType[16]; // 0 = point light, 1 = directional light
@@ -174,7 +175,7 @@ float computeSpecularIntensity(vec3 worldSpace_toLight, vec3 worldSpace_toEye) {
 
 void main() {
     // Declare ambient, diffuse, and specular terms
-    vec3 ambi = vec3(coeffs.x);
+    vec3 ambi = coeffs.x * ambientColor;
     vec3 diff = vec3(0.0);
     vec3 spec = vec3(0.0);
 

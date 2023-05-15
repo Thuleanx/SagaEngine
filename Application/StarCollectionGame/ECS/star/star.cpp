@@ -19,8 +19,9 @@ void playerGrowth(std::shared_ptr<Saga::GameWorld> world, Saga::Entity player, S
     Saga::CylinderCollider* cylinderCollider = world->getComponent<Saga::CylinderCollider>(player);
     Camera* camera = world->getComponent<Camera>(player);
     if (!playerInfo || !transform || !camera || !ellipsoidCollider || !cylinderCollider) return;
+    if (playerInfo->starsCollected.count((int) other)) return;
 
-    playerInfo->numStarsCollected++;
+    playerInfo->starsCollected.insert((int) other);
 
     glm::vec3 prevScale = transform->transform->getScale();
     glm::vec3 currentScale = glm::vec3(playerInfo->sizeFactor());

@@ -104,7 +104,7 @@ private:
             throw std::runtime_error(log);
         }
 
-        STRACE("Successfully compiled file %s", filepath);
+        SINFO("Successfully compiled file %s", filepath);
 
         return shaderID;
     }

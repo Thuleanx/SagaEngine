@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include <functional>
+#include <unordered_set>
 
 namespace Saga {
 class GameWorld;
@@ -29,7 +30,7 @@ struct Player {
     float coyoteTime;
     float jumpSpeed;
 
-    int numStarsCollected;
+    std::unordered_set<int> starsCollected;
     float minY, maxY;
 
     float growthFactor = 1.1;

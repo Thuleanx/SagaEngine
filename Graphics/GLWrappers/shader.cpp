@@ -60,8 +60,9 @@ void Shader::setModelTransform(glm::mat4 modelMatrix) {
 	glUniformMatrix4fv(glGetUniformLocation(m_handle, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
 }
 
-void Shader::setGlobalCoeffs(glm::vec3 coeffs) {
+void Shader::setGlobalCoeffs(glm::vec3 coeffs, glm::vec3 ambientColor) {
 	glUniform3f(glGetUniformLocation(m_handle, "coeffs"), coeffs.x, coeffs.y, coeffs.z);
+	glUniform3f(glGetUniformLocation(m_handle, "ambientColor"), ambientColor.r, ambientColor.g, ambientColor.b);
 }
 
 void Shader::setLights(std::vector<std::shared_ptr<Light>> lights) {

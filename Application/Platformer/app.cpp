@@ -57,6 +57,7 @@ namespace Platformer {
 				true, // clearColorBufferOnDraw
 				Saga::Theme_Nostalgic::colors[3], // clearColor
 				glm::vec3(0.2, 1, 1), // coefficients for ambient, diffuse, and specular
+                glm::vec3(1,1,1),
 				"phong", //shader
 			});
 

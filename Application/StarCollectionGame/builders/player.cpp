@@ -1,6 +1,7 @@
 #include "player.h"
 #include "Application/StarCollectionGame/ECS/player/player.h"
 #include "Application/StarCollectionGame/ECS/star/star.h"
+#include "Application/StarCollectionGame/config.h"
 #include "Engine/Components/camera.h"
 #include "Engine/Components/collider.h"
 #include "Engine/Components/material.h"
@@ -20,7 +21,6 @@ Saga::Entity createPlayer(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos)
         .baseAccelerationSpeed = 20,
         .gravity = 5,
         .jumpSpeed = 10,
-        .numStarsCollected = 0,
         .minY = -40,
         .maxY = 100
     });
@@ -39,7 +39,8 @@ Saga::Entity createPlayer(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos)
         .camera = defaultCamera,
         .clearColorBufferOnDraw = true,
         .clearColor = glm::vec3(0,0,0),
-        .globalShaderCoefs = glm::vec3(0.2, 1, 1),
+        .globalShaderCoefs = glm::vec3(0.5, 1, 1),
+        .ambientColor = palette.getColor(shadowColorIndex),
         .shader = "phong"
     });
 
@@ -50,7 +51,9 @@ Saga::Entity createPlayer(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos)
     world->emplace<Saga::EllipsoidCollider>(entity, glm::vec3(0.5f));
     world->emplace<Saga::RigidBody>(entity);
 
-    world->emplace<Saga::Material>(entity, glm::vec3(1,1,1));
+    glm::vec3 playerColor = palette.getColor(playerColorIndex);
+
+    world->emplace<Saga::Material>(entity, playerColor, 0.5);
     world->emplace<Saga::Mesh>(entity, Saga::Mesh::StandardType::Sphere);
 
     world->getSystems().addEventSystem(Saga::EngineEvents::OnCollision, entity,

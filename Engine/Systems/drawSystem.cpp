@@ -67,7 +67,7 @@ inline void renderScene(std::shared_ptr<GameWorld> world, Saga::Camera& camera, 
         lights.push_back(light->light);
     }
     graphics.setLights(lights);
-    graphics.setGlobalData(camera.globalShaderCoefs);
+    graphics.setGlobalData(camera.globalShaderCoefs, camera.ambientColor);
     graphics.setCameraData(camera);
 
     if (shadowMapLightSpaceMatrix) {

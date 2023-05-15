@@ -1,5 +1,6 @@
 #include "star.h"
 #include "Application/StarCollectionGame/ECS/star/star.h"
+#include "Application/StarCollectionGame/config.h"
 #include "Engine/Components/collider.h"
 #include "Engine/Components/material.h"
 #include "Engine/Components/mesh.h"
@@ -13,7 +14,10 @@ Saga::Entity createStar(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos) {
 
     world->emplace<Saga::Mesh>(entity, "Resources/Meshes/star.obj");
     /* world->emplace<Saga::Mesh>(entity, Saga::Mesh::StandardType::Sphere); */
-    world->emplace<Saga::Material>(entity, glm::vec3(1,1,0))->material->setEmission(glm::vec3(1,1,0) * 1.0f);
+    glm::vec3 starColor = palette.getColor(starColorIndex);
+
+    world->emplace<Saga::Material>(entity, starColor)->material
+        ->setEmission(starColor * 1.0f);
     world->emplace<Saga::Transform>(entity)->transform->setPos(pos)->setScale(0.5);
 
     world->emplace<Saga::Collider>(entity);

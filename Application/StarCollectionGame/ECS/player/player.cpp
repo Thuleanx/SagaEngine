@@ -30,7 +30,7 @@ float Player::accelerationSpeed() {
 }
 
 float Player::sizeFactor() {
-    return std::pow(growthFactor, numStarsCollected);
+    return std::pow(growthFactor, starsCollected.size());
 }
 
 }

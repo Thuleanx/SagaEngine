@@ -4,16 +4,22 @@
 #include "Application/StarCollectionGame/builders/player.h"
 #include "Application/StarCollectionGame/builders/star.h"
 #include "Application/StarCollectionGame/builders/terrain.h"
+#include "Application/StarCollectionGame/config.h"
+#include "Engine/Components/drawSystemData.h"
 #include "Engine/Entity/entity.h"
 #include "Engine/Systems/audioSystem.h"
 #include "Engine/Systems/drawSystem.h"
 #include "Engine/Systems/particleSystem.h"
 #include "Engine/Systems/systemManager.h"
+#include "Engine/Utils/colors/colorPalette.h"
 #include "Engine/Utils/random.h"
 
 namespace Star {
 
+Saga::Palette palette = Saga::Palette();
+
 StarApp::StarApp() {
+    palette = Saga::Palette(paletteFilename);
     worldSetup();
 }
 
@@ -22,6 +28,8 @@ StarApp::~StarApp() {
 
 void StarApp::worldSetup() {
     mainWorld = createGameWorld();
+    mainWorld->emplace<Saga::DrawSystemData>(mainWorld->getMasterEntity())->postProcessingSettings.fogColor = 
+        palette.getColor(fogColorIndex);
 
     // system setups
     Saga::Systems::registerDrawSystem(mainWorld);
@@ -30,8 +38,10 @@ void StarApp::worldSetup() {
     Saga::Systems::setupAudioSystem(mainWorld);
     Star::Systems::registerGroupsAndSystems(mainWorld);
 
+    glm::vec3 lightColor = palette.getColor(lightColorIndex);
+
     createPlayer(mainWorld, glm::vec3(0,10,10));
-    createDirectionalLight(mainWorld, glm::vec3(-1,-1,0), glm::vec3(0.5,0.5,1));
+    createDirectionalLight(mainWorld, glm::vec3(-1,-1,0), lightColor);
 
     createMainStage(mainWorld, glm::vec3(0,0,0));
 
@@ -79,7 +89,7 @@ void StarApp::worldSetup() {
     Saga::System<float,float>([this, maxStars](std::shared_ptr<Saga::GameWorld> world, float, float) -> void {
         std::optional<Player*> player;
         if ((player = world->viewAll<Player>()->any())) {
-            if (player.value()->numStarsCollected == maxStars) {
+            if (player.value()->starsCollected.size() == maxStars) {
                 removeGameWorld(mainWorld);
                 worldSetup();
             }

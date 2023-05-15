@@ -66,7 +66,7 @@ public:
 	std::shared_ptr<Font> getFont(std::string fontName);
 	void drawUIText(std::shared_ptr<Font> font, std::string text, glm::vec2 anchorPosition, AnchorPoint anchorPoint, float textBoxWidth, float fontSize, float lineSpacing, glm::vec3 textColor);
 
-	void setGlobalData(glm::vec3 globalCoeffs);
+	void setGlobalData(glm::vec3 globalCoeffs, glm::vec3 ambientColor);
 
 	void setLights(std::vector<std::shared_ptr<Light>> lights);
 	void clearLights();
