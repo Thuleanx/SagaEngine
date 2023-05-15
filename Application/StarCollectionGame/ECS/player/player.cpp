@@ -129,7 +129,7 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
         if (transform->getPos().y < player->minY)
             transform->transform->setPos(glm::vec3(0,player->maxY,10));
 
-        float raycastDepth = 0.1f;
+        float raycastDepth = 0.05f;
         float skinWidth = 0.001f;
 
         glm::vec3 groundCastPosition = transform->getPos() + glm::vec3(0,1,0) * skinWidth;
@@ -139,7 +139,9 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
             Saga::Physics::ellipsoidCastAllTriangles(world,
                         groundCastPosition, groundCastDir, ellipsoidCollider->radius);
 
-        rigidBody->velocity.y -= deltaTime * player->gravity;
+        float gravity = std::abs(rigidBody->velocity.y) < player->halfGravityThreshold ? player->gravity/2 : player->gravity;
+
+        rigidBody->velocity.y -= deltaTime * gravity;
         if (grounded) player->coyoteTime = playerInput->inputBufferTime;
 
         if (player->coyoteTime > 0 && playerInput->jump > 0) {

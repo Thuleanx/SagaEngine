@@ -19,9 +19,10 @@ Saga::Entity createPlayer(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos)
     world->emplace<Star::Player>(entity, Star::Player {
         .baseMoveSpeed = 5,
         .baseAccelerationSpeed = 20,
-        .gravity = 5,
+        .gravity = 10,
+        .halfGravityThreshold = 5,
         .jumpSpeed = 10,
-        .minY = -40,
+        .minY = -50,
         .maxY = 100
     });
     world->emplace<Star::Camera>(entity, Star::Camera {

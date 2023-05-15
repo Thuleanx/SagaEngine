@@ -27,6 +27,7 @@ struct Player {
     float baseMoveSpeed;
     float baseAccelerationSpeed;
     float gravity;
+    float halfGravityThreshold;
     float coyoteTime;
     float jumpSpeed;
 

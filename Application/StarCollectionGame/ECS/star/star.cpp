@@ -26,7 +26,7 @@ void playerGrowth(std::shared_ptr<Saga::GameWorld> world, Saga::Entity player, S
     glm::vec3 prevScale = transform->transform->getScale();
     glm::vec3 currentScale = glm::vec3(playerInfo->sizeFactor());
 
-    camera->distance *= playerInfo->growthFactor * playerInfo->growthFactor;
+    camera->distance *= std::pow(playerInfo->growthFactor, 0.75);
     // push upward so we don't end up inside terrain
     transform->transform->setPos(transform->getPos() + (currentScale.y - prevScale.y) * glm::vec3(0,1,0));
     transform->transform->setScale(currentScale);
