@@ -25,7 +25,7 @@ namespace Saga::Systems::Graphics {
         float focusDistance = 5;
         float focusRange = 5;
 
-        glm::vec3 fogColor = glm::vec3(0.7);
+        glm::vec3 fogColor = glm::vec3(2,4,18)/255.f;
         float fogDensity = 0.05;
 
         float bloomIntensity = 1;

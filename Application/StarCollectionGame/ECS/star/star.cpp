@@ -1,5 +1,6 @@
 #include "star.h"
 #include "Application/StarCollectionGame/ECS/player/player.h"
+#include "Engine/Components/collider.h"
 #include "Engine/Components/transform.h"
 
 namespace Star::Systems {
@@ -14,20 +15,22 @@ void playerGrowth(std::shared_ptr<Saga::GameWorld> world, Saga::Entity player, S
 
     Player* playerInfo = world->getComponent<Player>(player);
     Saga::Transform* transform = world->getComponent<Saga::Transform>(player);
+    Saga::EllipsoidCollider* ellipsoidCollider = world->getComponent<Saga::EllipsoidCollider>(player);
+    Saga::CylinderCollider* cylinderCollider = world->getComponent<Saga::CylinderCollider>(player);
     Camera* camera = world->getComponent<Camera>(player);
-    if (!playerInfo) return;
-    if (!transform) return;
+    if (!playerInfo || !transform || !camera || !ellipsoidCollider || !cylinderCollider) return;
 
     playerInfo->numStarsCollected++;
 
     glm::vec3 prevScale = transform->transform->getScale();
     glm::vec3 currentScale = glm::vec3(playerInfo->sizeFactor());
 
-    camera->distance *= std::sqrt(playerInfo->growthFactor);
+    camera->distance *= playerInfo->growthFactor * playerInfo->growthFactor;
     // push upward so we don't end up inside terrain
     transform->transform->setPos(transform->getPos() + (currentScale.y - prevScale.y) * glm::vec3(0,1,0));
     transform->transform->setScale(currentScale);
 
+    ellipsoidCollider->radius = currentScale / 2.0f;
 }
 
 void animateStar(std::shared_ptr<Saga::GameWorld> world, float deltaTime, float time) {

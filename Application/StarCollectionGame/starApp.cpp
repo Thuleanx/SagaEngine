@@ -33,18 +33,30 @@ void StarApp::worldSetup() {
     createPlayer(mainWorld, glm::vec3(0,10,10));
     createDirectionalLight(mainWorld, glm::vec3(-1,-1,0), glm::vec3(0.5,0.5,1));
 
-    createStar(mainWorld, glm::vec3(0,5,0));
     createMainStage(mainWorld, glm::vec3(0,0,0));
 
     std::vector<glm::vec3> islandPos = {
         glm::vec3(30, 10, 30),
+        glm::vec3(20, 3, 15),
         glm::vec3(-30, 5, -40),
-        glm::vec3(12, 8, 20),
-        glm::vec3(20, -4, -20),
+        glm::vec3(-12, -2, -15),
+        glm::vec3(18, -4, -15),
+        glm::vec3(28, 2, 2),
+        glm::vec3(-25, 1, 2),
+        glm::vec3(0, -40, 0),
+        /* glm::vec3(-20, 0, 15), */
+    };
+
+    std::vector<glm::vec3> extraStars = {
+        glm::vec3(3,5,10),
+        glm::vec3(2,2,30),
+        glm::vec3(-19,2,29),
+        glm::vec3(20,10,-28),
+        glm::vec3(0,-5,0),
     };
 
     glm::vec3 starDisplacementMin = glm::vec3(-5, 2, -5);
-    glm::vec3 starDisplacementMax = glm::vec3(5, 10, 5);
+    glm::vec3 starDisplacementMax = glm::vec3(5, 5, 5);
 
     for (glm::vec3 pos : islandPos) {
         glm::vec3 displacement = glm::vec3(
@@ -57,13 +69,19 @@ void StarApp::worldSetup() {
         createSubStage(mainWorld, pos);
     }
 
+    for (glm::vec3 extraStar : extraStars) {
+        createStar(mainWorld, extraStar);
+    }
+
+    int maxStars = extraStars.size() + islandPos.size();
+
     mainWorld->getSystems().addStagedSystem(
-    Saga::System<float,float>([this](std::shared_ptr<Saga::GameWorld> world, float, float) -> void {
+    Saga::System<float,float>([this, maxStars](std::shared_ptr<Saga::GameWorld> world, float, float) -> void {
         std::optional<Player*> player;
         if ((player = world->viewAll<Player>()->any())) {
-            if (player.value()->numStarsCollected == 10) {
+            if (player.value()->numStarsCollected == maxStars) {
                 removeGameWorld(mainWorld);
-                endingWorldSetup();
+                worldSetup();
             }
         }
     }),

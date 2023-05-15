@@ -13,7 +13,7 @@ Saga::Entity createStar(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos) {
 
     world->emplace<Saga::Mesh>(entity, "Resources/Meshes/star.obj");
     /* world->emplace<Saga::Mesh>(entity, Saga::Mesh::StandardType::Sphere); */
-    world->emplace<Saga::Material>(entity, glm::vec3(1,1,0))->material->setEmission(glm::vec3(1,1,0) * 0.5f);
+    world->emplace<Saga::Material>(entity, glm::vec3(1,1,0))->material->setEmission(glm::vec3(1,1,0) * 1.0f);
     world->emplace<Saga::Transform>(entity)->transform->setPos(pos)->setScale(0.5);
 
     world->emplace<Saga::Collider>(entity);
