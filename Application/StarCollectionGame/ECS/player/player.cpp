@@ -4,6 +4,7 @@
 #include "Application/StarCollectionGame/config.h"
 #include "Engine/Components/camera.h"
 #include "Engine/Components/collider.h"
+#include "Engine/Components/drawSystemData.h"
 #include "Engine/Components/rigidbody.h"
 #include "Engine/Components/transform.h"
 #include "Engine/Gameworld/gameworld.h"
@@ -209,7 +210,12 @@ void cameraControllerUpdate(std::shared_ptr<Saga::GameWorld> world, float deltaT
 
         glm::vec3 pos = transform->getPos() + cameraController->shoulderOffset
                         - camera->camera->getLook() * cameraController->realDistance;
+
         camera->camera->setPos(pos);
+
+        auto drawSystemData = world->getComponent<Saga::DrawSystemData>(world->getMasterEntity());
+        if (drawSystemData)
+            drawSystemData->postProcessingSettings.focusDistance = cameraController->distance;
     }
 }
 
