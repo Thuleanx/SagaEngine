@@ -26,8 +26,8 @@ namespace Saga {
 	
 	template <typename Event, typename ...DataType>
 	EventMap::Id SystemManager::addEventSystem(Event event, Saga::Entity entity, 
-            std::shared_ptr<System<Saga::Entity, DataType...>> system) {
-		return eventSystemsMap[(int) event].addListener(entity, system);
+            System<Saga::Entity, DataType...> system) {
+		return eventSystemsMap[(int) event].addListener(entity, std::make_shared<System<Saga::Entity, DataType...>>(system));
 	}
 
 	template <typename Event>

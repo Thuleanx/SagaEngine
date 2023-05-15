@@ -5,7 +5,7 @@
 - [x] player jump
 - [ ] player tether
 - [ ] star appear
-- [ ] star collect on touch
+- [x] star collect on touch
 - [ ] player bigger on touch
 - [ ] on falling off => player teleports to the top
 - [ ] on everything collected, everything glows, and world resets.

@@ -8,8 +8,14 @@ namespace Saga {
 class GameWorld;
 }
 
+namespace Star {
+struct Collectible {
+};
+}
+
 namespace Star::Systems {
 
-void starCollect(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, Saga::Entity other);
+void starCollect(std::shared_ptr<Saga::GameWorld> world, Saga::Entity star, Saga::Entity other);
+void playerGrowth(std::shared_ptr<Saga::GameWorld> world, Saga::Entity player, Saga::Entity other);
 
 }

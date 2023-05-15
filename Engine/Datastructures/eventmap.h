@@ -111,12 +111,9 @@ namespace Saga {
 		 */
 		template <typename Event, typename ...DataType>
 		void invoke(Event event, DataType... args) {
-            STRACE("invoking %d", event);
             if (map.count((int) event))
                 for (auto& [key, callback] : map[(int) event]) {
-                    STRACE("attempt dynamic pointer cast");
                     auto ptr = std::dynamic_pointer_cast<Callback<DataType...>>(callback);
-                    STRACE("success");
                     ptr->evoke(args...);
                 }
 		}

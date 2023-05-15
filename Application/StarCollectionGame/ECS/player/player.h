@@ -23,14 +23,21 @@ struct PlayerInput {
 };
 
 struct Player {
-    float movementSpeed;
-    float accelerationSpeed;
+    float baseMoveSpeed;
+    float baseAccelerationSpeed;
     float gravity;
     float coyoteTime;
     float jumpSpeed;
 
     int numStarsCollected;
     float minY, maxY;
+
+    float growthFactor = 1.1;
+
+    // function of 
+    float sizeFactor();
+    float movementSpeed();
+    float accelerationSpeed();
 };
 
 struct Camera {

@@ -19,6 +19,18 @@ glm::vec2 PlayerInput::movement() {
     return movement;
 }
 
+float Player::movementSpeed() {
+    return sizeFactor() * baseMoveSpeed;
+}
+
+float Player::accelerationSpeed() {
+    return sizeFactor() * baseAccelerationSpeed;
+}
+
+float Player::sizeFactor() {
+    return std::pow(growthFactor, numStarsCollected);
+}
+
 }
 
 // INPUTS
@@ -87,7 +99,7 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
         glm::vec3 moveX = glm::vec3(-look.z, 0, look.x);
         glm::vec3 moveY = glm::vec3(look.x, 0, look.z);
 
-        glm::vec3 desiredVelocity = (moveX * movement.x + moveY * movement.y) * player->movementSpeed;
+        glm::vec3 desiredVelocity = (moveX * movement.x + moveY * movement.y) * player->movementSpeed();
 
         glm::vec3 currentVelocity = rigidBody->velocity;
         currentVelocity.y = 0;
@@ -97,7 +109,7 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
         if (!glm::length2(accelerationDir)) continue;
 
         accelerationDir = glm::normalize(accelerationDir);
-        glm::vec3 frameAcceleration = accelerationDir * deltaTime * player->accelerationSpeed;
+        glm::vec3 frameAcceleration = accelerationDir * deltaTime * player->accelerationSpeed();
 
         if (glm::length2(frameAcceleration) > glm::length2(velocityDiff))
             frameAcceleration = velocityDiff;

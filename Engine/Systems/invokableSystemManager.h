@@ -76,12 +76,9 @@ public:
 	 */
 	template <typename Event, typename ...DataType>
 	void deliverEvent(Event event, Entity entity, std::shared_ptr<GameWorld> gameWorld, DataType... args) {
-		if (eventSystemsMap.count((int) event)) {
-            eventSystemsMap[(int) event];
-            STRACE("testing event: %d, entity: %d", (int) event, (int) entity);
+		if (eventSystemsMap.count((int) event))
   	        eventSystemsMap[(int) event].invoke(entity,
                 gameWorld, entity, args...);
-        }
 	}
 
 	/**

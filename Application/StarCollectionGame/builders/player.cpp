@@ -1,19 +1,22 @@
 #include "player.h"
 #include "Application/StarCollectionGame/ECS/player/player.h"
+#include "Application/StarCollectionGame/ECS/star/star.h"
 #include "Engine/Components/camera.h"
 #include "Engine/Components/collider.h"
 #include "Engine/Components/material.h"
 #include "Engine/Components/mesh.h"
 #include "Engine/Components/rigidbody.h"
 #include "Engine/Components/transform.h"
+#include "Engine/Entity/entity.h"
+#include "Engine/Systems/events.h"
 
 namespace Star {
 
 void createPlayer(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, glm::vec3 pos) {
     world->emplace<Star::PlayerInput>(entity);
     world->emplace<Star::Player>(entity, Star::Player {
-        .movementSpeed = 5,
-        .accelerationSpeed = 20,
+        .baseMoveSpeed = 5,
+        .baseAccelerationSpeed = 20,
         .gravity = 10,
         .jumpSpeed = 10,
         .numStarsCollected = 0,
@@ -48,6 +51,9 @@ void createPlayer(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, g
 
     world->emplace<Saga::Material>(entity, glm::vec3(1,1,1));
     world->emplace<Saga::Mesh>(entity, Saga::Mesh::StandardType::Sphere);
+
+    world->getSystems().addEventSystem(Saga::EngineEvents::OnCollision, entity,
+        Saga::System<Saga::Entity, Saga::Entity>(Systems::playerGrowth));
 }
 
 }
