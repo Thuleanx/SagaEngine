@@ -3,6 +3,7 @@
 #include "Application/StarCollectionGame/builders/lighting.h"
 #include "Application/StarCollectionGame/builders/player.h"
 #include "Application/StarCollectionGame/builders/star.h"
+#include "Application/StarCollectionGame/builders/terrain.h"
 #include "Engine/Entity/entity.h"
 #include "Engine/Systems/audioSystem.h"
 #include "Engine/Systems/drawSystem.h"
@@ -35,6 +36,9 @@ void StarApp::worldSetup() {
 
     Saga::Entity mainLight = mainWorld->createEntity();
     createDirectionalLight(mainWorld, mainLight, glm::vec3(-1,-1,0), glm::vec3(0.5,0.5,1));
+
+    Saga::Entity star = mainWorld->createEntity();
+    createStar(mainWorld, star, glm::vec3(0,5,0));
 }
 
 }

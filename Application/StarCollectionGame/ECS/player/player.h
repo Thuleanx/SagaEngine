@@ -30,6 +30,7 @@ struct Player {
     float jumpSpeed;
 
     int numStarsCollected;
+    float minY, maxY;
 };
 
 struct Camera {

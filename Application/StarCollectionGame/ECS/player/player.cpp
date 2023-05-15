@@ -112,6 +112,9 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
 
     // jump + gravity
     for (auto &[entity, ellipsoidCollider, player, playerInput, rigidBody, transform] : group2) {
+        if (transform->getPos().y < player->minY)
+            transform->transform->setPos(glm::vec3(0,player->maxY,10));
+
         float raycastDepth = 0.01f;
         float skinWidth = 0.00f;
 

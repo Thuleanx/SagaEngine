@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 
 namespace Star {
-void createStar(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity);
 
-void createMainStage(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, glm::vec3 pos);
+void createStar(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, glm::vec3 pos);
+
 }

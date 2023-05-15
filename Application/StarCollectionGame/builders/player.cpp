@@ -16,7 +16,9 @@ void createPlayer(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, g
         .accelerationSpeed = 20,
         .gravity = 10,
         .jumpSpeed = 10,
-        .numStarsCollected = 0
+        .numStarsCollected = 0,
+        .minY = -40,
+        .maxY = 100
     });
     world->emplace<Star::Camera>(entity, Star::Camera {
         .focusOffset = glm::vec3(0, 1, 1),
@@ -40,6 +42,7 @@ void createPlayer(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, g
     world->emplace<Saga::Transform>(entity)->transform->setPos(pos);
 
     world->emplace<Saga::Collider>(entity);
+    world->emplace<Saga::CylinderCollider>(entity, 1, 0.5);
     world->emplace<Saga::EllipsoidCollider>(entity, glm::vec3(0.5f));
     world->emplace<Saga::RigidBody>(entity);
 
