@@ -1,6 +1,7 @@
 #include "player.h"
 #include "Application/StarCollectionGame/ECS/editor.h"
 #include "Application/StarCollectionGame/ECS/star/star.h"
+#include "Application/StarCollectionGame/config.h"
 #include "Engine/Components/camera.h"
 #include "Engine/Components/collider.h"
 #include "Engine/Components/rigidbody.h"
@@ -32,6 +33,10 @@ float Player::accelerationSpeed() {
 
 float Player::jumpSpeed() {
     return baseJumpSpeed * std::pow(growthValue, 0.5);
+}
+
+glm::vec3 Player::glowValue() {
+    return (starsCollected.size() / 20.0f) * palette.getColor(playerColorIndex);
 }
 
 }
@@ -141,7 +146,7 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
                         groundCastPosition, groundCastDir, ellipsoidCollider->radius);
 
         float gravity = 
-            (std::abs(rigidBody->velocity.y) < player->halfGravityThreshold ? player->gravity/2 : player->gravity) * std::pow(player->growthValue,1.5);
+            (std::abs(rigidBody->velocity.y) < player->halfGravityThreshold ? player->gravity/2 : player->gravity) * std::pow(player->growthValue,0.8);
 
         rigidBody->velocity.y -= deltaTime * gravity;
         if (grounded) player->coyoteTime = playerInput->inputBufferTime;
@@ -180,20 +185,19 @@ void cameraControllerScroll(std::shared_ptr<Saga::GameWorld> world, double xpos,
 
         glm::vec3 cachedCameraPos = camera->camera->getPos();
 
-        if (glm::dot(glm::normalize(camera->camera->getLook()), glm::vec3(0,-1,0)) > 0.8) {
+        float verticality = glm::abs(glm::dot(glm::normalize(camera->camera->getLook()), glm::vec3(0,-1,0)));
+
+        if (verticality > 0.8) {
             // rotate back if looking down / up too far
             camera->camera->rotate(-mouseDelta.y * cameraController->turnRate.y, glm::vec3(look.z, 0, -look.x));
             continue;
         }
 
-        glm::vec3 pos = transform->getPos() + cameraController->shoulderOffset
-                        - camera->camera->getLook() * cameraController->realDistance;
-        camera->camera->setPos(pos);
-        if (camera->camera->getPos().y + 1 < transform->getPos().y) {
-            camera->camera->rotate(-mouseDelta.y * cameraController->turnRate.y, glm::vec3(look.z, 0, -look.x));
-            camera->camera->setPos(cachedCameraPos);
-            continue;
-        }
+        /* if (camera->camera->getPos().y + 1 < transform->getPos().y) { */
+        /*     camera->camera->rotate(-mouseDelta.y * cameraController->turnRate.y, glm::vec3(look.z, 0, -look.x)); */
+        /*     camera->camera->setPos(cachedCameraPos); */
+        /*     continue; */
+        /* } */
     }
 }
 

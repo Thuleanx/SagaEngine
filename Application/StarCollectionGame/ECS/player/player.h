@@ -37,10 +37,12 @@ struct Player {
     float growthFactor = 1.1;
     float growthValue = 1;
 
+
     // function of 
     float movementSpeed();
     float jumpSpeed();
     float accelerationSpeed();
+    glm::vec3 glowValue();
 };
 
 struct Camera {
@@ -50,7 +52,8 @@ struct Camera {
 
     float realDistance;
     float distance;
-    float distanceSmoothing = 0.5;
+    float distanceSmoothing;
+    float positionalSmoothing;
 
     bool isInitialFrame = 1;
     glm::vec2 mousePosLastFrame;

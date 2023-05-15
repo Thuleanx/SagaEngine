@@ -41,6 +41,7 @@ namespace Saga::Math {
      */
     template<typename T>
     T damp(T a, T b, float smoothing, float dt) {
+        smoothing = std::clamp<float>(smoothing, 0, 1);
         float t = std::lerp(0, 1, 1 - std::pow(smoothing, dt));
         return t*b + (1 - t) * a;
     }

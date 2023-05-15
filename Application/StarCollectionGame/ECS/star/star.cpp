@@ -18,6 +18,7 @@ void playerGrowth(std::shared_ptr<Saga::GameWorld> world, Saga::Entity player, S
     Saga::EllipsoidCollider* ellipsoidCollider = world->getComponent<Saga::EllipsoidCollider>(player);
     Saga::CylinderCollider* cylinderCollider = world->getComponent<Saga::CylinderCollider>(player);
     Camera* camera = world->getComponent<Camera>(player);
+    Saga::Material* mat = world->getComponent<Saga::Material>(player);
     if (!playerInfo || !transform || !camera || !ellipsoidCollider || !cylinderCollider) return;
     if (playerInfo->starsCollected.count((int) other)) return;
 
@@ -36,6 +37,8 @@ void playerGrowth(std::shared_ptr<Saga::GameWorld> world, Saga::Entity player, S
     ellipsoidCollider->radius = currentScale / 2.0f;
     cylinderCollider->radius = currentScale.x/2.0f;
     cylinderCollider->height = currentScale.y;
+
+    mat->material->setEmission(playerInfo->glowValue());
 }
 
 void animateStar(std::shared_ptr<Saga::GameWorld> world, float deltaTime, float time) {

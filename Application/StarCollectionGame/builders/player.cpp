@@ -32,6 +32,7 @@ Saga::Entity createPlayer(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos)
         .realDistance = 3,
         .distance = 3,
         .distanceSmoothing = 0.6,
+        .positionalSmoothing = 0.1,
         .isInitialFrame = true
     });
 
