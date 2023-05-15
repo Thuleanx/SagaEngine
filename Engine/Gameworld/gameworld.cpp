@@ -23,8 +23,18 @@ Entity GameWorld::createEntity() {
 }
 
 void GameWorld::destroyEntity(Entity entity) {
-	for (auto & [key, container] : componentMap) 
-		container->onEntityDestroyed(entity);
+    entitiesToDestroy.insert(entity);
+}
+
+void GameWorld::entityCleanup() {
+    for (Entity entity : entitiesToDestroy) {
+        for (auto & [key, container] : componentMap) 
+            container->onEntityDestroyed(entity);
+        for (auto & [key, group] : componentGroups)
+            group->removeEntity(entity);
+        systemManager.onEntityDestroyed(entity);
+    }
+    entitiesToDestroy.clear();
 }
 
 }

@@ -76,8 +76,12 @@ public:
 	 */
 	template <typename Event, typename ...DataType>
 	void deliverEvent(Event event, Entity entity, std::shared_ptr<GameWorld> gameWorld, DataType... args) {
-		if (eventSystemsMap.count((int) event)) 
-  	    	eventSystemsMap[(int) event].invoke(entity, gameWorld, entity, args...);
+		if (eventSystemsMap.count((int) event)) {
+            eventSystemsMap[(int) event];
+            STRACE("testing event: %d, entity: %d", (int) event, (int) entity);
+  	        eventSystemsMap[(int) event].invoke(entity,
+                gameWorld, entity, args...);
+        }
 	}
 
 	/**
@@ -123,5 +127,12 @@ public:
 	 * @param height the height in pixels of the new window.
 	 */
 	void windowResizeEvent(std::shared_ptr<GameWorld> gameWorld, int width, int height);
+
+    /**
+     * @brief Called when an entity is destroyed.
+     * This disconnects all events that is related to this entity.
+     */
+    void onEntityDestroyed(Entity entity);
+
 };
 }

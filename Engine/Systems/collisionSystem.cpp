@@ -47,9 +47,9 @@ namespace Saga::Systems {
          * @param ellipsoidCollider the entity's ellipsoid collider.
          * @param rigidBody the entity's rigid body.
          * @param deltaTime time since last update call, in seconds.
-         * @return std::pair<glm::vec3, std::vector<Collision>> pair containing the ending position of the ellipsoid, as well as a list of all collisions that the ellipsoid triggered while moving.
+         * @return glm::vec3 the final position of the ellipsoid after collisions are taken into account.
          */
-        std::pair<glm::vec3, std::vector<Collision>> ellipsoidTriangleCollisions(std::shared_ptr<GameWorld> world, 
+        glm::vec3 ellipsoidTriangleCollisions(std::shared_ptr<GameWorld> world, 
                 Entity entityEllipsoid, Transform& transform, EllipsoidCollider& ellipsoidCollider, 
                 RigidBody& rigidBody, glm::vec3 move) {
 
@@ -57,8 +57,6 @@ namespace Saga::Systems {
             glm::vec3 nextPos = curPos + move;
 
             const int MAX_TRANSLATIONS = 10;
-
-            std::vector<Collision> collisions;
 
             std::optional<CylinderCollider*> cylinder;
 
@@ -76,7 +74,7 @@ namespace Saga::Systems {
                 std::optional<Collision> collision = getClosestCollision(world, &sysData, entityEllipsoid, ellipsoidCollider, cylinder, curPos, dir);
 
                 if (!collision) {
-                    return make_pair(nextPos, collisions);
+                    return nextPos;
                 } else {
                     /* STRACE("Found collision at: %f, with position %s and normal %s.", collision->t.value(), glm::to_string(collision->pos.value()).c_str(),  glm::to_string(collision->normal.value()).c_str()); */
 
@@ -92,11 +90,12 @@ namespace Saga::Systems {
                     // also adjust velocity so there wouldn't be any in the collision normal direction
                     rigidBody.velocity -= glm::dot(rigidBody.velocity, collision->normal) * collision->normal;
 
-                    collisions.push_back(collision.value());
+                    world->deliverEvent(EngineEvents::OnCollision, collision->entity0, collision->entity1);
+                    world->deliverEvent(EngineEvents::OnCollision, collision->entity1, collision->entity0);
                 }
             }
 
-            return make_pair(curPos, collisions);
+            return curPos;
         }
 
         /**
@@ -186,16 +185,11 @@ endCollisions: {}
      */
     void collisionSystem(std::shared_ptr<GameWorld> world, float deltaTime, float time) {
         for (auto &[entity, collider, ellipsoidCollider, rigidBody, transform] : *world->viewGroup<Collider, EllipsoidCollider, RigidBody, Transform>()) {
-            /* Saga::CylinderCollider* cylinder = world->getComponent<CylinderCollider>(entity); */
-            /* if (cylinder) removeFromUniformGrid(getSystemData(world), entity, *cylinder, *transform); */
 
-            std::pair<glm::vec3, std::vector<Collision>> res = ellipsoidTriangleCollisions(world, entity, *transform, 
+            glm::vec3 finalPos = ellipsoidTriangleCollisions(world, entity, *transform, 
                 *ellipsoidCollider, *rigidBody, deltaTime * rigidBody->velocity);
-            transform->transform->setPos(res.first);
-
-            /* if (cylinder) addToUniformGrid(getSystemData(world), entity, *cylinder, *transform); */
+            transform->transform->setPos(finalPos);
         }
-        /* cylinderCylinderCollision(world, deltaTime, time); */
     }
 
     /**

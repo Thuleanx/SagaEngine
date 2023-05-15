@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include "../Datastructures/typemap.h"
 #include "../Systems/invokableSystemManager.h"
@@ -52,7 +53,8 @@ public:
     Entity getMasterEntity();
 
 	/**
-	 * @brief Destoy an Entity object.
+	 * @brief Destoy an Entity object. This does not immediately destroy said entity, but wait until all systems are done with processing
+     * all entities to destroy it.
 	 * 
 	 * @param entity 
 	 */
@@ -190,10 +192,20 @@ protected:
 	Signature createSignature();
 
 	InvokableSystemManager systemManager; //!< where all the systems are stored and can potentially be invoked.
+
+    /**
+     * @brief Destroy / cleanup any entity. This should happen after every frame, so that all entities that
+     * is signaled to be destroyed will be cleaned up. This ensures entities are not deleted while a
+     * system is still processing it.
+     */
+    void entityCleanup();
 private:
 	TypeMap<std::shared_ptr<IComponentContainer>> componentMap; //!< map between Component and their containers
 	std::unordered_map<Entity, Signature> entitySignatures; //!< map between entities and their signature
 	std::unordered_map<Signature, std::shared_ptr<IComponentGroup>> componentGroups; //!< map between signature and ComponentGroup
+    std::unordered_set<Entity> entitiesToDestroy;
+
+
 };
 
 } // namespace Saga

@@ -15,8 +15,10 @@ void createStar(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, glm
 
     world->emplace<Saga::Collider>(entity);
     world->emplace<Saga::CylinderCollider>(entity, 1, 0.5); // height, radius
-
-    world->getSystems().addEventSystem(Saga::EngineEvents::OnCollision, entity, Saga::System<Saga::Entity, Saga::Systems::Collision>(Star::Systems::starCollect));
+                                                        
+    STRACE("entity: %d", entity);
+    world->getSystems().addEventSystem(Saga::EngineEvents::OnCollision, entity,
+        std::make_shared<Saga::System<Saga::Entity, Saga::Entity>>(Star::Systems::starCollect));
 }
 
 }

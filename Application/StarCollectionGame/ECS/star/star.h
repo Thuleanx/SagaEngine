@@ -10,6 +10,6 @@ class GameWorld;
 
 namespace Star::Systems {
 
-void starCollect(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, Saga::Systems::Collision collision);
+void starCollect(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, Saga::Entity other);
 
 }

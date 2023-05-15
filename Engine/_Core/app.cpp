@@ -88,14 +88,17 @@ void App::removeGameWorld(std::shared_ptr<GameWorld> world) {
 
 void App::AppExclusiveGameWorld::runStageStartup() {
 	systemManager.runStageStartup(shared_from_this()); 
+    entityCleanup();
 }
 
 void App::AppExclusiveGameWorld::runStageUpdate(float deltaTime, float time) {
 	systemManager.runStageUpdate(shared_from_this(), deltaTime, time);
+    entityCleanup();
 }
 
 void App::AppExclusiveGameWorld::runStageFixedUpdate(float deltaTime, float time) {
 	systemManager.runStageFixedUpdate(shared_from_this(), deltaTime, time);
+    entityCleanup();
 }
 
 void App::AppExclusiveGameWorld::runStageDraw() {

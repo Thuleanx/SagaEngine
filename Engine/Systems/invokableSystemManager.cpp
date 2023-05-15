@@ -38,4 +38,9 @@ void InvokableSystemManager::scrollEvent(std::shared_ptr<GameWorld> gameWorld, d
 void InvokableSystemManager::windowResizeEvent(std::shared_ptr<GameWorld> gameWorld, int width, int height) {
 	otherInputMap.invoke(OtherInput::WINDOW_RESIZE, gameWorld, width, height); }
 
+void InvokableSystemManager::onEntityDestroyed(Entity entity) {
+    for (auto& [event, eventMap] : eventSystemsMap)
+        eventMap.removeEvent(entity);
+}
+
 }
