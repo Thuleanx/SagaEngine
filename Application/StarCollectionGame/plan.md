@@ -7,15 +7,16 @@
 - [x] player bigger on touch
 - [x] on falling off => player teleports to the top
 - [x] on everything collected, world resets.
-- [ ] star flows in from offscreen
-- [ ] arena layout
+- [x] arena layout
+- [ ] player speed increases with growth
+- [ ] player jump increases with growth
 
 ## Polish
 - [ ] Camera zoom out but smoothed when player collects more things
 - [ ] Player grows smoothly after collecting more stars
 
 ## Art
-- [ ] color scheme
+- [x] color scheme
 - [x] skybox
 - [x] player model
     - [ ] player glow more with more things collected

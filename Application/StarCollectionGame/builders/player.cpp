@@ -19,9 +19,9 @@ Saga::Entity createPlayer(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos)
     world->emplace<Star::Player>(entity, Star::Player {
         .baseMoveSpeed = 5,
         .baseAccelerationSpeed = 20,
+        .baseJumpSpeed = 10,
         .gravity = 10,
         .halfGravityThreshold = 5,
-        .jumpSpeed = 10,
         .minY = -50,
         .maxY = 100
     });
@@ -29,7 +29,9 @@ Saga::Entity createPlayer(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos)
         .focusOffset = glm::vec3(0, 1, 1),
         .shoulderOffset = glm::vec3(0, .25f, 0),
         .turnRate= glm::vec2(1.00f/50, 1.00f/50),
+        .realDistance = 3,
         .distance = 3,
+        .distanceSmoothing = 0.6,
         .isInitialFrame = true
     });
 

@@ -26,19 +26,20 @@ struct PlayerInput {
 struct Player {
     float baseMoveSpeed;
     float baseAccelerationSpeed;
+    float baseJumpSpeed;
     float gravity;
     float halfGravityThreshold;
     float coyoteTime;
-    float jumpSpeed;
 
     std::unordered_set<int> starsCollected;
     float minY, maxY;
 
     float growthFactor = 1.1;
+    float growthValue = 1;
 
     // function of 
-    float sizeFactor();
     float movementSpeed();
+    float jumpSpeed();
     float accelerationSpeed();
 };
 
@@ -47,7 +48,9 @@ struct Camera {
     glm::vec3 shoulderOffset;
     glm::vec2 turnRate;
 
+    float realDistance;
     float distance;
+    float distanceSmoothing = 0.5;
 
     bool isInitialFrame = 1;
     glm::vec2 mousePosLastFrame;

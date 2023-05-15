@@ -364,7 +364,7 @@ void Graphics::drawUIText(std::shared_ptr<Font> font, std::string text, glm::vec
 }
 
 void Graphics::setGlobalData(glm::vec3 globalCoeffs, glm::vec3 ambientColor){
-    m_active_shader->setGlobalCoeffs(globalCoeffs, ambientColor );
+    m_active_shader->setGlobalCoeffs(globalCoeffs, ambientColor);
 }
 
 void Graphics::setLights(std::vector<std::shared_ptr<Light>> lights){

@@ -8,6 +8,7 @@
 #include "Engine/Gameworld/gameworld.h"
 #include "Engine/MetaSystems/physics.h"
 #include "Engine/Systems/systemManager.h"
+#include "Engine/Utils/math.h"
 #include "GLFW/glfw3.h"
 #include "glm/ext/quaternion_geometric.hpp"
 #include <glm/gtx/norm.hpp>
@@ -22,15 +23,15 @@ glm::vec2 PlayerInput::movement() {
 }
 
 float Player::movementSpeed() {
-    return sizeFactor() * baseMoveSpeed;
+    return std::pow(growthValue,1.2) * baseMoveSpeed;
 }
 
 float Player::accelerationSpeed() {
-    return sizeFactor() * baseAccelerationSpeed;
+    return std::pow(growthValue,1.2) * baseAccelerationSpeed;
 }
 
-float Player::sizeFactor() {
-    return std::pow(growthFactor, starsCollected.size());
+float Player::jumpSpeed() {
+    return baseJumpSpeed * std::pow(growthValue, 0.5);
 }
 
 }
@@ -139,13 +140,14 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
             Saga::Physics::ellipsoidCastAllTriangles(world,
                         groundCastPosition, groundCastDir, ellipsoidCollider->radius);
 
-        float gravity = std::abs(rigidBody->velocity.y) < player->halfGravityThreshold ? player->gravity/2 : player->gravity;
+        float gravity = 
+            (std::abs(rigidBody->velocity.y) < player->halfGravityThreshold ? player->gravity/2 : player->gravity) * std::pow(player->growthValue,1.5);
 
         rigidBody->velocity.y -= deltaTime * gravity;
         if (grounded) player->coyoteTime = playerInput->inputBufferTime;
 
         if (player->coyoteTime > 0 && playerInput->jump > 0) {
-            rigidBody->velocity.y = player->jumpSpeed;
+            rigidBody->velocity.y = player->jumpSpeed();
             player->coyoteTime = 0;
             playerInput->jump = 0;
         }
@@ -185,7 +187,7 @@ void cameraControllerScroll(std::shared_ptr<Saga::GameWorld> world, double xpos,
         }
 
         glm::vec3 pos = transform->getPos() + cameraController->shoulderOffset
-                        - camera->camera->getLook() * cameraController->distance;
+                        - camera->camera->getLook() * cameraController->realDistance;
         camera->camera->setPos(pos);
         if (camera->camera->getPos().y + 1 < transform->getPos().y) {
             camera->camera->rotate(-mouseDelta.y * cameraController->turnRate.y, glm::vec3(look.z, 0, -look.x));
@@ -198,8 +200,11 @@ void cameraControllerScroll(std::shared_ptr<Saga::GameWorld> world, double xpos,
 void cameraControllerUpdate(std::shared_ptr<Saga::GameWorld> world, float deltaTime, float time) {
     auto group = *world->viewGroup<Saga::Camera, Star::Camera, Saga::Transform>();
     for (auto &[entity, camera, cameraController, transform] : group) {
+        cameraController->realDistance = Saga::Math::damp(cameraController->realDistance, 
+            cameraController->distance, cameraController->distanceSmoothing, deltaTime);
+
         glm::vec3 pos = transform->getPos() + cameraController->shoulderOffset
-                        - camera->camera->getLook() * cameraController->distance;
+                        - camera->camera->getLook() * cameraController->realDistance;
         camera->camera->setPos(pos);
     }
 }

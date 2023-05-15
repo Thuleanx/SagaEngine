@@ -23,15 +23,19 @@ void playerGrowth(std::shared_ptr<Saga::GameWorld> world, Saga::Entity player, S
 
     playerInfo->starsCollected.insert((int) other);
 
-    glm::vec3 prevScale = transform->transform->getScale();
-    glm::vec3 currentScale = glm::vec3(playerInfo->sizeFactor());
+    playerInfo->growthValue = std::pow(playerInfo->growthFactor, playerInfo->starsCollected.size());
 
-    camera->distance *= std::pow(playerInfo->growthFactor, 0.75);
+    glm::vec3 prevScale = transform->transform->getScale();
+    glm::vec3 currentScale = glm::vec3(playerInfo->growthValue);
+
+    camera->distance *= playerInfo->growthFactor;
     // push upward so we don't end up inside terrain
     transform->transform->setPos(transform->getPos() + (currentScale.y - prevScale.y) * glm::vec3(0,1,0));
     transform->transform->setScale(currentScale);
 
     ellipsoidCollider->radius = currentScale / 2.0f;
+    cylinderCollider->radius = currentScale.x/2.0f;
+    cylinderCollider->height = currentScale.y;
 }
 
 void animateStar(std::shared_ptr<Saga::GameWorld> world, float deltaTime, float time) {

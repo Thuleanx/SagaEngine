@@ -46,22 +46,22 @@ void StarApp::worldSetup() {
     createMainStage(mainWorld, glm::vec3(0,0,0));
 
     std::vector<glm::vec3> islandPos = {
-        glm::vec3(30, 10, 30),
+        glm::vec3(25, 10, 25),
         glm::vec3(20, 3, 15),
-        glm::vec3(-30, 5, -40),
+        glm::vec3(-25, 5, -35),
         glm::vec3(-12, -2, -15),
         glm::vec3(18, -4, -15),
         glm::vec3(28, 2, 2),
         glm::vec3(-25, 1, 2),
         glm::vec3(0, -40, 0),
-        /* glm::vec3(-20, 0, 15), */
+        glm::vec3(0, 0.5, 20),
     };
 
     std::vector<glm::vec3> extraStars = {
         glm::vec3(3,5,10),
-        glm::vec3(2,2,30),
-        glm::vec3(-19,2,29),
-        glm::vec3(20,10,-28),
+        glm::vec3(2,2,22),
+        glm::vec3(-19,2,29)/2.0f,
+        glm::vec3(20,10,-28)/2.0f,
         glm::vec3(0,-5,0),
     };
 
