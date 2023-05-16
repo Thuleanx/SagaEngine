@@ -3,6 +3,7 @@
 #include "Application/StarCollectionGame/config.h"
 #include "Engine/Components/Particles/particleCollection.h"
 #include "Engine/Components/Particles/particleEmitter.h"
+#include "Engine/Components/audioemitter.h"
 #include "Engine/Components/collider.h"
 #include "Engine/Components/material.h"
 #include "Engine/Components/mesh.h"
@@ -36,6 +37,7 @@ Saga::Entity createStar(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos) {
     world->getSystems().addEventSystem(Saga::EngineEvents::OnCollision, entity,
         Saga::System<Saga::Entity, Saga::Entity>(Star::Systems::starCollect));
 
+    // effect
     GraphicsEngine::Global::graphics.addShader("starCollection",
     {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER},
     {"Resources/Shaders/particles/vertex.vert", "Resources/Shaders/particles/particleTextured.frag"});
@@ -67,7 +69,6 @@ Saga::Entity createStar(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos) {
 
     world->emplace<Saga::ParticleEmitter>(effect, emitter);
     world->emplace<Saga::Transform>(effect);
-
 
     return entity;
 }

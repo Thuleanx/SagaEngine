@@ -2,6 +2,7 @@
 #include "Application/StarCollectionGame/ECS/editor.h"
 #include "Application/StarCollectionGame/ECS/star/star.h"
 #include "Application/StarCollectionGame/config.h"
+#include "Engine/Audio/audioEngine.h"
 #include "Engine/Components/camera.h"
 #include "Engine/Components/collider.h"
 #include "Engine/Components/drawSystemData.h"
@@ -33,7 +34,7 @@ float Player::accelerationSpeed() {
 }
 
 float Player::jumpSpeed() {
-    return baseJumpSpeed * std::pow(growthValue, 0.5);
+    return baseJumpSpeed * std::pow(growthValue, 0.7);
 }
 
 glm::vec3 Player::glowValue() {
@@ -147,7 +148,7 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
                         groundCastPosition, groundCastDir, ellipsoidCollider->radius);
 
         float gravity = 
-            (std::abs(rigidBody->velocity.y) < player->halfGravityThreshold ? player->gravity/2 : player->gravity) * std::pow(player->growthValue,0.8);
+            (std::abs(rigidBody->velocity.y) < player->halfGravityThreshold ? player->gravity/2 : player->gravity) * std::pow(player->growthValue,0.5);
 
         rigidBody->velocity.y -= deltaTime * gravity;
         if (grounded) player->coyoteTime = playerInput->inputBufferTime;
@@ -164,6 +165,7 @@ void playerController(std::shared_ptr<Saga::GameWorld> world, float deltaTime, f
         playerInput->jump -= deltaTime;
         playerInput->jumpRelease -= deltaTime;
     }
+
 }
 
 void cameraControllerScroll(std::shared_ptr<Saga::GameWorld> world, double xpos, double ypos) {

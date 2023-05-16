@@ -4,6 +4,7 @@
 #include "../Components/camera.h"
 #include "../Components/rigidbody.h"
 #include "../GameWorld/gameworld.h"
+#include "glm/gtx/string_cast.hpp"
 
 namespace Saga::Systems {
 	void audioEmitterAwake(std::shared_ptr<GameWorld> world) {
@@ -52,31 +53,21 @@ namespace Saga::Systems {
 	}
 
 	void audioCameraPositioning3D(std::shared_ptr<GameWorld> world) {
-		// if camera exists
-		if (world->viewAll<Camera>()->begin() != world->viewAll<Camera>()->end()) {
-			Saga::Camera& camera = *(world->viewAll<Camera>()->begin());
-
+        for (auto &[entity, audioListener, transform] : *world->viewGroup<AudioListener, Transform>()) {
 			glm::vec3 velocity(0,0,0);
 
-			Entity cameraEntity = world->getEntity(&camera);
-
-			// use velocity if rigidbody exists
-			if (world->hasComponent<RigidBody>(cameraEntity)) {
-				auto rigidbody = world->getComponent<RigidBody>( cameraEntity );
-				velocity = rigidbody->velocity;
-			}
-
 			AudioEngine::setListenerData(AudioEngine::EventAttributes(
-				camera.camera->getPos(),
+                transform->getPos(),
 				velocity,
-				camera.camera->getLook(),
-				camera.camera->getUp()
+				transform->getForward(),
+                transform->getUp()
 			));
-		}
+        }
 	}
 
 	void registerAudioSystem(std::shared_ptr<GameWorld> world) {
 		world->registerGroup<AudioEmitter, Transform>();
+		world->registerGroup<AudioListener, Transform>();
 	}
 
 	void setupAudioSystem(std::shared_ptr<GameWorld> world) {

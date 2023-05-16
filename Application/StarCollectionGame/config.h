@@ -8,6 +8,9 @@ namespace Star::FMODSettings {
 const std::string bankName = "FMOD/Saga/Build/Desktop/Master.bank";
 const std::string stringBankName = "FMOD/Saga/Build/Desktop/Master.strings.bank";
 
+const std::string music = "event:/Music";
+const std::string starCollect = "event:/Star Collect";
+
 };
 
 namespace Star {

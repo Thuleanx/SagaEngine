@@ -17,8 +17,8 @@ namespace Saga::Systems::Graphics {
         std::string blurShader = "gaussianBlur";
         std::string postProcessingColors = "postProcessingColors";
 
-        int dofBlurIterationsFront = 2;
-        int dofBlurIterationsBack = 2;
+        int dofBlurIterationsFront = 1;
+        int dofBlurIterationsBack = 1;
         int dofNearCocExpand = 20;
         int dofBlurNearCocIterations = 1;
 
@@ -26,7 +26,7 @@ namespace Saga::Systems::Graphics {
         float focusRange = 5;
 
         glm::vec3 fogColor = glm::vec3(2,4,18)/255.f;
-        float fogDensity = 0.05;
+        float fogDensity = 0.03;
 
         float bloomIntensity = 1;
         int bloomBlurIterations = 5;
@@ -41,7 +41,7 @@ namespace Saga::Systems::Graphics {
         float saturation = 1;
 
         // for tonemapping
-        float gamma = 2.2;
+        float gamma = 1.8;
     };
 
     void drawPostProcessingGizmos(std::shared_ptr<Saga::GameWorld> world);

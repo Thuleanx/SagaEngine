@@ -19,11 +19,15 @@ namespace Star {
 Saga::Palette palette = Saga::Palette();
 
 StarApp::StarApp() {
+    Saga::AudioEngine::loadBank(FMODSettings::bankName);
+    Saga::AudioEngine::loadBank(FMODSettings::stringBankName);
     palette = Saga::Palette(paletteFilename);
     worldSetup();
 }
 
 StarApp::~StarApp() {
+    Saga::AudioEngine::unloadBank(FMODSettings::bankName);
+    Saga::AudioEngine::unloadBank(FMODSettings::stringBankName);
 }
 
 void StarApp::worldSetup() {
@@ -96,6 +100,13 @@ void StarApp::worldSetup() {
         }
     }),
     Saga::SystemManager::Stage::LateUpdate);
+
+    // create backing track
+    {
+        Saga::Entity music = mainWorld->createEntity();
+        mainWorld->emplace<Saga::AudioEmitter>(music, "event:/Music", true);
+        mainWorld->emplace<Saga::Transform>(music);
+    }
 }
 
 void StarApp::endingWorldSetup() {

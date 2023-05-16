@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.01.00">
+	<object class="AudioFile" id="{3b4dfbd3-08aa-4aef-a174-4f4bda004701}">
+		<property name="assetPath">
+			<value>411577__inspectorj__ambience-wind-chimes-b.wav</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>30.139501133786847</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{398c937b-f65d-42e0-bc73-fb857184c7a3}</destination>
+		</relationship>
+	</object>
+</objects>

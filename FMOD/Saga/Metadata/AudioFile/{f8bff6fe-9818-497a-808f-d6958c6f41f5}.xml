@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.01.00">
+	<object class="AudioFile" id="{f8bff6fe-9818-497a-808f-d6958c6f41f5}">
+		<property name="assetPath">
+			<value>401631__studiomandragore__etoile.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>3.308049886621315</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{398c937b-f65d-42e0-bc73-fb857184c7a3}</destination>
+		</relationship>
+	</object>
+</objects>

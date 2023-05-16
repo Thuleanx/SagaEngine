@@ -1,6 +1,8 @@
 #include "star.h"
 #include "Application/StarCollectionGame/ECS/player/player.h"
+#include "Application/StarCollectionGame/config.h"
 #include "Engine/Components/Particles/particleEmitter.h"
+#include "Engine/Components/audioemitter.h"
 #include "Engine/Components/collider.h"
 #include "Engine/Components/mesh.h"
 #include "Engine/Components/transform.h"
@@ -20,7 +22,7 @@ void starCollect(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, Sa
 
     particleEmitter->play();
     particleTransform->transform->setPos(transform->getPos());
-
+    Saga::AudioEngine::playEvent(FMODSettings::starCollect);
 }
 
 void playerGrowth(std::shared_ptr<Saga::GameWorld> world, Saga::Entity player, Saga::Entity other) {

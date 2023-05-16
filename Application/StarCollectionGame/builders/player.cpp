@@ -2,6 +2,7 @@
 #include "Application/StarCollectionGame/ECS/player/player.h"
 #include "Application/StarCollectionGame/ECS/star/star.h"
 #include "Application/StarCollectionGame/config.h"
+#include "Engine/Components/audioemitter.h"
 #include "Engine/Components/camera.h"
 #include "Engine/Components/collider.h"
 #include "Engine/Components/material.h"
@@ -35,6 +36,8 @@ Saga::Entity createPlayer(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos)
         .positionalSmoothing = 0.1,
         .isInitialFrame = true
     });
+
+    world->emplace<Saga::AudioListener>(entity);
 
     std::shared_ptr<GraphicsEngine::Camera> defaultCamera 
         = std::make_shared<GraphicsEngine::Camera>();

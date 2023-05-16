@@ -34,6 +34,9 @@ struct AudioEmitter {
 	AudioEmitter(std::string eventName, bool playOnAwake = false, bool preload = false);
 };
 
+struct AudioListener {
+};
+
 
 
 }; // namespace Saga

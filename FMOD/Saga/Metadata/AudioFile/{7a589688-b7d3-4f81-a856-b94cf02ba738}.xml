@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.01.00">
+	<object class="AudioFile" id="{7a589688-b7d3-4f81-a856-b94cf02ba738}">
+		<property name="assetPath">
+			<value>564911__x3nus__night-across-the-stars-20.wav</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>26.399999999999999</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{398c937b-f65d-42e0-bc73-fb857184c7a3}</destination>
+		</relationship>
+	</object>
+</objects>
