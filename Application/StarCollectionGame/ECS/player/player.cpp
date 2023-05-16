@@ -38,7 +38,7 @@ float Player::jumpSpeed() {
 }
 
 glm::vec3 Player::glowValue() {
-    return (starsCollected.size() / 20.0f) * palette.getColor(playerColorIndex);
+    return (starsCollected.size() / 20.0f) * palette.getColor(playerColorIndex) * 2.0f;
 }
 
 }

@@ -60,7 +60,7 @@ Saga::Entity createStar(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos) {
         .velocity = glm::vec3(0, 2, 0),
         .velocityRandomness = glm::vec3(1, 1, 1) * 40.f,
         .gravity = 1,
-        .color = glm::vec4(starColor,1),
+        .color = glm::vec4(starColor * 3.0f,1),
         .size = 1,
         .sizeVariation = 0.5,
         .rotation = 0.0f,
