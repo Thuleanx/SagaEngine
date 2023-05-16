@@ -43,6 +43,8 @@ void ParticleCollection::emit(ParticleTemplate &particleTemplate) {
         particle.size = std::max(particle.size + sizeVariation, 0.0f);
     }
 
+    particle.gravity = particleTemplate.gravity;
+
     numberOfLiveParticles = std::min<int>(numberOfLiveParticles+1, pool.size());
     overrideElement = nextIndex(overrideElement);
     /* STRACE("particle emitted [%d %d] %d", leftOfPool, rightOfPool, pool.size()); */

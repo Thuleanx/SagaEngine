@@ -56,15 +56,16 @@ Saga::Entity createStar(std::shared_ptr<Saga::GameWorld> world, glm::vec3 pos) {
     emitter.particleTemplate = Saga::ParticleTemplate {
         .position = glm::vec3(0,0,0),
         .velocity = glm::vec3(0, 2, 0),
-        .velocityRandomness = glm::vec3(10, 10, 10),
+        .velocityRandomness = glm::vec3(1, 1, 1) * 40.f,
+        .gravity = 1,
         .color = glm::vec4(starColor,1),
         .size = 1,
         .sizeVariation = 0.5,
         .rotation = 0.0f,
-        .lifetime = 0.5f
+        .lifetime = 5.0f
     };
 
-    world->emplace<Saga::ParticleEmitter>(effect, emitter)->play();
+    world->emplace<Saga::ParticleEmitter>(effect, emitter);
     world->emplace<Saga::Transform>(effect);
 
 

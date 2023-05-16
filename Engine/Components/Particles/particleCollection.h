@@ -25,6 +25,8 @@ struct ParticleTemplate {
     
     glm::vec3 velocity = glm::vec3(0,0,0); //!< world space velocity of particle.
     std::optional<glm::vec3> velocityRandomness; // randomness to velocity applied to every spawn.
+
+    float gravity;
     
     glm::vec4 color;      //!< color of the particle. (1,1,1,1) is full white.
 
@@ -106,6 +108,7 @@ private:
     struct Particle {
         glm::vec3 position, //!< world space position of particle.
             velocity; //!< world space velocity of particle.
+        float gravity;
 
         glm::vec4 color; //!< color of the particle.
 

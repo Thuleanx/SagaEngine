@@ -25,6 +25,7 @@ void particleSystemSimulationUpdate(std::shared_ptr<GameWorld> world, float delt
             Saga::ParticleCollection::Particle& particle = collection.pool[poolIndex];
 
             // standard eulerian simulation
+            particle.velocity += glm::vec3(0,-1,0) * deltaTime * particle.gravity;
             particle.position += particle.velocity * deltaTime;
             particle.lifetimeRemaining -= deltaTime;
             if (particle.lifetimeRemaining <= 0) {
