@@ -15,6 +15,8 @@ struct Comet {
     float rotationSpeed;
     float boppingSpeed;
     float boppingDistance;
+
+    Saga::Entity effect;
 };
 }
 

@@ -1,13 +1,26 @@
 #include "star.h"
 #include "Application/StarCollectionGame/ECS/player/player.h"
+#include "Engine/Components/Particles/particleEmitter.h"
 #include "Engine/Components/collider.h"
+#include "Engine/Components/mesh.h"
 #include "Engine/Components/transform.h"
 
 namespace Star::Systems {
 
 void starCollect(std::shared_ptr<Saga::GameWorld> world, Saga::Entity entity, Saga::Entity other) {
-    STRACE("What is happening");
     world->destroyEntity(entity);
+
+    auto comet = world->getComponent<Comet>(entity);
+    auto transform = world->getComponent<Saga::Transform>(entity);
+    if (!comet || !transform) return;
+
+    auto particleEmitter = world->getComponent<Saga::ParticleEmitter>(comet->effect);
+    auto particleTransform = world->getComponent<Saga::Transform>(comet->effect);
+    if (!particleTransform || !particleEmitter) return;
+
+    particleEmitter->play();
+    particleTransform->transform->setPos(transform->getPos());
+
 }
 
 void playerGrowth(std::shared_ptr<Saga::GameWorld> world, Saga::Entity player, Saga::Entity other) {

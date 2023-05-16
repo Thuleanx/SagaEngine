@@ -68,7 +68,7 @@ void GameWorld::removeComponent(const Entity entity) {
 
 	// update signature of the entity
 	signature[componentId] = false;
-	return viewAll<Component>(entity).remove(entity);
+    return viewAll<Component>()->removeComponent(entity);
 }
 
 template<typename... Component>

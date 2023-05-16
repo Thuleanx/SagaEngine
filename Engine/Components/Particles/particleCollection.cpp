@@ -1,26 +1,29 @@
 #include "particleCollection.h"
 #include "Engine/Utils/random.h"
 #include "Engine/_Core/logger.h"
+#include "Graphics/GLWrappers/shader.h"
 #include "Graphics/GLWrappers/texture.h"
 #include <glm/gtx/norm.hpp>
 
 namespace Saga {
 ParticleCollection::ParticleCollection() {}
 
-ParticleCollection::ParticleCollection(int maxParticles, BlendMode mode, std::shared_ptr<GraphicsEngine::Texture> mainTex) :
-    pool(maxParticles), mainTex(mainTex), blendMode(mode) { }
+ParticleCollection::ParticleCollection(int maxParticles, BlendMode mode, std::shared_ptr<GraphicsEngine::Shader> shader, std::shared_ptr<GraphicsEngine::Texture> mainTex) :
+    pool(maxParticles), mainTex(mainTex), blendMode(mode), shader(shader), numberOfLiveParticles(0) { 
+
+}
 
 int ParticleCollection::nextIndex(int index) {
-    return index+1 == pool.size() ? 0 : index+1;
+    return index+1 < pool.size() ? index+1 : 0;
 }
 
 void ParticleCollection::emit(ParticleTemplate &particleTemplate) {
     int currentPos = numberOfLiveParticles == pool.size() ? overrideElement : numberOfLiveParticles;
 
+
     // we take over the position of the first particle
     Particle& particle = pool[currentPos];
     particle.position = particleTemplate.position;
-
     particle.velocity = particleTemplate.velocity;
 
     if (particleTemplate.velocityRandomness) {
@@ -40,7 +43,7 @@ void ParticleCollection::emit(ParticleTemplate &particleTemplate) {
         particle.size = std::max(particle.size + sizeVariation, 0.0f);
     }
 
-    numberOfLiveParticles = std::max<int>(numberOfLiveParticles+1, pool.size());
+    numberOfLiveParticles = std::min<int>(numberOfLiveParticles+1, pool.size());
     overrideElement = nextIndex(overrideElement);
     /* STRACE("particle emitted [%d %d] %d", leftOfPool, rightOfPool, pool.size()); */
 }

@@ -38,28 +38,35 @@ void particleSystemSimulationUpdate(std::shared_ptr<GameWorld> world, float delt
 void particleSystemEmissionUpdate(std::shared_ptr<GameWorld> world, float deltaTime, float time) {
     auto group = *world->viewGroup<Saga::ParticleCollection, Saga::ParticleEmitter, Saga::Transform>();
     for (auto [entity, collection, emitter, transform] : group) {
-        bool hasTranslated = false;
+        if (emitter->isPlaying()) {
+            bool hasTranslated = false;
 
-        int emissionCount = (time - emitter->timeLastEmitted) * emitter->emissionRate;
-        if (emissionCount) {
-            hasTranslated = true;
-            emitter->timeLastEmitted += emissionCount * 1.0f / emitter->emissionRate;
-            // here we want to emit at the particle emitter's position. Hence
-            // we are adding the transform position to the particle template
-            // before emitting
-            emitter->particleTemplate.position += transform->getPos();
+            int rawEmissions = (time - emitter->timeLastEmitted) * emitter->emissionRate;
+            if (rawEmissions) emitter->timeLastEmitted += rawEmissions * 1.0f / emitter->emissionRate;
 
-            // we need to sort the collection so that we don't have 
-            collection->sortByLifetime();
-            collection->resetOverrideElement();
+            int emissionCount = rawEmissions + (emitter->shouldBurst ? emitter->burst : 0);
+            
+            if (emissionCount) {
+                hasTranslated = true;
+                // here we want to emit at the particle emitter's position. Hence
+                // we are adding the transform position to the particle template
+                // before emitting
+                emitter->particleTemplate.position += transform->getPos();
+
+                // we need to sort the collection so that we know which to override
+                collection->sortByLifetime();
+                collection->resetOverrideElement();
+            }
+
+            while (emissionCount --> 0) collection->emit(emitter->particleTemplate);
+
+            // we undo the add so that the emitter's particleTemplate position
+            // is accurate. If we want to be numerically precise, we could have
+            // cached the position to store back later, but who cares.
+            if (hasTranslated) emitter->particleTemplate.position -= transform->getPos();
+
+            emitter->shouldBurst = false;
         }
-
-        while (emissionCount --> 0) collection->emit(emitter->particleTemplate);
-
-        // we undo the add so that the emitter's particleTemplate position
-        // is accurate. If we want to be numerically precise, we could have
-        // cached the position to store back later, but who cares.
-        if (hasTranslated) emitter->particleTemplate.position -= transform->getPos();
     }
 }
 

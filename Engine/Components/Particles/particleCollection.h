@@ -70,7 +70,8 @@ public:
      * @note If the simulation ever exceed this number of particles,
      * the older particles will be deleted when creating more particles.
      */
-    ParticleCollection(int maxParticles, BlendMode blendMode = NORMAL, std::shared_ptr<GraphicsEngine::Texture> mainTex = nullptr);
+    ParticleCollection(int maxParticles, BlendMode blendMode = NORMAL, std::shared_ptr<GraphicsEngine::Shader> shader = nullptr,
+        std::shared_ptr<GraphicsEngine::Texture> mainTex = nullptr);
 
     /**
      * @brief Emit a single particle.

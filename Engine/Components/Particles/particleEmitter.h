@@ -18,10 +18,17 @@ public:
      */
     ParticleEmitter(float emissionRate, const ParticleTemplate& particleTemplate);
 
+    int burst;
     float emissionRate; //!< in particles per second.
     ParticleTemplate particleTemplate; //!< template for a particle.
+    
+    bool isPlaying();
+    void play();
+    void stop();
 private:
     float timeLastEmitted = 0; //!< time particle last emitted in seconds.
+    bool playing = 0;
+    bool shouldBurst = 0;
 
     friend void Systems::particleSystemEmissionUpdate(std::shared_ptr<GameWorld> world, float deltaTime, float time);
 };

@@ -165,7 +165,7 @@ namespace Platformer {
                 .lifetime = 2,
             });
             auto mainTex = std::make_shared<GraphicsEngine::Texture>("Resources/Images/particles/whitePuff00.png");
-            mainWorld->emplace<Saga::ParticleCollection>(emitter, 100, Saga::ParticleCollection::ADDITIVE, mainTex);
+            mainWorld->emplace<Saga::ParticleCollection>(emitter, 100, Saga::ParticleCollection::ADDITIVE, nullptr, mainTex);
             mainWorld->emplace<Saga::Transform>(emitter);
             return emitter;
         };
