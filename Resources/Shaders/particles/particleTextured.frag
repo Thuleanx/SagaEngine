@@ -8,4 +8,5 @@ uniform vec4 color;
 
 void main() {
     fragColor = color * texture(MainTex, uv);
+    if (fragColor.a < 0.7) discard;
 }

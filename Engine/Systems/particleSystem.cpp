@@ -74,7 +74,7 @@ void particleSystemEmissionUpdate(std::shared_ptr<GameWorld> world, float deltaT
 void particleSystemOnRender(std::shared_ptr<GameWorld> world, Saga::Camera& camera) {
     // switch to additive blend mode
     glDisable(GL_CULL_FACE);
-    glDepthMask(false);
+    /* glDepthMask(false); */
     glEnable(GL_BLEND);
     for (Saga::ParticleCollection& collection : *world->viewAll<ParticleCollection>()) {
         // additive blend :>
@@ -146,7 +146,7 @@ void particleSystemOnRender(std::shared_ptr<GameWorld> world, Saga::Camera& came
         collection.shader->unbind();
     }
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDepthMask(true);
+    /* glDepthMask(true); */
     glEnable(GL_CULL_FACE);
     glDisable(GL_BLEND);
 }
